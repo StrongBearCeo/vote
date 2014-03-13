@@ -1,0 +1,39 @@
+<form class="formBox" action="/login/local" method="POST">
+    <div class="formName">Login</div>
+    <%- processNotifications(notifications, "login") %>
+    <div class="formRow">
+    	<label>username</label>
+    	<input type="text" name="username" />
+    </div>
+    <div class="formRow">
+    	<label>password</label>
+		<input type="password" name="password" />
+    </div>
+    <div class="formRow">
+    	<input type="submit" value="Login" />
+    </div>
+</form>
+<form class="formBox signupForm" action="/signup" method="POST">
+	<div class="formName">Create Account</div>
+	<%- processNotifications(notifications, "signup") %>
+	<div class="formRow">
+    	<label>username</label>
+    	<input type="text" name="username" />
+    </div>
+    <div class="formRow">
+    	<label>password</label>
+    	<input type="password" name="password" />
+    </div>
+    <div class="formRow">
+    	<label>confirm password</label>
+  		<input type="password" name="confirmPassword" />
+  	</div>
+    <div class="formRow">
+    	<label>email</label>
+    	<input type="text" name="email" />
+    </div>
+    <div class="formRow">
+    	<input type="submit" value="Signup" />
+    </div>
+</form>
+<div class="clear"></div>

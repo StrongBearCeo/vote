@@ -1,0 +1,389 @@
+<%= user.username %>
+<div id="btnDebate" class="btn" style="display:none">Join Debate</div>
+<div class="clear"></div>
+<div id="flashContainer" style="width:640px; height:530px;">
+	<div id="flashInterface"></div>
+</div>
+<div id="chatPanel">
+	<div id="messagesPanel">
+		<div id="messagesContainer" class="nano">
+			<div id="messages" class="content">
+			</div>
+		</div>
+		<div id="inputContainer">
+			<input type="text" id="inputMessage" />
+			<input type="submit" id="sendBtn" value="Send"/>
+		</div>
+	</div>
+	<div id="usersPanel">
+		<div id="usersContainer" class="nano">
+			<div id="usersList" class="content">
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+
+	_.findIndex = function(obj, iterator, context) {
+	    var result = -1;
+	    _.any(obj, function(value, index, list) {
+	        if(iterator.call(context, value, index, list)) {
+	            result = index;
+	            return true;
+	        }
+	    });
+	    return result;
+	}
+
+	_.findIndexWhere = function(obj, attrs) {
+	    return _.findIndex(obj, function(value) {
+			for (var key in attrs) {
+				if (attrs[key] !== value[key]) return false;
+			}
+			return true;
+	    })
+	}
+
+
+	var chat = {
+		sURL: "",
+		socket: null,
+		bFlashLoaded:false,
+		bFlashInit: false,
+		bFlashConnected:false,
+		oCurrentUser:null,
+		arUsers: [],
+		sUserListID: "usersList",
+		sMessageListID: "messages",
+		oFlash: null,
+		arFavoriteIds: [],
+
+		oContextMenu: {
+	        selector: '.user, .messageUsername', 
+			build: function(trigger, e){
+				var user = _.findWhere(chat.arUsers, {id: trigger.data('userId')});
+				return {
+					callback: function(key, options) {
+						var m = "clicked: " + key + " on " + $(this).text();
+						window.console && console.log(m) || alert(m); 
+					},
+
+					items: {
+						"name": {name: user.username, className:"menuUsername", disabled:true},
+						"sep1": "---------",
+						"rating": {name: "Rating "+user.rating, disabled:true},
+						"ratingnow": {name: "Rating Today "+user.rating, disabled:true },
+						"favorites": {name: "Favorites "+user.favorites, disabled:true},
+						"sep2": "---------",
+						"addfavorite": {name: "Add as Favorite", icon: "copy", callback: function(){chat.favorite(user.id)}},
+						"ignore": {name: "Ignore User", icon: "paste"},
+						"block": {name: "Block Video", icon: "delete"},
+						"report": {name: "Report", icon: "delete"}
+					}
+				};
+			}
+	        
+	    },
+
+
+	    favorite: function(toUserId) {
+	    	chat.socket.request(chat.sURL+"/chat/favorite", {toUserId : toUserId}, function(data){
+				console.log("favoriteResponse "+ io.JSON.stringify(data) );
+			})
+	    },
+
+	    vote: function(toUserId, value) {
+	    	chat.socket.request(chat.sURL+"/chat/vote", {toUserId : toUserId, value: value}, function(data){
+				console.log("voteResponse "+ io.JSON.stringify(data) );
+			})
+	    },
+
+	    init: function() {
+
+	    	chat.socket = window.socket;
+	    	console.log("init "+(chat.socket && chat.socket.socket && chat.socket.socket.connected));
+	    	if(chat.socket.socket && chat.socket.socket.connected){
+	    		chat.joinChat();
+	    	}else{
+		    	chat.socket.on("connect", function(){
+					chat.joinChat();
+				})
+		    }
+	    },
+
+	    joinChat: function() {
+	    	chat.socket.request(chat.sURL+"/chat/join", {test : "ZZZC"}, function(data){
+				console.log("joinChat "+ io.JSON.stringify(data) ); //currentUser, userList
+				if(data.currentUser){
+					chat.onChatConnected(data);
+				}
+			})
+	    },
+
+	    onChatConnected: function(data) {
+			this.oCurrentUser = data.currentUser;
+			this.initFlash();
+
+			_.each(data.userList, chat.updateUser, chat);
+
+			chat.addSocketListeners();
+
+			$("#inputMessage").keypress(function(event) {
+				if(event.which == 13) {
+					event.preventDefault();
+					chat.sendMessage();
+				}
+			});
+
+			$("#sendBtn").click(function(event) {
+				chat.sendMessage();
+			});
+	    },
+
+	    addSocketListeners: function() {
+	    	chat.socket.on("userUpdated", function(data){
+				if(!data.hasOwnProperty("user")){
+					return;
+				}
+					
+				chat.updateUser(data.user);
+			});
+
+			chat.socket.on("userRemoved", function(data){
+				if(!data.hasOwnProperty("userId")){
+					return;
+				}
+
+				chat.removeUser(data.userId);
+			});
+
+			chat.socket.on("newMessage", function(data){
+				if(!data.hasOwnProperty("message")){
+					return;
+				}
+				
+				console.log("newMessage "+io.JSON.stringify(data.message));
+				chat.addMessage(data.message);
+			});
+
+	    },
+
+	    sendMessage: function(){
+			if($("#inputMessage").val() != ""){
+				chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: $("#inputMessage").val()}, function(data){
+
+				});
+
+				$("#inputMessage").val("");
+			}
+		},
+
+	    setCurrentUser: function(user){
+	    	this.oCurrentUser = user;
+			this.initFlash();
+	    },
+
+	    // calls to flash
+	    initFlash: function() {
+	    	console.log("initFlash " + this.bFlashLoaded +" "+ this.oCurrentUser +" "+ !this.bFlashInit);
+			if(this.bFlashLoaded && this.oCurrentUser && !this.bFlashInit){
+				this.bFlashInit = true;
+				this.oFlash = document.getElementById("flashInterface");
+				this.oFlash.onConnectedToChat(this.oCurrentUser);
+			}
+		},
+
+		updateFlashQueue: function() {
+			if(this.bFlashConnected){
+
+				var arQueue = _.filter(chat.arUsers, function(user){
+					return (user.status == "speaking" || user.status == "queuing");
+				});
+				arQueue = _.first(arQueue, 5);
+				this.oFlash.onUpdateQueue(arQueue);
+			}
+		},
+
+	    // calls from Flash
+		onFlashLoaded: function() {
+			this.bFlashLoaded = true;
+			this.initFlash();
+		},
+
+		onFlashConnected: function() {
+			this.bFlashConnected = true;
+			this.updateFlashQueue();
+
+			$("#btnDebate").show();
+			$("#btnDebate").off('click');
+			$("#btnDebate").on('click', chat.onDebateJoin);
+		},
+
+		onDebateJoin: function(evt) {
+			$("#btnDebate").off('click');
+			$("#btnDebate").text('Processing...');
+			$("#btnDebate").addClass('btnDisabled');
+
+			console.log("REQUEST onDebateJoin");
+			chat.socket.request(chat.sURL+"/chat/debatejoin", {}, function(data){
+				console.log("RESPONSE onDebateJoin "+io.JSON.stringify(data));
+			});
+		},
+
+		onDebateLeave: function(evt) {
+			$("#btnDebate").off('click');
+			$("#btnDebate").text('Processing...');
+			$("#btnDebate").addClass('btnDisabled');
+
+			chat.socket.request(chat.sURL+"/chat/debateleave", {}, function(data){
+				console.log("onDebateLeave "+data);
+			});
+		},
+
+		updateUser: function(user){
+			if(chat.oCurrentUser.id == user.id){
+				chat.setCurrentUser(user);
+				$("#btnDebate").off('click');
+				$("#btnDebate").removeClass('btnDisabled');
+
+				if(user.status == "viewing"){
+					$("#btnDebate").text('Join Debate');
+					$("#btnDebate").on('click', chat.onDebateJoin);
+				}else{
+					$("#btnDebate").text('Leave Debate');
+					$("#btnDebate").on('click', chat.onDebateLeave);
+				}
+			}
+
+
+			oOldUser = _.clone(_.findWhere(chat.arUsers, {id:user.id}));
+
+			console.log("updateUser " + io.JSON.stringify(user));
+			this.removeUser(user.id, true);
+
+			var nIndex = _.sortedIndex(this.arUsers, user, function(value){
+				var compare = "";
+				switch(value.status){
+					case "speaking":
+						compare += "0"+ value.order;
+						break;
+					case "queuing":
+						compare += "1"+ value.order;
+						break;
+					case "viewing":
+						compare += "2"+ value.username;
+						break;
+				}
+				return compare.toLowerCase();
+			});
+
+			this.arUsers.splice(nIndex, 0, user);
+			this.insertAtIndex(user, nIndex);
+
+			console.log("oOldUser = "+io.JSON.stringify(oOldUser));
+			if(oOldUser){
+				if(oOldUser.status != user.status || oOldUser.time != user.time){
+					chat.updateFlashQueue();
+				}
+			}else if((user.status == "speaking" || user.status == "queuing") && nIndex<5){
+				chat.updateFlashQueue();
+			}
+
+		},
+		removeUser: function(userId, bFlashIgnore){
+			console.log("removeUser " + userId);
+			var nIndex = _.findIndexWhere(this.arUsers, {id:userId});
+			if(nIndex != -1){
+				this.arUsers.splice(nIndex, 1);
+				this.removeAtIndex(nIndex);
+			}
+			if(bFlashIgnore === undefined){
+				chat.updateFlashQueue();
+			}
+		},
+
+		addMessage: function(message){
+			this.insertMessage(message);
+		},
+
+
+		// events
+		onUserClick: function(evt){
+			console.log("onUserClick "+$(evt.target).data('userId'));
+		},
+
+		// private
+		templateUser: function(user) {
+			var template = $('<div>')
+							.attr('id', 'user'+user.id)
+							.addClass('user')
+							.text(user.username+"  -  "+user.status)
+							.data('userId', user.id)
+							.on('click', chat.onUserClick)
+							
+			return template;
+			//return '<div id="user'+user.id+'" class="user">'+user.username+'</div>';
+		},
+		insertAtIndex: function(user, i) {
+			console.log("insertAtIndex " + io.JSON.stringify(user) +", "+ i +" "+chat.arUsers.length);
+			if(i === chat.arUsers.length-1) {
+				$("#"+this.sUserListID).append(this.templateUser(user));        
+			}else{
+				$("#"+this.sUserListID+" div:eq(" + i + ")").before(this.templateUser(user));
+			}
+			$("#"+this.sUserListID).parent().nanoScroller();
+		},
+		removeAtIndex: function(i) {
+			console.log("removeAtIndex "+ i)
+			$("#"+this.sUserListID+" div:eq(" + i + ")").remove();
+			$("#"+this.sUserListID).parent().nanoScroller();
+		},
+
+		templateMessage: function(message) {
+			var template = $('<div>')
+							.addClass('message')
+							.append( $('<span>')
+										.addClass('messageUsername')
+										.text(message.fromUsername+':')
+										.data('userId', message.fromUserId)
+										.on('click', chat.onUserClick)
+									)
+							.append( $('<span>')
+										.addClass('messageText')
+										.text(message.text)
+									)
+			return template;
+			//return '<div class="message"><span class="messageUsername">'+message.fromUsername+': </span><span class="messageText">'+message.text+'</span></div>';
+		},
+		insertMessage: function(message) {
+
+			$("#"+this.sMessageListID).append(this.templateMessage(message));
+			$("#"+this.sMessageListID).parent().nanoScroller();
+			$("#"+this.sMessageListID).parent().nanoScroller({ scroll: 'bottom' });
+
+
+			
+		}
+
+	}
+	
+
+	
+
+	$( document ).ready(function() {
+		$(".nano").nanoScroller();
+		$(".nano").nanoScroller({ alwaysVisible: true });
+		$(".nano").nanoScroller({ preventPageScrolling: true });
+
+		$.contextMenu(chat.oContextMenu);
+
+		var flashvars = {sRTMP:"<%- sRTMP %>"};
+		var params = {};
+		var attributes = {};
+		
+		swfobject.embedSWF("/swf/main.swf", "flashInterface", "100%", "100%", "10.0.0", "/swf/expressInstall.swf", flashvars, params, attributes);
+
+		chat.init();
+	});
+
+</script>
