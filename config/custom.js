@@ -1,4 +1,4 @@
 module.exports.custom = {
 
-	sRTMP: "rtmp://localhost/talkingheads",
+	sRTMP: "rtmp://www.talkingheads.tream.co.uk/talkingheads",
 }
