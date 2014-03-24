@@ -37,10 +37,16 @@ function censor(censor) {
  var MainController = {
 
     index: function (req, res) {
-    	res.locals.notifications = _.clone(req.session.notifications);
-    	req.session.notifications = {};
+		if(req.user){
+			return res.redirect("/chat");
+		}
+		else{
+			res.locals.notifications = _.clone(req.session.notifications);
+			req.session.notifications = {};
+			res.view(); 		
+		}	
+	
 
-        res.view(); 
     },
 
     signup: function (req, res) {
@@ -134,7 +140,12 @@ function censor(censor) {
 
 		})(req, res);
     },
-
+	
+	logout: function (req,res){
+		req.logout();
+		return res.redirect("/");
+	},
+	
     confirm: function (req, res) {
          
     },

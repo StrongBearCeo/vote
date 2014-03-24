@@ -32,24 +32,118 @@
     <!--
     <script type="text/javascript" src="/js/backbone-min.js"></script>
     -->
+	<!--Load script-->
+	<!--[if lt IE 9]>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<link rel="stylesheet" type="text/css" href="/styles/ie_phuc.css">   
+	<![endif]-->
+
+		<link rel="stylesheet" type="text/css" href="/styles/style_phuc.css">
+		<script type="text/javascript" src="/js/backbone-min.js"></script>
+	<!---->
     </head>
 
+   
     <body>
+		
         <div class="container">
-            <!-- Header -->
-            <div class="header">
-                <div class="logo">LOGO</div>
-            </div>
+           <!--Header-->
+			<header class="header">
+					<div class="top"></div>
+					<div class="container_1080 border-bottom ">
+						<ul class="header-content">
+							<li class="header-content-cell">
+								<ul>
+									<li>
+										<div class="heading heading-left" >
+											
+											<span id="btnDebate" >JOIN FANCHILADA</span>
+										</div>
+									</li>
+									<li>
+										<ul class="list-icon">
+											<li><a href=""><span class="iconsp-3504-35px"></span></a></li>
+											<li><a href=""><span class="iconsp-3505-35px"></span></a></li>
+											<li><a href=""><span class="iconsp-3506-35px"></span></a></li>
+											<li><a href=""><span class="iconsp-3507-35px"></span></a></li>
+											<li><a href=""><span class="iconsp-3508-35px"></span></a></li>
+										</ul>
+									</li>
+									<li>
+										<div class="info">
+											<span class="bolder">NOW</span><span>World Cup Qualifier, Mexico Vs USA</span>
+										</div>
+									</li>
+									<li>
+										<div class="time">
+											<span class="bold">time remaining 45:03</span>
+											<span class="iconsp-line"></span>
+											<span class="bolder">join debate</span>
+										</div>
+									</li>
+								</ul>
+							</li>
+							<li class="header-logo">
+								<figure><img src="../images/logo.png"></figure>
+							</li>
+							<li class="header-content-cell right-cell">
+								<ul>
+									<li>
+										<div class="heading heading-right" id="background-right">
+											
+											<span id="btnLogoutDebate">LOG-IN</span>
+										</div>
+									</li>
+									<li>
+										<ul class="list-icon">
+											<li><a href=""><span class="iconsp-3501-35px"></span></a></li>
+											<li><a href=""><span class="iconsp-bycycle"></span></a></li>
+											<li><a href=""><span class="iconsp-3502-35px"></span></a></li>
+											<li><a href=""><span class="iconsp-double-ball"></span></a></li>
+											<li><a href=""><span class="iconsp-3503-35px"></span></a></li>
+										</ul>
+									</li>
+									<li>
+										<div class="info">
+											<span class="bolder">NEXT</span><span>Reaction to NY Yankees vs Bulls</span>
+										</div>
+									</li>
+									<li>
+										<div class="time">
+											<span class="bold">Starts at 12:00</span>
+											<span class="iconsp-line"></span>
+											<span class="bolder">join debate</span>
+										</div>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+			 </header>
             <div class="clear"></div>
             <!-- Include the view file for the current controller/route -->
-            <div class="mainContent">
+            <div class="container_1080">
                 <%- body %>
             </div>
-            <div class="footer">
-                <p>
-                &copy;2013 - TalkingHeads All rights reserved.
-                </p>
-            </div>
+            <footer class="main-footer">
+				<div class="container_1080">
+				<nav>
+					<ul class="navigation">
+						<li><a href="#">about fanchilada</a></li>
+						<li><a href="#">search</a></li>
+						<li><a href="#">contact us</a></li>
+						<li><a href="#">faqs</a></li>
+					</ul>
+					<ul class="privacy">
+						<li>Terms of use</li>
+						<li>Privacy Policy</li>
+						<li>Data Protection</li>
+					</ul>
+					<div class="clearfix"></div>
+				</nav>
+				</div>
+			</footer>
         </div>
+		
     </body>
 </html>

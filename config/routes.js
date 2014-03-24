@@ -51,7 +51,12 @@ module.exports.routes = {
   '/chat/join' : {
     controller: 'chat',
     action: 'join'
-  }
+  },
+  
+   '/logout' : {
+    controller: 'main',
+    action: 'logout'
+  },
 
 
 

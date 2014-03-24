@@ -1,0 +1,108 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'install', 'sails-mysql' ]
+2 info using npm@1.4.3
+3 info using node@v0.10.26
+4 verbose node symlink /usr/bin/node
+5 verbose readDependencies using package.json deps
+6 verbose cache add [ 'sails-mysql', null ]
+7 verbose cache add name=undefined spec="sails-mysql" args=["sails-mysql",null]
+8 verbose parsed url { protocol: null,
+8 verbose parsed url   slashes: null,
+8 verbose parsed url   auth: null,
+8 verbose parsed url   host: null,
+8 verbose parsed url   port: null,
+8 verbose parsed url   hostname: null,
+8 verbose parsed url   hash: null,
+8 verbose parsed url   search: null,
+8 verbose parsed url   query: null,
+8 verbose parsed url   pathname: 'sails-mysql',
+8 verbose parsed url   path: 'sails-mysql',
+8 verbose parsed url   href: 'sails-mysql' }
+9 silly lockFile 246fedb4-sails-mysql sails-mysql
+10 verbose lock sails-mysql /home/vietha/.npm/246fedb4-sails-mysql.lock
+11 silly lockFile 246fedb4-sails-mysql sails-mysql
+12 silly lockFile 246fedb4-sails-mysql sails-mysql
+13 verbose addNamed [ 'sails-mysql', '' ]
+14 verbose addNamed [ null, '*' ]
+15 silly lockFile fca4d916-sails-mysql sails-mysql@
+16 verbose lock sails-mysql@ /home/vietha/.npm/fca4d916-sails-mysql.lock
+17 silly addNameRange { name: 'sails-mysql', range: '*', hasData: false }
+18 verbose url raw sails-mysql
+19 verbose url resolving [ 'https://registry.npmjs.org/', './sails-mysql' ]
+20 verbose url resolved https://registry.npmjs.org/sails-mysql
+21 info trying registry request attempt 1 at 09:35:00
+22 http GET https://registry.npmjs.org/sails-mysql
+23 http 200 https://registry.npmjs.org/sails-mysql
+24 silly registry.get cb [ 200,
+24 silly registry.get   { date: 'Thu, 20 Mar 2014 02:35:05 GMT',
+24 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R14B04)',
+24 silly registry.get     etag: '"7YWALCRBJQ51CZM1KBFXCKURN"',
+24 silly registry.get     'content-type': 'application/json',
+24 silly registry.get     via: '1.1 varnish',
+24 silly registry.get     'cache-control': 'max-age=1',
+24 silly registry.get     'content-length': '27597',
+24 silly registry.get     'accept-ranges': 'bytes',
+24 silly registry.get     age: '78',
+24 silly registry.get     'x-served-by': 'cache-v41-ASH, cache-hk90-HKG',
+24 silly registry.get     'x-cache': 'MISS, MISS',
+24 silly registry.get     'x-cache-hits': '0, 0',
+24 silly registry.get     'x-timer': 'S1395282904.715429783,VS0,VS-374,VE-273,VE319',
+24 silly registry.get     vary: 'Accept',
+24 silly registry.get     'keep-alive': 'timeout=10, max=50',
+24 silly registry.get     connection: 'Keep-Alive' } ]
+25 silly addNameRange number 2 { name: 'sails-mysql', range: '*', hasData: true }
+26 silly addNameRange versions [ 'sails-mysql',
+26 silly addNameRange   [ '0.6.0',
+26 silly addNameRange     '0.7.0',
+26 silly addNameRange     '0.7.1',
+26 silly addNameRange     '0.7.2',
+26 silly addNameRange     '0.7.3',
+26 silly addNameRange     '0.7.4',
+26 silly addNameRange     '0.7.5',
+26 silly addNameRange     '0.7.6',
+26 silly addNameRange     '0.7.7',
+26 silly addNameRange     '0.7.8',
+26 silly addNameRange     '0.9.0',
+26 silly addNameRange     '0.9.1',
+26 silly addNameRange     '0.9.2',
+26 silly addNameRange     '0.9.3',
+26 silly addNameRange     '0.9.4',
+26 silly addNameRange     '0.9.5',
+26 silly addNameRange     '0.9.6',
+26 silly addNameRange     '0.9.7',
+26 silly addNameRange     '0.9.8',
+26 silly addNameRange     '0.9.9',
+26 silly addNameRange     '0.10.0-rc1',
+26 silly addNameRange     '0.10.0-rc2',
+26 silly addNameRange     '0.10.0-rc3' ] ]
+27 verbose addNamed [ 'sails-mysql', '0.9.9' ]
+28 verbose addNamed [ '0.9.9', '0.9.9' ]
+29 silly lockFile 792d9613-sails-mysql-0-9-9 sails-mysql@0.9.9
+30 verbose lock sails-mysql@0.9.9 /home/vietha/.npm/792d9613-sails-mysql-0-9-9.lock
+31 silly lockFile 054d437b-ails-mysql-sails-mysql-0-9-9-tgz https://registry.npmjs.org/sails-mysql/-/sails-mysql-0.9.9.tgz
+32 verbose lock https://registry.npmjs.org/sails-mysql/-/sails-mysql-0.9.9.tgz /home/vietha/.npm/054d437b-ails-mysql-sails-mysql-0-9-9-tgz.lock
+33 verbose addRemoteTarball [ 'https://registry.npmjs.org/sails-mysql/-/sails-mysql-0.9.9.tgz',
+33 verbose addRemoteTarball   'c4c07debb81873bccf4546bb129b3f03b3b8c499' ]
+34 silly lockFile 054d437b-ails-mysql-sails-mysql-0-9-9-tgz https://registry.npmjs.org/sails-mysql/-/sails-mysql-0.9.9.tgz
+35 silly lockFile 054d437b-ails-mysql-sails-mysql-0-9-9-tgz https://registry.npmjs.org/sails-mysql/-/sails-mysql-0.9.9.tgz
+36 silly lockFile 792d9613-sails-mysql-0-9-9 sails-mysql@0.9.9
+37 silly lockFile 792d9613-sails-mysql-0-9-9 sails-mysql@0.9.9
+38 silly lockFile fca4d916-sails-mysql sails-mysql@
+39 silly lockFile fca4d916-sails-mysql sails-mysql@
+40 error Error: EACCES, mkdir '/home/vietha/tmp/npm-1387-ruDK6KRv'
+40 error  { [Error: EACCES, mkdir '/home/vietha/tmp/npm-1387-ruDK6KRv']
+40 error   errno: 3,
+40 error   code: 'EACCES',
+40 error   path: '/home/vietha/tmp/npm-1387-ruDK6KRv',
+40 error   parent: 'talkingHeads' }
+41 error Please try running this command again as root/Administrator.
+42 error System Linux 2.6.32-52-generic-pae
+43 error command "/usr/bin/node" "/usr/bin/npm" "install" "sails-mysql"
+44 error cwd /home/vietha/vote
+45 error node -v v0.10.26
+46 error npm -v 1.4.3
+47 error path /home/vietha/tmp/npm-1387-ruDK6KRv
+48 error code EACCES
+49 error errno 3
+50 error stack Error: EACCES, mkdir '/home/vietha/tmp/npm-1387-ruDK6KRv'
+51 verbose exit [ 3, true ]

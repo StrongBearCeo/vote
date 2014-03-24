@@ -19,8 +19,12 @@ module.exports = {
     
     // VIEWS
 	index: function (req, res) {
-	    res.view({user: req.user, sRTMP: sails.config.custom.sRTMP}); 
-	    
+		if(req.user){
+			res.view({user: req.user, sRTMP: sails.config.custom.sRTMP}); 
+		}
+		else{
+			return res.redirect("/");
+		}
 	},
 
 	// SOCKET

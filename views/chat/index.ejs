@@ -1,27 +1,87 @@
-<%= user.username %>
-<div id="btnDebate" class="btn" style="display:none">Join Debate</div>
-<div class="clear"></div>
-<div id="flashContainer" style="width:640px; height:530px;">
-	<div id="flashInterface"></div>
-</div>
-<div id="chatPanel">
-	<div id="messagesPanel">
-		<div id="messagesContainer" class="nano">
-			<div id="messages" class="content">
-			</div>
-		</div>
-		<div id="inputContainer">
-			<input type="text" id="inputMessage" />
-			<input type="submit" id="sendBtn" value="Send"/>
-		</div>
-	</div>
-	<div id="usersPanel">
-		<div id="usersContainer" class="nano">
-			<div id="usersList" class="content">
-			</div>
-		</div>
-	</div>
-</div>
+
+
+
+<section class="video-area">
+		<div class="container_small">
+			<section class="video" >
+				<div id="flashContainer">
+					<div id="flashInterface"></div>
+				</div>
+			</section>
+			<section class="video-control">
+				<div class="like-button">
+					<a href=""><span class="iconsp-3514-35px"></span></a>
+					<a href=""><span class="iconsp-line"></span></a>
+					<a href=""><span class="iconsp-3515-35px"></span></a>
+				</div>
+				
+				<div class="sound-button">
+					<a href="#" onclick="mute(); return false;"><span class="iconsp-3509-35px"></span></a>
+					<a href=""><span class="iconsp-line"></span></a>
+					<a href="#" onclick="volume(); return false; " title=""><span class="iconsp-3513-35px"></span>				
+					</a>
+					<span>
+					<input data-type="range" type="range" id="volume-bar" min="0" max="1" step="0.1" value="1"></span>
+
+				</div>
+			</section>
+		</div>		
+</section>
+<!---->
+<!--User copy-->
+<section class="user">
+		<div class="container_1080  border-bottom border-top">
+			<section class="row heading-info">
+				<section class="column width-account">
+					<div class="row">
+						<section class="column width-user-info">
+							<span class="futura-book dark-blue vertical-middle">USERS</span>
+						</section>
+						<section class="column width-start start-number" style="margin-left: -7px; width: 45px;position:relative">
+							<div class="hr1"></div>
+							<span class="iconsp-3512-35px vertical-middle">
+							</span>
+							<div class="hr2"></div>
+						</section>
+					</div>
+				</section>
+				<div class="column width-comment-area ">
+					<span class="futura-book dark-blue vertical-middle">DEBATE</span>
+				</div>				
+			</section>
+			<section class="row main-table-content">
+				<div class="column width-account vertical-top user-info nano" id="usersContainer">
+					
+					<div class="content" id="usersList" >
+					</div>
+					
+				</div>
+				<div class="column width-comment-area">
+					<div class="container-comment">
+					<div class="title">
+						<span>World Cup Qualifier</span><span>Today 4.45PM</span>
+					</div>
+					<div class="scroll-bar-comment nano">
+						<aside id="messages" class="content"></aside>
+					</div>
+					<footer class="chat-message" id="inputContainer">
+						<div>
+							<span>||||</span>
+						</div>
+						<input type="text" id="inputMessage" />
+						<input type="submit" id="sendBtn" value="Send"/>
+						<div>
+							<span>||||</span>
+						</div>
+					</footer>
+				</div>
+				</div>				
+			</section>
+		</div>	
+	</section>
+<!-->
+
+
 <script>
 
 	_.findIndex = function(obj, iterator, context) {
@@ -85,7 +145,10 @@
 	        
 	    },
 
-
+		logout:function(){
+			console.log('test');
+			window.location.replace("/logout");
+		},
 	    favorite: function(toUserId) {
 	    	chat.socket.request(chat.sURL+"/chat/favorite", {toUserId : toUserId}, function(data){
 				console.log("favoriteResponse "+ io.JSON.stringify(data) );
@@ -221,7 +284,7 @@
 
 		onDebateJoin: function(evt) {
 			$("#btnDebate").off('click');
-			$("#btnDebate").text('Processing...');
+			$("#btnDebate").text('PROCESSING...');
 			$("#btnDebate").addClass('btnDisabled');
 
 			console.log("REQUEST onDebateJoin");
@@ -232,7 +295,7 @@
 
 		onDebateLeave: function(evt) {
 			$("#btnDebate").off('click');
-			$("#btnDebate").text('Processing...');
+			$("#btnDebate").text('PROCESSING...');
 			$("#btnDebate").addClass('btnDisabled');
 
 			chat.socket.request(chat.sURL+"/chat/debateleave", {}, function(data){
@@ -247,11 +310,15 @@
 				$("#btnDebate").removeClass('btnDisabled');
 
 				if(user.status == "viewing"){
-					$("#btnDebate").text('Join Debate');
+					$("#btnDebate").text('JOIN DEBATE');
+					$("#btnLogoutDebate").text('LOG OUT');
+					$("#background-right").css('background-image','url(../images/banner-left.png)');
 					$("#btnDebate").on('click', chat.onDebateJoin);
+					$("#btnLogoutDebate").on('click', chat.logout);
+					
 				}else{
-					$("#btnDebate").text('Leave Debate');
 					$("#btnDebate").on('click', chat.onDebateLeave);
+					$("#btnDebate").text('LEAVE DEBATE');
 				}
 			}
 
@@ -314,13 +381,26 @@
 
 		// private
 		templateUser: function(user) {
-			var template = $('<div>')
-							.attr('id', 'user'+user.id)
-							.addClass('user')
-							.text(user.username+"  -  "+user.status)
-							.data('userId', user.id)
-							.on('click', chat.onUserClick)
-							
+			
+			template = $('<div>')
+							.addClass('row')		
+							.append( $('<section>')
+										.addClass('column width-user-info')
+										.append( $('<span>')
+										.addClass('iconsp-3511-35px')
+										)
+										.append( $('<span>')
+										.text(user.username+"  -  "+user.status)
+										.data('userId', user.id)
+										.on('click', chat.onUserClick)
+										)
+									)
+							.append( $('<section>')
+										.addClass('column width-start start-number')
+										.append( $('<span>')
+										
+										).text(1)
+									)
 			return template;
 			//return '<div id="user'+user.id+'" class="user">'+user.username+'</div>';
 		},
@@ -340,18 +420,46 @@
 		},
 
 		templateMessage: function(message) {
-			var template = $('<div>')
-							.addClass('message')
+			var template;
+			if(chat.oCurrentUser.id === message.fromUserId){
+				template = $('<aside>')
+							.addClass('comment-ct')
 							.append( $('<span>')
-										.addClass('messageUsername')
+										.addClass('iconsp-3511-35px')
+									)
+			
+							.append( $('<div>')
+										.addClass('green-yellow')
+										.append( $('<span>')
 										.text(message.fromUsername+':')
 										.data('userId', message.fromUserId)
 										.on('click', chat.onUserClick)
-									)
-							.append( $('<span>')
-										.addClass('messageText')
+										)
+										.append( $('<p>')
 										.text(message.text)
+										)
+									)				
+			}
+			else{
+				template = $('<aside>')
+							.addClass('comment-ct right-comment')		
+							.append( $('<div>')
+										.addClass('blue-sky')
+										.append( $('<span>')
+										.text(message.fromUsername+':')
+										.data('userId', message.fromUserId)
+										.on('click', chat.onUserClick)
+										)
+										.append( $('<p>')
+										.text(message.text)
+										)
 									)
+								.append( $('<span>')
+										.addClass('iconsp-3511-35px')
+									)
+				
+			}
+										
 			return template;
 			//return '<div class="message"><span class="messageUsername">'+message.fromUsername+': </span><span class="messageText">'+message.text+'</span></div>';
 		},
@@ -385,5 +493,6 @@
 
 		chat.init();
 	});
+	
 
 </script>
