@@ -77,7 +77,7 @@ package display.VideoBox {
 		}
 		
 		public function onTick(evt:TimekeeperEvent=null):void {
-			trace("onTick " + oUser);
+			//trace("onTick " + oUser);
 			if(oUser){
 				var dif:Number = oUser.time - timekeeper.getValue()/1000;
 				

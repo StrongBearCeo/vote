@@ -10,9 +10,9 @@
 			</section>
 			<section class="video-control">
 				<div class="like-button">
-					<a href=""><span class="iconsp-3514-35px"></span></a>
+					<a id="like" href=""><span class="iconsp-3514-35px"></span></a>
 					<a href=""><span class="iconsp-line"></span></a>
-					<a href=""><span class="iconsp-3515-35px"></span></a>
+					<a id="dislike" href=""><span class="iconsp-3515-35px"></span></a>
 				</div>
 				
 				<div class="sound-button">
@@ -79,7 +79,7 @@
 			</section>
 		</div>	
 	</section>
-<!-->
+<!-- -->
 
 
 <script>
@@ -468,9 +468,10 @@
 			$("#"+this.sMessageListID).append(this.templateMessage(message));
 			$("#"+this.sMessageListID).parent().nanoScroller();
 			$("#"+this.sMessageListID).parent().nanoScroller({ scroll: 'bottom' });
+		},
 
-
-			
+		speakingUser: function() {
+			return _.findWhere(chat.arUsers, {status:'speaking'});
 		}
 
 	}
@@ -492,6 +493,16 @@
 		swfobject.embedSWF("/swf/main.swf", "flashInterface", "100%", "100%", "10.0.0", "/swf/expressInstall.swf", flashvars, params, attributes);
 
 		chat.init();
+
+		$('#like').click(function(e){
+			e.preventDefault();
+			chat.vote(chat.speakingUser().id,1);
+		})
+
+		$('#dislike').click(function(e) {
+			e.preventDefault();
+			chat.vote(chat.speakingUser().id,-1);
+		})
 	});
 	
 

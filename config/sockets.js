@@ -86,7 +86,7 @@ module.exports.sockets = {
 	},
 
 	manageSpeaker: function(nTimeDelta){
-		console.log("manageSpeaker "+nTimeDelta);
+		// console.log("manageSpeaker "+nTimeDelta);
 
 
 		ChatUsers.findOne({status:"speaking"}).done(function(error, speaker){
@@ -96,9 +96,9 @@ module.exports.sockets = {
 				}
 				speaker.time += nTimeDelta;
 
-				console.log(speaker.time);
+				// console.log(speaker.time);
 
-				console.log("manageSpeaker XXX "+speaker.time);
+//				console.log("manageSpeaker XXX "+speaker.time);
 
 				if(speaker.time <= 0){
 					speaker.order = sails.config.sockets.nOrder;

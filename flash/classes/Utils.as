@@ -249,7 +249,7 @@ package {
 		
 		public static function customTrace(_s:String):void{
 			trace(_s);// this will call the original flash trace() function
-			ExternalInterface.call("console.log", "FLASH: "+_s);// to get traces outside of flash IDE
+//			ExternalInterface.call("console.log", "FLASH: "+_s);// to get traces outside of flash IDE
 				/*implement what you want here*/
 		}
 	}
