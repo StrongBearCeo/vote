@@ -33,10 +33,10 @@ module.exports.adapters = {
   mysql: {
     module: 'sails-mysql',
     host: 'localhost',
-    user: 'root',
+    user: 'talkingheads',
     // Psst.. You can put your password in config/local.js instead
     // so you don't inadvertently push it up if you're using version control
-    password: '', 
-    database: 'dsv_vote'
+    password: 'r%TYa8zD.k', 
+    database: 'development_talkingheads'
   }
 };
