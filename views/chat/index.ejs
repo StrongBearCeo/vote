@@ -117,6 +117,15 @@
 		sMessageListID: "messages",
 		oFlash: null,
 		arFavoriteIds: [],
+		//Nhien add
+		setTimetoUser:10000,
+		flagVoteUp:false,
+		flagVoteDown:false,
+		KEY_VOTE_UP: "#vote up",
+		KEY_VOTE_DOWN: "#vote down",
+		KEY_REPORT: "#report",
+		
+
 
 		oContextMenu: {
 	        selector: '.user, .messageUsername', 
@@ -146,23 +155,39 @@
 	    },
 
 		logout:function(){
-			console.log('test');
+			console.log('Logout');
 			window.location.replace("/logout");
 		},
+
 	    favorite: function(toUserId) {
 	    	chat.socket.request(chat.sURL+"/chat/favorite", {toUserId : toUserId}, function(data){
 				console.log("favoriteResponse "+ io.JSON.stringify(data) );
 			})
 	    },
 
-	    vote: function(toUserId, value) {
+	    vote: function(toUserId, value,message) {
+			console.log("------------------- Action vote ---------------");
+
 	    	chat.socket.request(chat.sURL+"/chat/vote", {toUserId : toUserId, value: value}, function(data){
-				console.log("voteResponse "+ io.JSON.stringify(data) );
+				//console.log("voteResponse "+ io.JSON.stringify(data) );
+				
+				
+				
 			})
+			if(message === "#vote up"){
+				$("#inputMessage").val("#vote up");
+				chat.sendMessage();
+			}
+			if(message === "#vote down"){
+				$("#inputMessage").val("#vote down");
+				chat.sendMessage();
+			}
+
+			
 	    },
 
 	    init: function() {
-
+	    	//chat.setTimeUser();
 	    	chat.socket = window.socket;
 	    	console.log("init "+(chat.socket && chat.socket.socket && chat.socket.socket.connected));
 	    	if(chat.socket.socket && chat.socket.socket.connected){
@@ -173,7 +198,22 @@
 				})
 		    }
 	    },
+	    /*
+	    setTimeUser:function(){
+	    	setInterval(function(){
+				chat.setTimetoUser-= 1000;
+				console.log('Init time for user'+chat.setTimetoUser);
+				if(chat.setTimetoUser === 5000){
+					chat.setTimetoUser+=15000;
+					console.log('Has Time: '+chat.setTimetoUser);
+					console.log('Curent User: '+JSON.stringify(chat.arUsers));
+				}
+	    	}, 1000);
+	    },
+	    */
 
+	    
+	    
 	    joinChat: function() {
 	    	chat.socket.request(chat.sURL+"/chat/join", {test : "ZZZC"}, function(data){
 				console.log("joinChat "+ io.JSON.stringify(data) ); //currentUser, userList
@@ -248,11 +288,13 @@
 
 	    // calls to flash
 	    initFlash: function() {
-	    	console.log("initFlash " + this.bFlashLoaded +" "+ this.oCurrentUser +" "+ !this.bFlashInit);
+	    	//console.log("initFlash " + this.bFlashLoaded +" "+ io.JSON.stringify(this.oCurrentUser) +" "+ !this.bFlashInit);
+
 			if(this.bFlashLoaded && this.oCurrentUser && !this.bFlashInit){
 				this.bFlashInit = true;
 				this.oFlash = document.getElementById("flashInterface");
 				this.oFlash.onConnectedToChat(this.oCurrentUser);
+				console.log("---------------Loaded Flash Chat-------------");
 			}
 		},
 
@@ -263,6 +305,9 @@
 					return (user.status == "speaking" || user.status == "queuing");
 				});
 				arQueue = _.first(arQueue, 5);
+				//console.log("--------------------------");
+				//console.log(io.JSON.stringify(arQueue));
+				//console.log("--------------------------");
 				this.oFlash.onUpdateQueue(arQueue);
 			}
 		},
@@ -304,7 +349,12 @@
 		},
 
 		updateUser: function(user){
+
+
+
 			if(chat.oCurrentUser.id == user.id){
+				//console.log("-------------1-------------");
+				//console.log("Current user is:"+ user.username+ "Status:"+user.status);
 				chat.setCurrentUser(user);
 				$("#btnDebate").off('click');
 				$("#btnDebate").removeClass('btnDisabled');
@@ -324,8 +374,9 @@
 
 
 			oOldUser = _.clone(_.findWhere(chat.arUsers, {id:user.id}));
-
-			console.log("updateUser " + io.JSON.stringify(user));
+			//console.log("-------------2-------------");
+			//console.log("oOldUser user:"+ io.JSON.stringify(oOldUser));
+			//console.log("updateUser " + io.JSON.stringify(user));
 			this.removeUser(user.id, true);
 
 			var nIndex = _.sortedIndex(this.arUsers, user, function(value){
@@ -347,18 +398,34 @@
 			this.arUsers.splice(nIndex, 0, user);
 			this.insertAtIndex(user, nIndex);
 
-			console.log("oOldUser = "+io.JSON.stringify(oOldUser));
+			//console.log("oOldUser = "+io.JSON.stringify(oOldUser));
+
+			/*
 			if(oOldUser){
+				console.log("-----------------------------------");
+				console.log("oOldUser.status "+oOldUser.status);
+				console.log("user status "+user.status);
+				console.log("oOldUserT Time "+oOldUser.time);
+				console.log("user Time: "+user.time);
 				if(oOldUser.status != user.status || oOldUser.time != user.time){
 					chat.updateFlashQueue();
 				}
+				if( oOldUser.status == user.status &&  user.status == "speaking" ){
+					//console.log("---------4--------");
+					chat.updateFlashQueue();
+				}
 			}else if((user.status == "speaking" || user.status == "queuing") && nIndex<5){
+
 				chat.updateFlashQueue();
 			}
+			*/
+			//console.log("------------ chat.updateFlashQueue()  ----------");
+			chat.updateFlashQueue();
+
 
 		},
 		removeUser: function(userId, bFlashIgnore){
-			console.log("removeUser " + userId);
+			//console.log("removeUser " + userId);
 			var nIndex = _.findIndexWhere(this.arUsers, {id:userId});
 			if(nIndex != -1){
 				this.arUsers.splice(nIndex, 1);
@@ -376,7 +443,7 @@
 
 		// events
 		onUserClick: function(evt){
-			console.log("onUserClick "+$(evt.target).data('userId'));
+			//console.log("onUserClick "+$(evt.target).data('userId'));
 		},
 
 		// private
@@ -399,13 +466,13 @@
 										.addClass('column width-start start-number')
 										.append( $('<span>')
 										
-										).text(1)
+										).text(user.rating)
 									)
 			return template;
 			//return '<div id="user'+user.id+'" class="user">'+user.username+'</div>';
 		},
 		insertAtIndex: function(user, i) {
-			console.log("insertAtIndex " + io.JSON.stringify(user) +", "+ i +" "+chat.arUsers.length);
+			//console.log("insertAtIndex " + io.JSON.stringify(user) +", "+ i +" "+chat.arUsers.length);
 			if(i === chat.arUsers.length-1) {
 				$("#"+this.sUserListID).append(this.templateUser(user));        
 			}else{
@@ -414,14 +481,78 @@
 			$("#"+this.sUserListID).parent().nanoScroller();
 		},
 		removeAtIndex: function(i) {
-			console.log("removeAtIndex "+ i)
+			//console.log("removeAtIndex "+ i)
 			$("#"+this.sUserListID+" div:eq(" + i + ")").remove();
 			$("#"+this.sUserListID).parent().nanoScroller();
 		},
 
 		templateMessage: function(message) {
 			var template;
-			if(chat.oCurrentUser.id === message.fromUserId){
+			var bShowCommand = true;
+			
+
+			if(chat.oCurrentUser.status === 'speaking'){
+				if(message.text === "#vote up" || message.text === "#vote down" || 
+					message.text === "#report")
+				{
+					message.text = "System: Don't use command.";
+					bShowCommand = false;
+				}
+				else{
+					bShowCommand = true;
+				}
+			}
+
+			if(chat.oCurrentUser.status != 'speaking'){
+				if(message.text === "#vote up")
+				{
+					if(chat.flagVoteUp){
+						message.text  = "System: You has vote up";
+						
+					}
+					else{
+						$('#like').trigger('click');
+						message.text  = "System: Vote up success! :)";
+						chat.flagVoteUp = true;
+						chat.flagVoteDown = false;
+					}
+					bShowCommand = false;
+				}//end vote up
+
+				if(message.text === "#vote down")
+				{
+					if(chat.flagVoteDown){
+						message.text  = "System: You has vote down";
+					}
+					else{
+						message.text  = "System: Vote down success! :)";
+						$('#dislike').trigger('click');
+						
+						chat.flagVoteUp = false;
+						chat.flagVoteDown = true;	
+					}
+					bShowCommand = false;
+				}//end vote down
+
+				if(message.text === "#report")
+				{
+					message.text = "Report done! :)";
+					chat.socket.request(chat.sURL+"/chat/reportSpam", {},function(data){
+						
+						//console.log("Report done"+data);
+						}
+					);
+					bShowCommand = false;
+				}//report peding				
+
+				
+			}
+			
+
+			
+
+
+			if(chat.oCurrentUser.id === message.fromUserId ){
 				template = $('<aside>')
 							.addClass('comment-ct')
 							.append( $('<span>')
@@ -440,18 +571,20 @@
 										)
 									)				
 			}
-			else{
+
+			if(bShowCommand && chat.oCurrentUser.id != message.fromUserId)
+			{
 				template = $('<aside>')
 							.addClass('comment-ct right-comment')		
 							.append( $('<div>')
 										.addClass('blue-sky')
 										.append( $('<span>')
-										.text(message.fromUsername+':')
-										.data('userId', message.fromUserId)
-										.on('click', chat.onUserClick)
+											.text(message.fromUsername+':')
+											.data('userId', message.fromUserId)
+											.on('click', chat.onUserClick)
 										)
 										.append( $('<p>')
-										.text(message.text)
+											.text(message.text)
 										)
 									)
 								.append( $('<span>')
@@ -495,13 +628,42 @@
 		chat.init();
 
 		$('#like').click(function(e){
+			//console.log(io.JSON.stringify(chat.arUsers));
 			e.preventDefault();
-			chat.vote(chat.speakingUser().id,1);
+			if( chat.oCurrentUser.status == 'speaking'){
+				//return;
+			}
+
+			if(!chat.flagVoteUp){
+				//aUserVote.push(chat.speakingUser().id,1);
+				chat.vote(chat.speakingUser().id,1,"#vote up");
+				//chat.flagVoteUp = true;
+				//chat.flagVoteDown = false;
+			}
+			else{
+				
+			}
+			
+			
 		})
 
 		$('#dislike').click(function(e) {
+			
 			e.preventDefault();
-			chat.vote(chat.speakingUser().id,-1);
+			if( chat.oCurrentUser.status == 'speaking'){
+				//return;
+			}
+			if (!chat.flagVoteDown) {
+
+				chat.vote(chat.speakingUser().id,-1,"#vote down");
+				//chat.flagVoteDown = true;
+				//chat.flagVoteUp = false;
+			}
+			else{
+				
+			}
+
+			
 		})
 	});
 	

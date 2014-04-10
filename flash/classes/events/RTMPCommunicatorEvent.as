@@ -1,4 +1,5 @@
-﻿package events {
+﻿//interface events
+package events {
 	public class RTMPCommunicatorEvent extends CustomEvent{
 		public static const CONNECTION_READY:String = "EventConnectionReady";
 		public static const CONNECTION_CLOSED:String = "EventConnectionClosed";

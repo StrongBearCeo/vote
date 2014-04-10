@@ -29,7 +29,7 @@ module.exports = {
 		},
 		time: {
 			type: "integer", // seconds
-			defaultsTo: 60
+			defaultsTo: 30 //30 s for speaker
 		},
 		status: {
 			type: "string",

@@ -1,4 +1,4 @@
-package display.VideoBox {
+﻿package display.VideoBox {
 	import data.RTMPCommunicator;
 	import display.LibraryButton;
 	import display.ShapeButton;
@@ -14,22 +14,30 @@ package display.VideoBox {
 	 * @author Adrian R
 	 */
 	public class VideoBox extends Sprite {
+
+		
 		protected static var arBlockedIDs:Array = new Array();
 		
+		//Biến sử dụng video
 		protected var nWidth:Number;
 		protected var nHeight:Number;
 		protected var oUser:Object;
 		protected var vid:Video;
+
+		// Thiết lập màu bg video và border
 		protected var spVideoBg:Sprite;
 		protected var spBorder:Sprite;
 		
+		//Khai báo text User và Nút Report
 		protected var txtUsername:TextField;
 		protected var btnReport:ShapeButton;
-		
+		// Khai báo nút hiển thị video và không hiển thị
 		protected var btnShowVideo:LibraryButton;
 		protected var btnBlockVideo:LibraryButton;
 		
+		//Thiết lập video
 		public function VideoBox(nWidth:Number, nHeight:Number) {
+
 			this.nWidth = nWidth;
 			this.nHeight = nHeight;
 			
@@ -47,12 +55,12 @@ package display.VideoBox {
 			txtUsername.height = txtUsername.textHeight + 4;
 			txtUsername.x = 2;
 			txtUsername.y = (20 - txtUsername.height) / 2;
-			addChild(txtUsername);
+			addChild(txtUsername);//Add
 			
 			btnReport = new ShapeButton(50, 18, "Report");
 			btnReport.x = nWidth - btnReport.width - 2;
 			btnReport.y = (20 - btnReport.height) / 2;
-			addChild(btnReport);
+			//addChild(btnReport);//add
 			
 			buildInterface();
 			
@@ -86,7 +94,9 @@ package display.VideoBox {
 			addChild(spVideoBg);
 			addChild(vid);
 		}
-		
+		public function set setTimekeeperValue(num:Number):void{
+			
+		}
 		public function set user(oUser:Object):void {
 			if (oUser) {
 				this.visible = true;

@@ -1,0 +1,4 @@
+Gói event
+- CustomEvent.as, CustomEvent ()
+- Lớp RTMPCommunicatorEvent extends CustomEvent
+- Lớp Command extends CustomEvent

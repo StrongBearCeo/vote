@@ -39,6 +39,7 @@ function censor(censor) {
     index: function (req, res) {
 		if(req.user){
 			return res.redirect("/chat");
+			
 		}
 		else{
 			res.locals.notifications = _.clone(req.session.notifications);
@@ -110,8 +111,7 @@ function censor(censor) {
         	sails.config.sockets.onLeaveChat(req.user.id);
         }
 
-    	passport.authenticate(provider, function(error, user, info){
-    		
+    	passport.authenticate(provider, function(error, user, info){    		
 			if (error) {
 				req.session.notifications = {
 					login: error

@@ -1,4 +1,4 @@
-package display.VideoBox {
+﻿package display.VideoBox {
 	import display.LibraryButton;
 	import display.ShapeButton;
 	import flash.display.Sprite;
@@ -8,6 +8,7 @@ package display.VideoBox {
 	import flash.text.TextFormatAlign;
 	import org.computus.model.Timekeeper;
 	import org.computus.model.TimekeeperEvent;
+	import flash.external.ExternalInterface;//interface giao tiep voi client html
 	/**
 	 * ...
 	 * @author Adrian R
@@ -31,6 +32,12 @@ package display.VideoBox {
 		public function VideoMain() {
 			super(640, 420);
 		}
+		
+		override public function set setTimekeeperValue(num:Number):void {
+			timekeeper.setValue(num);
+		}
+		
+		
 		
 		override protected function buildInterface():void {
 			trace("VideoMain buildInterface");
@@ -77,8 +84,10 @@ package display.VideoBox {
 		}
 		
 		public function onTick(evt:TimekeeperEvent=null):void {
-			//trace("onTick " + oUser);
+			//trace("onTick --->" + oUser);
+			//ExternalInterface.call("console.log", "FLASH  oUser.time: "+oUser.time+ "timekeeper.getValue():" + timekeeper.getValue());
 			if(oUser){
+				
 				var dif:Number = oUser.time - timekeeper.getValue()/1000;
 				
 				if (dif >= 0) {

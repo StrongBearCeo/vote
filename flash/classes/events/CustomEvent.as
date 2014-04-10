@@ -1,4 +1,5 @@
-﻿package events{
+﻿// Gói event 
+package events{
     import flash.events.Event;
 
     public class CustomEvent extends Event {

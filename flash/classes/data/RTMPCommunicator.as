@@ -1,4 +1,4 @@
-package data {
+﻿package data {
 	import events.CustomEvent;
 	import events.RTMPCommunicatorEvent;
 	import flash.events.AsyncErrorEvent;
@@ -28,25 +28,28 @@ package data {
 		
 		private var camera:Camera;
 		private var microphone:Microphone;
-		
+		//current user
 		private var oCurrentUser:Object = null;
 		
 		private var nc:NetConnection;
 		private var nsOut:NetStream;
 		private var bNsOutAudion:Boolean = false;
+		//?
 		private var oIn:Object;
-		
+		//unpublish and timeout
 		private var bUnpublishing:Boolean = false;
 		private var nPublishTimeout:Number;
 		
 		private var oSettings:Object = {
-				sRTMP: "rtmp://localhost/talkingheads",
-				//sRTMP: "rtmp://www.talkingheads.tream.co.uk/talkingheads",
+				//sRTMP: "rtmp://localhost:8080",
+				sRTMP: "rtmp://www.talkingheads.tream.co.uk/talkingheads",
+				//config cam
 				nCamWidth: 640,
 				nCamFps: 24,
 				nCamKeyFrameInterval: 8,
 				nCamQuality: 90,
 				nCamBandwidth: 0,
+				//Config sound
 				sSoundCodec: SoundCodec.SPEEX,
 				nSoundEncodeQuality: 10,
 				nSoundFramesPerPacket: 2,
@@ -284,6 +287,7 @@ package data {
 		// END Server -> Client Calls ***
 		
 		public function connect(oCurrentUser:Object):void {
+			//gan currentUser vao la user duoc truyen tu node
 			currentUser = oCurrentUser;
 			trace("connect: \nsRTMP = " + oSettings.sRTMP);
 			nc.connect(oSettings.sRTMP);

@@ -34,6 +34,14 @@ module.exports = {
 			type: "string",
 			required: true
 		},
+		rating: {
+			type: "integer",
+			defaultsTo: 0
+		},
+		isbanned: {
+			type: "integer",
+			defaultsTo: 0
+		},
 		provider: {
 			type: "string",
 			in: ["local", "facebook", "twitter"],
@@ -44,6 +52,7 @@ module.exports = {
 			in: ["active", "pendding", "blocked"],
 			defaultsTo: "active"
 		},
+
 		toJSON: function() {
 			var obj = this.toObject();
 			delete obj.password;
@@ -65,7 +74,7 @@ module.exports = {
 			values.password = hashPassword(values.password);
 			next();
 		}else {
-			User.findOne(values.id).done(function(err, user) {
+			Users.findOne(values.id).done(function(err, user) {
 				if (err) {
 					next(err);
 				}else {
