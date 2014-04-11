@@ -119,6 +119,14 @@ module.exports.sockets = {
 			}
 			user.rating += newscore; // -1, 0, 1 from vote table
 			speaker.rating += newscore;
+			if(newscore>0){
+				speaker.time = speaker.time + sails.config.sockets.TIME_ENCREASE;
+				console.log("_____speaker.time:"+speaker.time);
+			}
+			
+			
+								
+				
 			delete user.password;
 			user.save(function(err){
 
@@ -126,6 +134,7 @@ module.exports.sockets = {
 			speaker.save(function(err) {
 				sails.config.sockets.onUserUpdated(speaker);
 				//console.log(speaker);
+				sails.config.sockets.clearVoting();
 			});				
 			
 			//console.log(user);
@@ -138,12 +147,11 @@ module.exports.sockets = {
 			if(user){
 				//console.log('---------Caculate Rating After 15s -----------');
 				//console.log(user);
-				
-			//	console.log("Curent Rating:"+ user.rating);
+				//console.log("Curent Rating:"+ user.rating);
 				//console.log("speaker-Rating:"+speaker.rating);
 				sails.config.sockets.calculateCurrentVoting(speaker, user);		
 			}
-			sails.config.sockets.clearVoting();
+			
 			
 
 		})
@@ -163,10 +171,13 @@ module.exports.sockets = {
 	getReportSpam:function(speaker, callback){
 		Users.findOne({id:speaker.id}).done(function(error,user){
 			if(user){	
-				user.bancount >= sails.config.sockets.REPORT_SPAM_OUT ;
-				callback(true);
+				if(user.bancount >= sails.config.sockets.REPORT_SPAM_OUT){
+					callback(true);
+				}
+				else{
+					callback(false);
+				}
 			}
-			callback(false);
 		});
 	},
 	manageSpeaker: function(nTimeDelta){
@@ -183,9 +194,10 @@ module.exports.sockets = {
 				}
 
 				speaker.time += nTimeDelta;
-				//console.log("Time" + speaker.time);
-				if(speaker.time % 15 == 0 && speaker.time >= 0){
+				console.log("Time" + speaker.time);
+				if(speaker.time % 15 == 0){
 					sails.config.sockets.getReportSpam(speaker, function(banned) {
+						console.log("___________Is banned:"+ banned);
 						if(banned || sails.config.sockets.TOTAL_TALK >= sails.config.sockets.TIME_OUT_ALL_TALK ||  //disconenct if speaked 2 minute
 						speaker.time <= 0 
 						) //disconenct vote down
@@ -206,9 +218,11 @@ module.exports.sockets = {
 
 								//console.log("update time for speaking user:"+speaker.username);
 								sails.config.sockets.TOTAL_TALK += sails.config.sockets.TIME_ACTION;
-								//console.log("Total talked:"+sails.config.sockets.TOTAL_TALK);
-								speaker.time = speaker.time + sails.config.sockets.TIME_ENCREASE;
+								console.log("Total talked:"+sails.config.sockets.TOTAL_TALK);
 								//save rating vote
+
+								
+
 								sails.config.sockets.calculateUserRating(speaker);
 							}	
 					})
@@ -236,13 +250,13 @@ module.exports.sockets = {
 					var compare = "";
 					switch(value.status){
 						case "speaking":
-							compare += "0"+ value.order;
+							compare += "0"+ value.rating;
 							break;
 						case "queuing":
-							compare += "1"+ value.order;
+							compare += "1"+ value.rating;
 							break;
 						case "viewing":
-							compare += "2"+ value.username;
+							compare += "2"+ value.rating;
 							break;
 					}
 					return compare.toLowerCase();

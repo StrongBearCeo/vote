@@ -111,11 +111,13 @@
 		bFlashLoaded:false,
 		bFlashInit: false,
 		bFlashConnected:false,
+
 		oCurrentUser:null,
+		oFlash: null,
+
 		arUsers: [],
 		sUserListID: "usersList",
 		sMessageListID: "messages",
-		oFlash: null,
 		arFavoriteIds: [],
 		//Nhien add
 		setTimetoUser:10000,
@@ -125,9 +127,6 @@
 		KEY_VOTE_UP: "#vote up",
 		KEY_VOTE_DOWN: "#vote down",
 		KEY_REPORT: "#report",
-		templateVote:"",
-		
-
 
 		oContextMenu: {
 	        selector: '.user, .messageUsername', 
@@ -172,7 +171,7 @@
 	    init: function() {
 	    	//chat.setTimeUser();
 	    	chat.socket = window.socket;
-	    	console.log("init "+(chat.socket && chat.socket.socket && chat.socket.socket.connected));
+	    	console.log("____init "+(chat.socket && chat.socket.socket && chat.socket.socket.connected));
 	    	if(chat.socket.socket && chat.socket.socket.connected){
 	    		chat.joinChat();
 	    	}else{
@@ -181,25 +180,10 @@
 				})
 		    }
 	    },
-	    /*
-	    setTimeUser:function(){
-	    	setInterval(function(){
-				chat.setTimetoUser-= 1000;
-				console.log('Init time for user'+chat.setTimetoUser);
-				if(chat.setTimetoUser === 5000){
-					chat.setTimetoUser+=15000;
-					console.log('Has Time: '+chat.setTimetoUser);
-					console.log('Curent User: '+JSON.stringify(chat.arUsers));
-				}
-	    	}, 1000);
-	    },
-	    */
-
-	    
-	    
 	    joinChat: function() {
-	    	chat.socket.request(chat.sURL+"/chat/join", {test : "ZZZC"}, function(data){
-				console.log("joinChat "+ io.JSON.stringify(data) ); //currentUser, userList
+	    		chat.socket.request(chat.sURL+"/chat/join", {test : "ZZZC"}, function(data){
+				console.log("____joinChat: "+ io.JSON.stringify(data) ); 
+				//return data have: currentUser[] is user login, userList[] is all user
 				if(data.currentUser){
 					chat.onChatConnected(data);
 				}
@@ -207,6 +191,7 @@
 	    },
 
 	    onChatConnected: function(data) {
+	    	//set this currentUser = data.currentUser = user has just login
 			this.oCurrentUser = data.currentUser;
 			this.initFlash();
 
@@ -214,6 +199,7 @@
 
 			chat.addSocketListeners();
 
+			// set chat for user on connected
 			$("#inputMessage").keypress(function(event) {
 				if(event.which == 13) {
 					event.preventDefault();
@@ -327,12 +313,8 @@
 		},
 
 		updateUser: function(user){
-
-
-
+			//if user current (just login) // User each on Userlist on Room
 			if(chat.oCurrentUser.id == user.id){
-				//console.log("-------------1-------------");
-				//console.log("Current user is:"+ user.username+ "Status:"+user.status);
 				chat.setCurrentUser(user);
 				$("#btnDebate").off('click');
 				$("#btnDebate").removeClass('btnDisabled');
@@ -352,32 +334,50 @@
 
 
 			oOldUser = _.clone(_.findWhere(chat.arUsers, {id:user.id}));
-			//console.log("-------------2-------------");
-			//console.log("oOldUser user:"+ io.JSON.stringify(oOldUser));
-			//console.log("updateUser " + io.JSON.stringify(user));
+		
+			console.log("____arUsers:"+ io.JSON.stringify(chat.arUsers));
+			
 			this.removeUser(user.id, true);
-
+			// find in arUsers 
 			var nIndex = _.sortedIndex(this.arUsers, user, function(value){
+				console.log('Value rating' + value.rating+"of User:"+value.id +"Status: "+value.status);
+
+
 				var compare = "";
 				switch(value.status){
 					case "speaking":
-						compare += "0"+ value.order;
+						compare += "0"+ value.rating;
 						break;
 					case "queuing":
-						compare += "1"+ value.order;
+						compare += "1"+ value.rating;
 						break;
 					case "viewing":
-						compare += "2"+ value.username;
+						compare += "2"+ value.rating;
 						break;
 				}
 				return compare.toLowerCase();
 			});
-
+			console.log("_________nIndex :"+ nIndex +"of value.id " + user.id );
 			this.arUsers.splice(nIndex, 0, user);
 			this.insertAtIndex(user, nIndex);
+			//console.log("_________arUsers: "+chat.arUsers);
 			chat.updateFlashQueue();
 
 
+		},
+		insertAtIndex: function(user, i) {
+			//console.log("insertAtIndex " + io.JSON.stringify(user) +", "+ i +" "+chat.arUsers.length);
+			if(i === chat.arUsers.length-1) {
+				$("#"+this.sUserListID).append(this.templateUser(user));        
+			}else{
+				$("#"+this.sUserListID+" div:eq(" + i + ")").before(this.templateUser(user));
+			}
+			$("#"+this.sUserListID).parent().nanoScroller();
+		},
+		removeAtIndex: function(i) {
+			//console.log("removeAtIndex "+ i)
+			$("#"+this.sUserListID+" div:eq(" + i + ")").remove();
+			$("#"+this.sUserListID).parent().nanoScroller();
 		},
 		removeUser: function(userId, bFlashIgnore){
 			//console.log("removeUser " + userId);
@@ -426,20 +426,7 @@
 			return template;
 			//return '<div id="user'+user.id+'" class="user">'+user.username+'</div>';
 		},
-		insertAtIndex: function(user, i) {
-			//console.log("insertAtIndex " + io.JSON.stringify(user) +", "+ i +" "+chat.arUsers.length);
-			if(i === chat.arUsers.length-1) {
-				$("#"+this.sUserListID).append(this.templateUser(user));        
-			}else{
-				$("#"+this.sUserListID+" div:eq(" + i + ")").before(this.templateUser(user));
-			}
-			$("#"+this.sUserListID).parent().nanoScroller();
-		},
-		removeAtIndex: function(i) {
-			//console.log("removeAtIndex "+ i)
-			$("#"+this.sUserListID+" div:eq(" + i + ")").remove();
-			$("#"+this.sUserListID).parent().nanoScroller();
-		},
+		
 
 		templateMessage: function(message) {
 			var template;
