@@ -209,7 +209,7 @@ module.exports.sockets = {
 							sails.config.sockets.TOTAL_TALK += sails.config.sockets.TIME_ACTION;
 							//console.log("Total talked:"+sails.config.sockets.TOTAL_TALK);
 							speaker.time = speaker.time + sails.config.sockets.TIME_ENCREASE;
-							//save rating
+							//save rating vote
 							sails.config.sockets.calculateUserRating(speaker);
 						}	
 					})

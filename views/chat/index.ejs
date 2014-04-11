@@ -565,7 +565,7 @@
 			return _.findWhere(chat.arUsers, {status:'speaking'});
 		},
 		vote: function(toUserId, value) {
-			console.log("toUserId:"+toUserId+"Value:"+value);
+			//console.log("toUserId:"+toUserId+"Value:"+value);
 			//console.log("_____________Action vote");
 			chat.socket.request(chat.sURL+"/chat/vote", {toUserId : toUserId, value: value}, function(data){
 				console.log("voteResponse "+ io.JSON.stringify(data));

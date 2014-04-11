@@ -148,7 +148,7 @@ module.exports = {
 			if(votejs){
 				votejs.value=value;
 				votejs.save(function(error) {    
-					return res.send({data: votejs});
+					return res.send({data: votejs});//if success
  				 });
 				
 			}
@@ -158,7 +158,7 @@ module.exports = {
 							return res.send({error: error});
 						} else {
 							
-							return res.send({data: vote});
+							return res.send({data: vote});//if success
 						}
 					})
 			}

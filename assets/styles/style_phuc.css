@@ -282,7 +282,7 @@ margin: 0px 10px 0px 14px;
 	width: 100px;
 	position: absolute;
 	top: -4em;
-	z-index: 100;
+	z-index: 200;
 	left: 1em;
 }
 .video-area .video-control  span{
