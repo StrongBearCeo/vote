@@ -19,8 +19,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `dsv_vote`
 --
-CREATE DATABASE IF NOT EXISTS `dsv_vote` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `dsv_vote`;
 
 -- --------------------------------------------------------
 
