@@ -121,7 +121,15 @@ module.exports = {
 			if(speaker){
 				Users.findOne({id:speaker.id}).done(function(error,user){
 					if(user){				
-						user.bancount = user.bancount + 1;
+						user.bancount = user.bancount + 1;						
+						if(user.bancount >= 10){
+							user.status="blocked";
+							delete user.password;
+							user.save(function(err){
+								res.send({bSuccess: true});
+
+							});
+						}
 						delete user.password;
 						user.save(function(err){
 							res.send({bSuccess: true});
@@ -143,7 +151,7 @@ module.exports = {
 	vote: function(req, res){
 		var toUserId =  req.param("toUserId");
 		var value = req.param("value");
-
+		//action vote
 		Votes.findOne({fromUserId:req.session.passport.user.id}).done(function(error,votejs){
 			if(votejs){
 				votejs.value=value;

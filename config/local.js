@@ -31,7 +31,10 @@ var passport = require('passport')
 passport.use(new LocalStrategy(
 	function(username, password, done) {
 		process.nextTick(function () {
-			Users.findOne({ username: username }, function(err, user) {
+			Users.findOne({ username: username }, function(err, user) {			
+				if(user.status=="blocked"){
+					return done(null, false, { sError: 'Account' + username + ' Blocked.' });
+				}
 				if (err) { 
 					return done(null, false, {sError: err}); 
 				}
@@ -41,6 +44,7 @@ passport.use(new LocalStrategy(
 				if (!user.validPassword(password)) {
 					return done(null, false, { sError: 'Incorrect password.' });
 				}
+
 				return done(null, user);
 			});
 		});
@@ -96,9 +100,9 @@ module.exports = {
 	// Otherwise it falls back to port 1337.
 	//
 	// In production, you'll probably want to change this setting 
-	// to 80 (http://) or 443 (https://) if you have an SSL certificate
+	// to 80 (http://) or 443 (ht0tps://) if you have an SSL certificate
 
-	port: process.env.PORT || 8080,   
+	port: process.env.PORT || 9000,   
 
 
 
