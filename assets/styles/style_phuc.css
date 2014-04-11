@@ -272,7 +272,19 @@ margin: 0px 10px 0px 14px;
 	top:0px;
 	left:0px;
 }
-
+#vote-container{
+	position: relative;
+}
+#vote-container #info-vote{
+	border:1px solid #BED46A;
+	background: #BED46A;
+	padding: 1em 1.5em;
+	width: 100px;
+	position: absolute;
+	top: -4em;
+	z-index: 100;
+	left: 1em;
+}
 .video-area .video-control  span{
 	vertical-align:middle;
 }

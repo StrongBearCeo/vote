@@ -121,9 +121,11 @@
 		setTimetoUser:10000,
 		flagVoteUp:false,
 		flagVoteDown:false,
+		flagReport:false,
 		KEY_VOTE_UP: "#vote up",
 		KEY_VOTE_DOWN: "#vote down",
 		KEY_REPORT: "#report",
+		templateVote:"",
 		
 
 
@@ -165,23 +167,7 @@
 			})
 	    },
 
-	    vote: function(toUserId, value,message) {
-			console.log("------------------- Action vote ---------------");
-
-	    	chat.socket.request(chat.sURL+"/chat/vote", {toUserId : toUserId, value: value}, function(data){
-				//console.log("voteResponse "+ io.JSON.stringify(data) );
-			})
-			if(message === "#vote up"){
-				$("#inputMessage").val("#vote up");
-				chat.sendMessage();
-			}
-			if(message === "#vote down"){
-				$("#inputMessage").val("#vote down");
-				chat.sendMessage();
-			}
-
-			
-	    },
+	  
 
 	    init: function() {
 	    	//chat.setTimeUser();
@@ -245,7 +231,10 @@
 				if(!data.hasOwnProperty("user")){
 					return;
 				}
-					
+				//reset action
+				chat.flagVoteUp = false;
+				chat.flagVoteDown = false;	
+				chat.flagReport = false;
 				chat.updateUser(data.user);
 			});
 
@@ -268,15 +257,7 @@
 
 	    },
 
-	    sendMessage: function(){
-			if($("#inputMessage").val() != ""){
-				chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: $("#inputMessage").val()}, function(data){
-
-				});
-
-				$("#inputMessage").val("");
-			}
-		},
+	   
 
 	    setCurrentUser: function(user){
 	    	this.oCurrentUser = user;
@@ -394,29 +375,6 @@
 
 			this.arUsers.splice(nIndex, 0, user);
 			this.insertAtIndex(user, nIndex);
-
-			//console.log("oOldUser = "+io.JSON.stringify(oOldUser));
-
-			/*
-			if(oOldUser){
-				console.log("-----------------------------------");
-				console.log("oOldUser.status "+oOldUser.status);
-				console.log("user status "+user.status);
-				console.log("oOldUserT Time "+oOldUser.time);
-				console.log("user Time: "+user.time);
-				if(oOldUser.status != user.status || oOldUser.time != user.time){
-					chat.updateFlashQueue();
-				}
-				if( oOldUser.status == user.status &&  user.status == "speaking" ){
-					//console.log("---------4--------");
-					chat.updateFlashQueue();
-				}
-			}else if((user.status == "speaking" || user.status == "queuing") && nIndex<5){
-
-				chat.updateFlashQueue();
-			}
-			*/
-			//console.log("------------ chat.updateFlashQueue()  ----------");
 			chat.updateFlashQueue();
 
 
@@ -533,16 +491,19 @@
 
 				if(message.text === "#report")
 				{
-					message.text = "Report done! :)";
-					chat.socket.request(chat.sURL+"/chat/reportSpam", {},function(data){
-						
-						//console.log("Report done"+data);
-						}
-					);
+					if(!chat.flagReport){
+						chat.socket.request(chat.sURL+"/chat/reportSpam", {},function(data){
+							
+							chat.flagReport =true;
+							message.text = "Report done! :)";
+							console.log("__________Report done"+data);
+						});
+					}else{
+						message.text = "You had report!";
+					}
+					
 					bShowCommand = false;
 				}//report peding				
-
-				
 			}
 			
 
@@ -602,11 +563,51 @@
 
 		speakingUser: function() {
 			return _.findWhere(chat.arUsers, {status:'speaking'});
+		},
+		vote: function(toUserId, value) {
+			console.log("toUserId:"+toUserId+"Value:"+value);
+			//console.log("_____________Action vote");
+			chat.socket.request(chat.sURL+"/chat/vote", {toUserId : toUserId, value: value}, function(data){
+				console.log("voteResponse "+ io.JSON.stringify(data));
+
+				if(value>0 && data){
+					chat.flagVoteUp = true;
+					chat.flagVoteDown = false;
+					chat.showVoteTemplte("VOTE UP success!");
+					console.log("Up--Vote Up:"+ chat.flagVoteUp +"Vote down:"+chat.flagVoteDown);
+				}
+				if(value < 0 && data){
+					chat.flagVoteUp = false;
+					chat.flagVoteDown = true;
+					chat.showVoteTemplte("VOTE DOWN success!");
+					console.log("Down--Vote Up:"+ chat.flagVoteUp +"Vote down:"+chat.flagVoteDown);
+					
+				}
+				
+
+			})
+	    },
+	     sendMessage: function(){
+			if($("#inputMessage").val() != ""){
+				chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: $("#inputMessage").val()}, function(data){
+
+				});
+
+				$("#inputMessage").val("");
+			}
+		},
+
+		showVoteTemplte:function(message){
+			var templateVote = "<div id='vote-container'><div id='info-vote'>"+message+"</div></div>";
+			$('.like-button').append(templateVote);
+			setTimeout(function(){
+				$('#vote-container').remove();
+			},1000);
 		}
 
-	}
+	}//end chat class
 	
-
+	
 	
 
 	$( document ).ready(function() {
@@ -626,42 +627,38 @@
 
 		$('#like').click(function(e){
 			//console.log(io.JSON.stringify(chat.arUsers));
+			
 			e.preventDefault();
 			if( chat.oCurrentUser.status == 'speaking'){
+				chat.showVoteTemplte("You are speaking, Don't VOTE UP!");
+				return;
 				//return;
 			}
-
+			//if vote enable
 			if(!chat.flagVoteUp){
-				//aUserVote.push(chat.speakingUser().id,1);
-				chat.vote(chat.speakingUser().id,1,"#vote up");
-				//chat.flagVoteUp = true;
-				//chat.flagVoteDown = false;
+				chat.vote(chat.speakingUser().id,1);
 			}
 			else{
-				
+				chat.showVoteTemplte("You had VOTE UP!");
 			}
 			
-			
-		})
-
+				
+		})//end click #like	
 		$('#dislike').click(function(e) {
 			
 			e.preventDefault();
 			if( chat.oCurrentUser.status == 'speaking'){
-				//return;
+				chat.showVoteTemplte("You are speaking, Don't VOTE DOWN!");
+				return;
 			}
-			if (!chat.flagVoteDown) {
-
-				chat.vote(chat.speakingUser().id,-1,"#vote down");
-				//chat.flagVoteDown = true;
-				//chat.flagVoteUp = false;
+			if(!chat.flagVoteDown){
+				chat.vote(chat.speakingUser().id,-1);
 			}
 			else{
-				
+				chat.showVoteTemplte("You had VOTE DOWN!");
 			}
-
 			
-		})
+		})//end click #dislike	
 	});
 	
 

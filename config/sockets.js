@@ -165,7 +165,7 @@ module.exports.sockets = {
 	getReportSpam:function(speaker, callback){
 		Users.findOne({id:speaker.id}).done(function(error,user){
 			if(user){	
-			console.log("user-band:" + speaker.id + "--"+ user.bancount);			
+				//console.log("user-band:" + speaker.id + "--"+ user.bancount);			
 				user.bancount >= sails.config.sockets.REPORT_SPAM_OUT ;
 				callback(true);
 			}
@@ -204,7 +204,7 @@ module.exports.sockets = {
 								
 							}
 						else{
-							console.log("No Action Report spam----------");
+							//console.log("No Action Report spam----------");
 							//console.log("update time for speaking user:"+speaker.username);
 							sails.config.sockets.TOTAL_TALK += sails.config.sockets.TIME_ACTION;
 							//console.log("Total talked:"+sails.config.sockets.TOTAL_TALK);
@@ -222,29 +222,7 @@ module.exports.sockets = {
 
 				}//end if % 15s
 				
-					//update
-				
-				
-				
-				
-				//console.log(speaker.time);
-
-				//console.log("manageSpeaker XXX "+speaker.time);
-				/*
-				if(speaker.time <= 0){
-					speaker.order = sails.config.sockets.nOrder;
-					sails.config.sockets.nOrder++;
-					speaker.status = "queuing";
-					speaker.save(function(err) {
-						sails.config.sockets.onUserUpdated(speaker);
-						sails.config.sockets.nextSpeaker();
-					});
-				}else{//out tu nguyen hoac chua ai speaking
-					speaker.save(function(err) {
-
-					});
-				}
-				*/
+					
 			}else{
 				//if have user speaking or next
 				sails.config.sockets.nextSpeaker();

@@ -148,6 +148,7 @@ module.exports = {
 			if(votejs){
 				votejs.value=value;
 				votejs.save(function(error) {    
+					return res.send({data: votejs});
  				 });
 				
 			}
@@ -156,16 +157,8 @@ module.exports = {
 						if (error) {
 							return res.send({error: error});
 						} else {
-							/*
-							ChatUsers.findOne({id: toUserId}).done(function(error, user){
-								if(user){
-									user.loadRating(function(error){
-										sails.config.sockets.onUserUpdated(user);
-									});
-								}
-								
-							})
-							return res.send({bSuccess: true});*/
+							
+							return res.send({data: vote});
 						}
 					})
 			}
