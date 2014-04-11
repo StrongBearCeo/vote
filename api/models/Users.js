@@ -38,7 +38,7 @@ module.exports = {
 			type: "integer",
 			defaultsTo: 0
 		},
-		isbanned: {
+		bancount: {
 			type: "integer",
 			defaultsTo: 0
 		},

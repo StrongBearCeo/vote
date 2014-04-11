@@ -155,13 +155,13 @@
 	    },
 
 		logout:function(){
-			console.log('Logout');
+			//console.log('Logout');
 			window.location.replace("/logout");
 		},
 
 	    favorite: function(toUserId) {
 	    	chat.socket.request(chat.sURL+"/chat/favorite", {toUserId : toUserId}, function(data){
-				console.log("favoriteResponse "+ io.JSON.stringify(data) );
+				//console.log("favoriteResponse "+ io.JSON.stringify(data) );
 			})
 	    },
 
@@ -170,9 +170,6 @@
 
 	    	chat.socket.request(chat.sURL+"/chat/vote", {toUserId : toUserId, value: value}, function(data){
 				//console.log("voteResponse "+ io.JSON.stringify(data) );
-				
-				
-				
 			})
 			if(message === "#vote up"){
 				$("#inputMessage").val("#vote up");

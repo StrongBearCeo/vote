@@ -23,7 +23,7 @@ module.exports.sockets = {
 	TIME_OUT_ALL_TALK : 120000,
 	DEFAULT_RATING : 0,
 	DEFAULT_FAVORITE : 0,
-	isBanned:false,
+	
 	
 
 	onInit: function() {
