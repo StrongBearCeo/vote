@@ -121,7 +121,15 @@ module.exports = {
 			if(speaker){
 				Users.findOne({id:speaker.id}).done(function(error,user){
 					if(user){				
-						user.bancount = user.bancount + 1;
+						user.bancount = user.bancount + 1;						
+						if(user.bancount >= 10){
+							user.status="blocked";
+							delete user.password;
+							user.save(function(err){
+								res.send({bSuccess: true});
+
+							});
+						}
 						delete user.password;
 						user.save(function(err){
 							res.send({bSuccess: true});

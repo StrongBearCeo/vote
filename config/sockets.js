@@ -23,7 +23,6 @@ module.exports.sockets = {
 	TIME_OUT_ALL_TALK : 120000,
 	DEFAULT_RATING : 0,
 	DEFAULT_FAVORITE : 0,
-	isBanned:false,
 	
 
 	onInit: function() {
@@ -165,7 +164,6 @@ module.exports.sockets = {
 	getReportSpam:function(speaker, callback){
 		Users.findOne({id:speaker.id}).done(function(error,user){
 			if(user){	
-			console.log("user-band:" + speaker.id + "--"+ user.bancount);			
 				user.bancount >= sails.config.sockets.REPORT_SPAM_OUT ;
 				callback(true);
 			}
@@ -203,8 +201,7 @@ module.exports.sockets = {
 								});
 								
 							}
-						else{
-							console.log("No Action Report spam----------");
+						else{							
 							//console.log("update time for speaking user:"+speaker.username);
 							sails.config.sockets.TOTAL_TALK += sails.config.sockets.TIME_ACTION;
 							//console.log("Total talked:"+sails.config.sockets.TOTAL_TALK);
