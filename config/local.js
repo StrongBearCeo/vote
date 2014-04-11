@@ -33,7 +33,7 @@ passport.use(new LocalStrategy(
 		process.nextTick(function () {
 			Users.findOne({ username: username }, function(err, user) {			
 				if(user.status=="blocked"){
-					return done(null, false, { sError: 'Account Blocked.' });
+					return done(null, false, { sError: 'Account' + username + ' Blocked.' });
 				}
 				if (err) { 
 					return done(null, false, {sError: err}); 
