@@ -23,11 +23,6 @@ module.exports.sockets = {
 	TIME_OUT_ALL_TALK : 120000,
 	DEFAULT_RATING : 0,
 	DEFAULT_FAVORITE : 0,
-<<<<<<< HEAD
-	
-=======
->>>>>>> ccfc00e08a6020e35a94c85af8fb0f509057de74
-	
 
 	onInit: function() {
 		sails.config.sockets.nTimerID = setInterval(sails.config.sockets.onChatTimer,1000);
@@ -168,10 +163,6 @@ module.exports.sockets = {
 	getReportSpam:function(speaker, callback){
 		Users.findOne({id:speaker.id}).done(function(error,user){
 			if(user){	
-<<<<<<< HEAD
-				//console.log("user-band:" + speaker.id + "--"+ user.bancount);			
-=======
->>>>>>> ccfc00e08a6020e35a94c85af8fb0f509057de74
 				user.bancount >= sails.config.sockets.REPORT_SPAM_OUT ;
 				callback(true);
 			}
@@ -209,19 +200,17 @@ module.exports.sockets = {
 								});
 								
 							}
-<<<<<<< HEAD
-						else{
-							//console.log("No Action Report spam----------");
-=======
+
+
 						else{							
->>>>>>> ccfc00e08a6020e35a94c85af8fb0f509057de74
-							//console.log("update time for speaking user:"+speaker.username);
-							sails.config.sockets.TOTAL_TALK += sails.config.sockets.TIME_ACTION;
-							//console.log("Total talked:"+sails.config.sockets.TOTAL_TALK);
-							speaker.time = speaker.time + sails.config.sockets.TIME_ENCREASE;
-							//save rating vote
-							sails.config.sockets.calculateUserRating(speaker);
-						}	
+
+								//console.log("update time for speaking user:"+speaker.username);
+								sails.config.sockets.TOTAL_TALK += sails.config.sockets.TIME_ACTION;
+								//console.log("Total talked:"+sails.config.sockets.TOTAL_TALK);
+								speaker.time = speaker.time + sails.config.sockets.TIME_ENCREASE;
+								//save rating vote
+								sails.config.sockets.calculateUserRating(speaker);
+							}	
 					})
 					
 				}
