@@ -1,6 +1,6 @@
 
 
-
+<!--HTML Section Video-->
 <section class="video-area">
 		<div class="container_small">
 			<section class="video" >
@@ -27,8 +27,9 @@
 			</section>
 		</div>		
 </section>
-<!---->
-<!--User copy-->
+
+<!--End HTML Section Video-->
+<!--HTML Section User copy-->
 <section class="user">
 		<div class="container_1080  border-bottom border-top">
 			<section class="row heading-info">
@@ -78,9 +79,8 @@
 				</div>				
 			</section>
 		</div>	
-	</section>
-<!-- -->
-
+</section>
+<!--End HTML Section User copy-->
 
 <script>
 
@@ -103,8 +103,6 @@
 			return true;
 	    })
 	}
-
-
 	var chat = {
 		sURL: "",
 		socket: null,
@@ -127,7 +125,7 @@
 		KEY_VOTE_UP: "#vote up",
 		KEY_VOTE_DOWN: "#vote down",
 		KEY_REPORT: "#report",
-
+		// create ContextMenu 
 		oContextMenu: {
 	        selector: '.user, .messageUsername', 
 			build: function(trigger, e){
@@ -154,20 +152,18 @@
 			}
 	        
 	    },
-
+	    //Logout
 		logout:function(){
 			//console.log('Logout');
 			window.location.replace("/logout");
 		},
-
+		//Add favorite
 	    favorite: function(toUserId) {
 	    	chat.socket.request(chat.sURL+"/chat/favorite", {toUserId : toUserId}, function(data){
 				//console.log("favoriteResponse "+ io.JSON.stringify(data) );
 			})
 	    },
-
-	  
-
+	    //init flash, chat
 	    init: function() {
 	    	//chat.setTimeUser();
 	    	chat.socket = window.socket;
@@ -180,14 +176,15 @@
 				})
 		    }
 	    },
+	    //joinChat
 	    joinChat: function() {
-	    		chat.socket.request(chat.sURL+"/chat/join", {test : "ZZZC"}, function(data){
+    		chat.socket.request(chat.sURL+"/chat/join", {test : "ZZZC"}, function(data){
 				console.log("____joinChat: "+ io.JSON.stringify(data) ); 
 				//return data have: currentUser[] is user login, userList[] is all user
 				if(data.currentUser){
 					chat.onChatConnected(data);
 				}
-			})
+			});
 	    },
 
 	    onChatConnected: function(data) {
@@ -242,9 +239,6 @@
 			});
 
 	    },
-
-	   
-
 	    setCurrentUser: function(user){
 	    	this.oCurrentUser = user;
 			this.initFlash();
@@ -261,7 +255,7 @@
 				console.log("---------------Loaded Flash Chat-------------");
 			}
 		},
-
+		// updateFlashQueue
 		updateFlashQueue: function() {
 			if(this.bFlashConnected){
 
@@ -394,45 +388,41 @@
 		addMessage: function(message){
 			this.insertMessage(message);
 		},
-
-
 		// events
 		onUserClick: function(evt){
 			//console.log("onUserClick "+$(evt.target).data('userId'));
 		},
 
-		// private
+		// template insert user chat
 		templateUser: function(user) {
-			
 			template = $('<div>')
-							.addClass('row')		
-							.append( $('<section>')
-										.addClass('column width-user-info')
-										.append( $('<span>')
-										.addClass('iconsp-3511-35px')
-										)
-										.append( $('<span>')
-										.text(user.username+"  -  "+user.status)
-										.data('userId', user.id)
-										.on('click', chat.onUserClick)
-										)
-									)
-							.append( $('<section>')
-										.addClass('column width-start start-number')
-										.append( $('<span>')
-										
-										).text(user.rating)
-									)
+					.addClass('row')		
+					.append( $('<section>')
+								.addClass('column width-user-info')
+								.append( $('<span>')
+								.addClass('iconsp-3511-35px')
+								)
+								.append( $('<span>')
+								.text(user.username+"  -  "+user.status)
+								.data('userId', user.id)
+								.on('click', chat.onUserClick)
+								)
+							)
+					.append( $('<section>')
+								.addClass('column width-start start-number')
+								.append( $('<span>')
+								
+								).text(user.rating)
+							)
 			return template;
 			//return '<div id="user'+user.id+'" class="user">'+user.username+'</div>';
 		},
-		
+		// template for user chat
 
 		templateMessage: function(message) {
 			var template;
 			var bShowCommand = true;
-			
-
+			//check if speaking 
 			if(chat.oCurrentUser.status === 'speaking'){
 				if(message.text === "#vote up" || message.text === "#vote down" || 
 					message.text === "#report")
@@ -444,7 +434,7 @@
 					bShowCommand = true;
 				}
 			}
-
+			//check if queing or viewing 
 			if(chat.oCurrentUser.status != 'speaking'){
 				if(message.text === "#vote up")
 				{
@@ -492,11 +482,7 @@
 					bShowCommand = false;
 				}//report peding				
 			}
-			
-
-			
-
-
+			//set template for curent user (speaking)
 			if(chat.oCurrentUser.id === message.fromUserId ){
 				template = $('<aside>')
 							.addClass('comment-ct')
@@ -516,7 +502,7 @@
 										)
 									)				
 			}
-
+			//set template for another  user (queing, viewing)
 			if(bShowCommand && chat.oCurrentUser.id != message.fromUserId)
 			{
 				template = $('<aside>')
@@ -547,34 +533,36 @@
 			$("#"+this.sMessageListID).parent().nanoScroller();
 			$("#"+this.sMessageListID).parent().nanoScroller({ scroll: 'bottom' });
 		},
-
+		//return speaking user find on arUsers
 		speakingUser: function() {
 			return _.findWhere(chat.arUsers, {status:'speaking'});
 		},
+		//vote click
 		vote: function(toUserId, value) {
 			//console.log("toUserId:"+toUserId+"Value:"+value);
 			//console.log("_____________Action vote");
 			chat.socket.request(chat.sURL+"/chat/vote", {toUserId : toUserId, value: value}, function(data){
-				console.log("voteResponse "+ io.JSON.stringify(data));
+				//console.log("voteResponse "+ io.JSON.stringify(data));
 
 				if(value>0 && data){
 					chat.flagVoteUp = true;
 					chat.flagVoteDown = false;
 					chat.showVoteTemplte("VOTE UP success!");
-					console.log("Up--Vote Up:"+ chat.flagVoteUp +"Vote down:"+chat.flagVoteDown);
+					//console.log("Up--Vote Up:"+ chat.flagVoteUp +"Vote down:"+chat.flagVoteDown);
 				}
 				if(value < 0 && data){
 					chat.flagVoteUp = false;
 					chat.flagVoteDown = true;
 					chat.showVoteTemplte("VOTE DOWN success!");
-					console.log("Down--Vote Up:"+ chat.flagVoteUp +"Vote down:"+chat.flagVoteDown);
+					//console.log("Down--Vote Up:"+ chat.flagVoteUp +"Vote down:"+chat.flagVoteDown);
 					
 				}
 				
 
 			})
 	    },
-	     sendMessage: function(){
+	    //send message socket to server ChatController
+	    sendMessage: function(){
 			if($("#inputMessage").val() != ""){
 				chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: $("#inputMessage").val()}, function(data){
 
@@ -583,7 +571,7 @@
 				$("#inputMessage").val("");
 			}
 		},
-
+		//template alert on window for user vote
 		showVoteTemplte:function(message){
 			var templateVote = "<div id='vote-container'><div id='info-vote'>"+message+"</div></div>";
 			$('.like-button').append(templateVote);
@@ -594,9 +582,7 @@
 
 	}//end chat class
 	
-	
-	
-
+	// init document jquery -->
 	$( document ).ready(function() {
 		$(".nano").nanoScroller();
 		$(".nano").nanoScroller({ alwaysVisible: true });
@@ -648,6 +634,6 @@
 			
 		})//end click #dislike	
 	});
-	
+	// end init document jquery -->
 
 </script>
