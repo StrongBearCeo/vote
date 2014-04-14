@@ -167,7 +167,7 @@
 	    init: function() {
 	    	//chat.setTimeUser();
 	    	chat.socket = window.socket;
-	    	console.log("____init "+(chat.socket && chat.socket.socket && chat.socket.socket.connected));
+	    	console.log("B1: init Chat"+(chat.socket && chat.socket.socket && chat.socket.socket.connected));
 	    	if(chat.socket.socket && chat.socket.socket.connected){
 	    		chat.joinChat();
 	    	}else{
@@ -176,22 +176,21 @@
 				})
 		    }
 	    },
-	    //joinChat
+	    //1 joinChat
 	    joinChat: function() {
     		chat.socket.request(chat.sURL+"/chat/join", {test : "ZZZC"}, function(data){
-				console.log("____joinChat: "+ io.JSON.stringify(data) ); 
+				console.log("B2: joinChat for User: "+ io.JSON.stringify(data) ); 
 				//return data have: currentUser[] is user login, userList[] is all user
 				if(data.currentUser){
 					chat.onChatConnected(data);
 				}
 			});
 	    },
-
+	    //2 onChatConnected
 	    onChatConnected: function(data) {
 	    	//set this currentUser = data.currentUser = user has just login
-			this.oCurrentUser = data.currentUser;
+			this.oCurrentUser = data.currentUser;//Current user is connected
 			this.initFlash();
-
 			_.each(data.userList, chat.updateUser, chat);
 
 			chat.addSocketListeners();
@@ -214,7 +213,7 @@
 				if(!data.hasOwnProperty("user")){
 					return;
 				}
-				//reset action
+				//reset action vote and report for all user
 				chat.flagVoteUp = false;
 				chat.flagVoteDown = false;	
 				chat.flagReport = false;
@@ -234,7 +233,7 @@
 					return;
 				}
 				
-				console.log("newMessage "+io.JSON.stringify(data.message));
+				//console.log("newMessage "+io.JSON.stringify(data.message));
 				chat.addMessage(data.message);
 			});
 
@@ -244,7 +243,7 @@
 			this.initFlash();
 	    },
 
-	    // calls to flash
+	    // 3 calls to flash
 	    initFlash: function() {
 	    	//console.log("initFlash " + this.bFlashLoaded +" "+ io.JSON.stringify(this.oCurrentUser) +" "+ !this.bFlashInit);
 
@@ -252,7 +251,7 @@
 				this.bFlashInit = true;
 				this.oFlash = document.getElementById("flashInterface");
 				this.oFlash.onConnectedToChat(this.oCurrentUser);
-				console.log("---------------Loaded Flash Chat-------------");
+				console.log("B3: Loaded Flash Chat for: "+JSON.stringify(this.oCurrentUser));
 			}
 		},
 		// updateFlashQueue
@@ -305,7 +304,7 @@
 				console.log("onDebateLeave "+data);
 			});
 		},
-
+		//4 update user
 		updateUser: function(user){
 			//if user current (just login) // User each on Userlist on Room
 			if(chat.oCurrentUser.id == user.id){
@@ -326,36 +325,43 @@
 				}
 			}
 
-
+			console.log("B4: arUsers:"+ io.JSON.stringify(chat.arUsers)+"Current User:"+chat.oCurrentUser.id);
 			oOldUser = _.clone(_.findWhere(chat.arUsers, {id:user.id}));
-		
-			console.log("____arUsers:"+ io.JSON.stringify(chat.arUsers));
-			
+
 			this.removeUser(user.id, true);
 			// find in arUsers 
 			var nIndex = _.sortedIndex(this.arUsers, user, function(value){
-				console.log('Value rating' + value.rating+"of User:"+value.id +"Status: "+value.status);
+				console.log('Value rating:' + value.rating+" of User:"+value.id +" & Status: "+value.status);
 
 
 				var compare = "";
 				switch(value.status){
 					case "speaking":
-						compare += "0"+ value.rating;
+						compare += "0"+ value.order;
 						break;
 					case "queuing":
-						compare += "1"+ value.rating;
+						compare += "1"+ value.order;
 						break;
 					case "viewing":
-						compare += "2"+ value.rating;
+						compare += "2"+ value.order;
 						break;
 				}
 				return compare.toLowerCase();
 			});
-			console.log("_________nIndex :"+ nIndex +"of value.id " + user.id );
+			console.log("nIndex :"+ nIndex +"of User: " + user.id );
 			this.arUsers.splice(nIndex, 0, user);
 			this.insertAtIndex(user, nIndex);
 			//console.log("_________arUsers: "+chat.arUsers);
-			chat.updateFlashQueue();
+			console.log("oOldUser = "+io.JSON.stringify(oOldUser));
+			if(oOldUser){
+				if(oOldUser.status != user.status || oOldUser.time != user.time){
+					chat.updateFlashQueue();
+				}
+			}else if((user.status == "speaking" || user.status == "queuing") && nIndex<5){
+				chat.updateFlashQueue();
+			}
+			console.log("_______________________________________________________________");
+			//chat.updateFlashQueue();
 
 
 		},
@@ -375,6 +381,10 @@
 		},
 		removeUser: function(userId, bFlashIgnore){
 			//console.log("removeUser " + userId);
+			/*
+			*	Return index of userId in arUsers that no sorting
+			*/
+
 			var nIndex = _.findIndexWhere(this.arUsers, {id:userId});
 			if(nIndex != -1){
 				this.arUsers.splice(nIndex, 1);
@@ -470,10 +480,12 @@
 				{
 					if(!chat.flagReport){
 						chat.socket.request(chat.sURL+"/chat/reportSpam", {},function(data){
+							if(data){
+								chat.flagReport =true;
+								message.text = "Report done! :)";
+							}
 							
-							chat.flagReport =true;
-							message.text = "Report done! :)";
-							console.log("__________Report done"+data);
+							//console.log("__________Report done"+data);
 						});
 					}else{
 						message.text = "You had report!";

@@ -13,6 +13,9 @@ module.exports.sockets = {
 
 	nOrder: 0, // Order speaker
 	nTimerID: null,
+
+
+
 	//include custom config
 	TOTAL_TALK:15000,// the first time used talking 15s
 	REPORT_SPAM:0, // count report spam, 10
@@ -67,46 +70,37 @@ module.exports.sockets = {
 			}
 		});
 	},
-
-
 	// when user viewing press onDebate change viewing --> queuing
 	onDebateJoin: function(session, socket){
 		ChatUsers.findOne({id:session.passport.user.id}).done(function(error, user){
-			if(user && user.status == "viewing"){
+			if(user && user.status == "viewing"){//if current user join is viewing
 
 				ChatUsers.find({status:"queuing"}).done(function(error,userchats){
 
-					if(userchats.length <= 4){//limit for 4 user is queuing
+					if(userchats.length <= 3){//limit for 4 user is queuing
 						
 						user.status = "queuing";
 						user.order = sails.config.sockets.nOrder;//nOrder default 0
 						sails.config.sockets.nOrder++;
-						console.log("userchats.length "+userchats.length+"nOder: "+sails.config.sockets.nOrder);
+						console.log("Total user chating: "+userchats.length+"Sort nOder: "+sails.config.sockets.nOrder);
 						user.save(function(err){
-							console.log("___session.passport.user.id:"+ session.passport.user.id +"user.order:"+user.order);
+							console.log("session.passport.user.id:"+ session.passport.user.id +"user.order:"+user.order);
 							sails.config.sockets.onUserUpdated(user);
-							sails.config.sockets.manageSpeaker();
-					
 						});
 					}//end if set user is viewing and sort rating
 					else{
-						//sort rating
-						user.order = user.rating;
+						//sort speaker rating
+						user.order = user.rating;//nOrder default 0
 						user.save(function(err){
-							console.log("___session.passport.user.id:"+ session.passport.user.id +"user.order:"+user.order);
 							sails.config.sockets.onUserUpdated(user);
-							sails.config.sockets.manageSpeaker();
-					
 						});
-
 					}
-					
 				});
 				
 				//console.log("___nOrder:"+ sails.config.sockets.nOrder);
 				
 			}
-		});
+		})
 	},
 	//if speaker onDebateLeave change: seapking or queing --> viewing
 	onDebateLeave: function(session, socket){
@@ -120,6 +114,7 @@ module.exports.sockets = {
 			}
 		});
 	},
+	//calculate Voting after 15s
 	calculateCurrentVoting: function(speaker,user){
 		var sum = 0;
 		//console.log("Voting Calcu--all---");
@@ -209,7 +204,6 @@ module.exports.sockets = {
 	},
 	onUserUpdated: function(user){
 		sails.io.sockets.in('chatroom').emit('userUpdated', {user: user});
-
 	},
 	manageSpeaker: function(nTimeDelta){
 		//console.log("manageSpeaker "+nTimeDelta);
@@ -223,10 +217,11 @@ module.exports.sockets = {
 				}
 
 				speaker.time += nTimeDelta;
-				//console.log("Time" + speaker.time);
-				if(speaker.time % 15 == 0){
+				//console.log("Timed: " + speaker.time);
+				if(speaker.time % 15 == 0)
+				{
 					sails.config.sockets.getReportSpam(speaker, function(banned) {
-						console.log("___________Is banned:"+ banned);
+						//console.log("___________Is banned:"+ banned);
 						if(banned || sails.config.sockets.TOTAL_TALK >= sails.config.sockets.TIME_OUT_ALL_TALK ||  //disconenct if speaked 2 minute
 						speaker.time <= 0 
 						) //disconenct vote down
@@ -234,6 +229,7 @@ module.exports.sockets = {
 
 								speaker.order = sails.config.sockets.nOrder;
 								speaker.status = "viewing";
+								speaker.order = speaker.rating;
 								speaker.save(function(err) {
 									sails.config.sockets.onUserUpdated(speaker);
 									sails.config.sockets.nextSpeaker();
@@ -246,7 +242,7 @@ module.exports.sockets = {
 
 								//console.log("update time for speaking user:"+speaker.username);
 								sails.config.sockets.TOTAL_TALK += sails.config.sockets.TIME_ACTION;
-								console.log("Total talked:"+sails.config.sockets.TOTAL_TALK);
+								//console.log("Total talked:"+sails.config.sockets.TOTAL_TALK);
 								//save rating vote
 								sails.config.sockets.calculateUserRating(speaker);
 							}	
@@ -254,6 +250,7 @@ module.exports.sockets = {
 					
 				}
 				else{
+					//update time for speaker realtime
 					speaker.save(function(err) {
 						//console.log("Time has left:"+speaker.time);
 					});
@@ -274,6 +271,7 @@ module.exports.sockets = {
 			//if have users queuing
 			if(users && users.length){
 				users = _.sortBy(users, function(value){
+					//console.log("Value sort:"+JSON.stringify(value));
 					var compare = "";
 					switch(value.status){
 						case "speaking":
@@ -287,15 +285,44 @@ module.exports.sockets = {
 							break;
 					}
 					return compare.toLowerCase();
-				})
-				//set speaker is first of users
+					//console.log("Compare:"+compare);
+				});
+				//set speaking user is: speaker is first of users
 				speaker = _.first(users);
+				console.log("Before Update status: "+JSON.stringify(speaker));
 				speaker.time = sails.config.sockets.TOTAL_SPEAKER_TIME;//default speaker 30s
+
 				sails.config.sockets.TOTAL_TALK = 0;
 				speaker.status = "speaking";
 				speaker.save(function(err) {
+					console.log("After Update status: "+JSON.stringify(speaker));
 					sails.config.sockets.onUserUpdated(speaker);
+
+					//set viewing user have rating max to queuing 
+					ChatUsers.find({status: "viewing"}).done(function(error, v_users){
+						if(v_users && v_users.length){
+							users = _.sortBy(v_users, function(value){
+								return (value * -1);
+
+							});
+
+							speaker = _.first(users);
+							speaker.status = "queuing";
+							speaker.sort = sails.config.sockets.nOrder;
+							speaker.save(function(err) {
+								//console.log("After Update status: "+JSON.stringify(speaker));
+								sails.config.sockets.onUserUpdated(speaker);
+							});
+
+
+						}
+					});
+
 				});
+				
+
+
+
 			}//end if
 		});
 	},

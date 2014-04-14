@@ -40,7 +40,7 @@ module.exports = {
 	        if (error) {
 	            res.send({error: error});
 	        } else {
-	            
+	            //
 	            sails.config.sockets.onJoinChat(req.session, req.socket, user);
 	            
 	            ChatUsers.find().done(function(error, users) {
@@ -121,19 +121,14 @@ module.exports = {
 			if(speaker){
 				Users.findOne({id:speaker.id}).done(function(error,user){
 					if(user){				
-						user.bancount = user.bancount + 1;						
+						user.bancount = user.bancount + 1;	
+						delete user.password;					
 						if(user.bancount >= 10){
 							user.status="blocked";
-							delete user.password;
-							user.save(function(err){
-								res.send({bSuccess: true});
-
-							});
 						}
-						delete user.password;
+						
 						user.save(function(err){
-							res.send({bSuccess: true});
-
+							res.send({data: true});
 						});
 					}
 					if(error){
