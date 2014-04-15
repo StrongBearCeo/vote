@@ -14,18 +14,18 @@
 					<a href=""><span class="iconsp-line"></span></a>
 					<a id="dislike" href=""><span class="iconsp-3515-35px"></span></a>
 				</div>
-				
+
 				<div class="sound-button">
 					<a href="#" onclick="mute(); return false;"><span class="iconsp-3509-35px"></span></a>
 					<a href=""><span class="iconsp-line"></span></a>
-					<a href="#" onclick="volume(); return false; " title=""><span class="iconsp-3513-35px"></span>				
+					<a href="#" onclick="volume(); return false; " title=""><span class="iconsp-3513-35px"></span>
 					</a>
 					<span>
 					<input data-type="range" type="range" id="volume-bar" min="0" max="1" step="0.1" value="1"></span>
 
 				</div>
 			</section>
-		</div>		
+		</div>
 </section>
 
 <!--End HTML Section Video-->
@@ -48,14 +48,14 @@
 				</section>
 				<div class="column width-comment-area ">
 					<span class="futura-book dark-blue vertical-middle">DEBATE</span>
-				</div>				
+				</div>
 			</section>
 			<section class="row main-table-content">
 				<div class="column width-account vertical-top user-info nano" id="usersContainer">
-					
+
 					<div class="content" id="usersList" >
 					</div>
-					
+
 				</div>
 				<div class="column width-comment-area">
 					<div class="container-comment">
@@ -76,9 +76,9 @@
 						</div>
 					</footer>
 				</div>
-				</div>				
+				</div>
 			</section>
-		</div>	
+		</div>
 </section>
 <!--End HTML Section User copy-->
 
@@ -125,15 +125,15 @@
 		KEY_VOTE_UP: "#vote up",
 		KEY_VOTE_DOWN: "#vote down",
 		KEY_REPORT: "#report",
-		// create ContextMenu 
+		// create ContextMenu
 		oContextMenu: {
-	        selector: '.user, .messageUsername', 
+	        selector: '.user, .messageUsername',
 			build: function(trigger, e){
 				var user = _.findWhere(chat.arUsers, {id: trigger.data('userId')});
 				return {
 					callback: function(key, options) {
 						var m = "clicked: " + key + " on " + $(this).text();
-						window.console && console.log(m) || alert(m); 
+						window.console && console.log(m) || alert(m);
 					},
 
 					items: {
@@ -150,7 +150,7 @@
 					}
 				};
 			}
-	        
+
 	    },
 	    //Logout
 		logout:function(){
@@ -179,7 +179,7 @@
 	    //1 joinChat
 	    joinChat: function() {
     		chat.socket.request(chat.sURL+"/chat/join", {test : "ZZZC"}, function(data){
-				console.log("B2: joinChat for User: "+ io.JSON.stringify(data) ); 
+				console.log("B2: joinChat for User: "+ io.JSON.stringify(data) );
 				//return data have: currentUser[] is user login, userList[] is all user
 				if(data.currentUser){
 					chat.onChatConnected(data);
@@ -191,6 +191,8 @@
 	    	//set this currentUser = data.currentUser = user has just login
 			this.oCurrentUser = data.currentUser;//Current user is connected set for flash
 			this.initFlash();
+
+
 			//update list user
 			_.each(data.userList, chat.updateUser, chat);
 
@@ -208,9 +210,11 @@
 				chat.sendMessage();
 			});
 	    },
-	    // 3 calls to flash
-	    initFlash: function() {
-	    	//console.log("initFlash " + this.bFlashLoaded +" "+ io.JSON.stringify(this.oCurrentUser) +" "+ !this.bFlashInit);
+
+
+		// 3 calls to flash
+		initFlash: function() {
+			//console.log("initFlash " + this.bFlashLoaded +" "+ io.JSON.stringify(this.oCurrentUser) +" "+ !this.bFlashInit);
 
 			if(this.bFlashLoaded && this.oCurrentUser && !this.bFlashInit){
 				this.bFlashInit = true;
@@ -233,18 +237,18 @@
 					$("#background-right").css('background-image','url(../images/banner-left.png)');
 					$("#btnDebate").on('click', chat.onDebateJoin);
 					$("#btnLogoutDebate").on('click', chat.logout);
-					
+
 				}else{
 					$("#btnDebate").on('click', chat.onDebateLeave);
 					$("#btnDebate").text('LEAVE DEBATE');
 				}
 			}
 
-			console.log("B4: arUsers:"+ io.JSON.stringify(chat.arUsers)+"Current User:"+io.JSON.stringify(chat.oCurrentUser.id));
+			console.log("B4: arUsers:"+ io.JSON.stringify(chat.arUsers)+"Current User:"+io.JSON.stringify(chat.oCurrentUser));
 			oOldUser = _.clone(_.findWhere(chat.arUsers, {id:user.id}));
 
 			this.removeUser(user.id, true);
-			// find in arUsers 
+			// find in arUsers
 			var nIndex = _.sortedIndex(this.arUsers, user, function(value){
 				console.log('Value rating:' + value.rating+" of User:"+value.id +" & Status: "+value.status);
 
@@ -263,11 +267,12 @@
 				}
 				return compare.toLowerCase();
 			});
-			console.log("nIndex :"+ nIndex +"of User: " + user.id );
+			console.log("nIndex :--------"+ nIndex +"of User:-------- " + user.id );
+	
 			this.arUsers.splice(nIndex, 0, user);
 			this.insertAtIndex(user, nIndex);
 			//console.log("_________arUsers: "+chat.arUsers);
-			console.log("oOldUser = "+io.JSON.stringify(oOldUser));
+			console.log("oOldUser----- = "+io.JSON.stringify(oOldUser));
 			if(oOldUser){
 				if(oOldUser.status != user.status || oOldUser.time != user.time){
 					chat.updateFlashQueue();
@@ -285,7 +290,7 @@
 				}
 				//reset action vote and report for all user
 				chat.flagVoteUp = false;
-				chat.flagVoteDown = false;	
+				chat.flagVoteDown = false;
 				chat.flagReport = false;
 				chat.updateUser(data.user);
 			});
@@ -302,7 +307,7 @@
 				if(!data.hasOwnProperty("message")){
 					return;
 				}
-				
+
 				//console.log("newMessage "+io.JSON.stringify(data.message));
 				chat.addMessage(data.message);
 			});
@@ -310,10 +315,10 @@
 	    },
 	    setCurrentUser: function(user){
 	    	this.oCurrentUser = user;
-			this.initFlash();
+			 this.initFlash();
 	    },
 
-	  
+
 		// updateFlashQueue
 		updateFlashQueue: function() {
 			if(this.bFlashConnected){
@@ -364,11 +369,11 @@
 				console.log("onDebateLeave "+data);
 			});
 		},
-		
+
 		insertAtIndex: function(user, i) {
 			//console.log("insertAtIndex " + io.JSON.stringify(user) +", "+ i +" "+chat.arUsers.length);
 			if(i === chat.arUsers.length-1) {
-				$("#"+this.sUserListID).append(this.templateUser(user));        
+				$("#"+this.sUserListID).append(this.templateUser(user));
 			}else{
 				$("#"+this.sUserListID+" div:eq(" + i + ")").before(this.templateUser(user));
 			}
@@ -406,7 +411,7 @@
 		// template insert user chat
 		templateUser: function(user) {
 			template = $('<div>')
-					.addClass('row')		
+					.addClass('row')
 					.append( $('<section>')
 								.addClass('column width-user-info')
 								.append( $('<span>')
@@ -421,7 +426,7 @@
 					.append( $('<section>')
 								.addClass('column width-start start-number')
 								.append( $('<span>')
-								
+
 								).text(user.rating)
 							)
 			return template;
@@ -432,9 +437,9 @@
 		templateMessage: function(message) {
 			var template;
 			var bShowCommand = true;
-			//check if speaking 
+			//check if speaking
 			if(chat.oCurrentUser.status === 'speaking'){
-				if(message.text === "#vote up" || message.text === "#vote down" || 
+				if(message.text === "#vote up" || message.text === "#vote down" ||
 					message.text === "#report")
 				{
 					message.text = "System: Don't use command.";
@@ -444,13 +449,13 @@
 					bShowCommand = true;
 				}
 			}
-			//check if queing or viewing 
+			//check if queing or viewing
 			if(chat.oCurrentUser.status != 'speaking'){
 				if(message.text === "#vote up")
 				{
 					if(chat.flagVoteUp){
 						message.text  = "System: You has vote up";
-						
+
 					}
 					else{
 						$('#like').trigger('click');
@@ -469,9 +474,9 @@
 					else{
 						message.text  = "System: Vote down success! :)";
 						$('#dislike').trigger('click');
-						
+
 						chat.flagVoteUp = false;
-						chat.flagVoteDown = true;	
+						chat.flagVoteDown = true;
 					}
 					bShowCommand = false;
 				}//end vote down
@@ -484,15 +489,15 @@
 								chat.flagReport =true;
 								message.text = "Report done! :)";
 							}
-							
+
 							//console.log("__________Report done"+data);
 						});
 					}else{
 						message.text = "You had report!";
 					}
-					
+
 					bShowCommand = false;
-				}//report peding				
+				}//report peding
 			}
 			//set template for curent user (speaking)
 			if(chat.oCurrentUser.id === message.fromUserId ){
@@ -501,7 +506,7 @@
 							.append( $('<span>')
 										.addClass('iconsp-3511-35px')
 									)
-			
+
 							.append( $('<div>')
 										.addClass('green-yellow')
 										.append( $('<span>')
@@ -512,13 +517,13 @@
 										.append( $('<p>')
 										.text(message.text)
 										)
-									)				
+									)
 			}
 			//set template for another  user (queing, viewing)
 			if(bShowCommand && chat.oCurrentUser.id != message.fromUserId)
 			{
 				template = $('<aside>')
-							.addClass('comment-ct right-comment')		
+							.addClass('comment-ct right-comment')
 							.append( $('<div>')
 										.addClass('blue-sky')
 										.append( $('<span>')
@@ -533,9 +538,9 @@
 								.append( $('<span>')
 										.addClass('iconsp-3511-35px')
 									)
-				
+
 			}
-										
+
 			return template;
 			//return '<div class="message"><span class="messageUsername">'+message.fromUsername+': </span><span class="messageText">'+message.text+'</span></div>';
 		},
@@ -567,9 +572,9 @@
 					chat.flagVoteDown = true;
 					chat.showVoteTemplte("VOTE DOWN success!");
 					//console.log("Down--Vote Up:"+ chat.flagVoteUp +"Vote down:"+chat.flagVoteDown);
-					
+
 				}
-				
+
 
 			})
 	    },
@@ -593,7 +598,7 @@
 		}
 
 	}//end chat class
-	
+
 	// init document jquery -->
 	$( document ).ready(function() {
 		$(".nano").nanoScroller();
@@ -605,14 +610,14 @@
 		var flashvars = {sRTMP:"<%- sRTMP %>"};
 		var params = {};
 		var attributes = {};
-		
+
 		swfobject.embedSWF("/swf/main.swf", "flashInterface", "100%", "100%", "10.0.0", "/swf/expressInstall.swf", flashvars, params, attributes);
 
 		chat.init();
 
 		$('#like').click(function(e){
 			//console.log(io.JSON.stringify(chat.arUsers));
-			
+
 			e.preventDefault();
 			if( chat.oCurrentUser.status == 'speaking'){
 				chat.showVoteTemplte("You are speaking, Don't VOTE UP!");
@@ -626,11 +631,11 @@
 			else{
 				chat.showVoteTemplte("You had VOTE UP!");
 			}
-			
-				
-		})//end click #like	
+
+
+		})//end click #like
 		$('#dislike').click(function(e) {
-			
+
 			e.preventDefault();
 			if( chat.oCurrentUser.status == 'speaking'){
 				chat.showVoteTemplte("You are speaking, Don't VOTE DOWN!");
@@ -643,8 +648,8 @@
 				//show
 				chat.showVoteTemplte("You had VOTE DOWN!");
 			}
-			
-		})//end click #dislike	
+
+		})//end click #dislike
 	});
 	// end init document jquery -->
 

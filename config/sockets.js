@@ -22,14 +22,14 @@ module.exports.sockets = {
 	REPORT_SPAM_OUT:10,
 	TIME_ACTION:15000, // action after 15s
 	TOTAL_SPEAKER_TIME:30,// time for speaker, default speaker 30s
-	TIME_ENCREASE :15, //time increase for speaking user 
+	TIME_ENCREASE :15, //time increase for speaking user
 	TIME_OUT_ALL_TALK : 120000,
 	DEFAULT_RATING : 0,
 	DEFAULT_FAVORITE : 0,
 	//Set up time down -1s running cut down timer of speaking user
 	onInit: function() {
 		sails.config.sockets.nTimerID = setInterval(sails.config.sockets.onChatTimer,1000);
-		
+
 	},
 
 	onChatTimer: function() {
@@ -38,7 +38,7 @@ module.exports.sockets = {
 
 	// This custom onConnect function will be run each time AFTER a new socket connects
 	// (To control whether a socket is allowed to connect, check out `authorization` config.)
-	// Keep in mind that Sails' RESTful simulation for sockets 
+	// Keep in mind that Sails' RESTful simulation for sockets
 	// mixes in socket.io events for your routes and blueprints automatically.
 	onConnect: function(session, socket) {
 
@@ -78,7 +78,7 @@ module.exports.sockets = {
 				ChatUsers.find({status:"queuing"}).done(function(error,userchats){
 
 					if(userchats.length <= 3){//limit for 4 user is queuing
-						
+
 						user.status = "queuing";
 						user.order = sails.config.sockets.nOrder;//nOrder default 0
 						sails.config.sockets.nOrder++;
@@ -89,16 +89,20 @@ module.exports.sockets = {
 						});
 					}//end if set user is viewing and sort rating
 					else{
+                  user.order = sails.config.sockets.rating;
+                  user.status = "viewing";
+                  console.log("Total user chating: "+userchats.length+"Sort nOder: "+sails.config.sockets.nOrder);
+                  user.save(function(err){
+                     console.log("session.passport.user.id:"+ session.passport.user.id +"user.order:"+user.order);
+                     sails.config.sockets.onUserUpdated(user);
+                  });
 						//sort speaker rating
-						user.order = user.rating;//nOrder default 0
-						user.save(function(err){
-							sails.config.sockets.onUserUpdated(user);
-						});
+
 					}
 				});
-				
+
 				//console.log("___nOrder:"+ sails.config.sockets.nOrder);
-				
+
 			}
 		})
 	},
@@ -124,11 +128,11 @@ module.exports.sockets = {
 			}else{
 				//console.log("View votes :" + votes);
 				sum = _.reduce(votes, function(r, v){return r + v.value;}, 0) ;
-			//	console.log("Voting Calcu-suss----" + sum);	 
+			//	console.log("Voting Calcu-suss----" + sum);
 			}
 
 			var newscore = sum;
-			//console.log("newscore:" + newscore);	
+			//console.log("newscore:" + newscore);
 			if(newscore>0){
 
 				newscore=1;
@@ -136,7 +140,7 @@ module.exports.sockets = {
 			else if(newscore<0){
 				newscore=-1;
 
-			}		
+			}
 			else{
 				newscore=0;
 			}
@@ -146,10 +150,10 @@ module.exports.sockets = {
 				speaker.time = speaker.time + sails.config.sockets.TIME_ENCREASE;
 				console.log("_____speaker.time:"+speaker.time);
 			}
-			
-			
-								
-				
+
+
+
+
 			delete user.password;
 			user.save(function(err){
 
@@ -158,8 +162,8 @@ module.exports.sockets = {
 				sails.config.sockets.onUserUpdated(speaker);
 				//console.log(speaker);
 				sails.config.sockets.clearVoting();
-			});				
-			
+			});
+
 			//console.log(user);
 
 		});
@@ -171,19 +175,19 @@ module.exports.sockets = {
 				//console.log(user);
 				//console.log("Curent Rating:"+ user.rating);
 				//console.log("speaker-Rating:"+speaker.rating);
-				sails.config.sockets.calculateCurrentVoting(speaker, user);		
+				sails.config.sockets.calculateCurrentVoting(speaker, user);
 			}
-			
-			
+
+
 
 		})
 	},
 	clearVoting: function(){
-		Votes.destroy({			 
-			}).done(function(err) {			 
+		Votes.destroy({
+			}).done(function(err) {
 			  if (err) {
 			    return console.log(err);
-			  
+
 			  } else {
 			   // console.log("---------All Rating Done!-----------");
 			  }
@@ -192,7 +196,7 @@ module.exports.sockets = {
 	},
 	getReportSpam:function(speaker, callback){
 		Users.findOne({id:speaker.id}).done(function(error,user){
-			if(user){	
+			if(user){
 				if(user.bancount >= sails.config.sockets.REPORT_SPAM_OUT){
 					callback(true);
 				}
@@ -209,7 +213,7 @@ module.exports.sockets = {
 		//console.log("manageSpeaker "+nTimeDelta);
 		ChatUsers.findOne({status:"speaking"}).done(function(error, speaker){
 			if(speaker){
-					
+
 				//sails.config.sockets.nTimerID = setInterval(sails.config.sockets.listlike, 15000);
 				//console.log(speaker.rating);
 				if (nTimeDelta === undefined) {
@@ -223,31 +227,30 @@ module.exports.sockets = {
 					sails.config.sockets.getReportSpam(speaker, function(banned) {
 						//console.log("___________Is banned:"+ banned);
 						if(banned || sails.config.sockets.TOTAL_TALK >= sails.config.sockets.TIME_OUT_ALL_TALK ||  //disconenct if speaked 2 minute
-						speaker.time <= 0 
+						speaker.time <= 0
 						) //disconenct vote down
 							{
 
-								speaker.order = sails.config.sockets.nOrder;
+
 								speaker.status = "viewing";
-								speaker.order = speaker.rating;
 								speaker.save(function(err) {
 									sails.config.sockets.onUserUpdated(speaker);
 									sails.config.sockets.nextSpeaker();
 								});
-								
+
 							}
 
 
-						else{							
+						else{
 
 								//console.log("update time for speaking user:"+speaker.username);
 								sails.config.sockets.TOTAL_TALK += sails.config.sockets.TIME_ACTION;
 								//console.log("Total talked:"+sails.config.sockets.TOTAL_TALK);
 								//save rating vote
 								sails.config.sockets.calculateUserRating(speaker);
-							}	
+							}
 					})
-					
+
 				}
 				else{
 					//update time for speaker realtime
@@ -256,14 +259,14 @@ module.exports.sockets = {
 					});
 
 				}//end if % 15s
-				
-					
+
+
 			}else{
 				//if have user speaking or next
 				sails.config.sockets.nextSpeaker();
 			}
 		});
-		
+
 	},
 
 	nextSpeaker: function() {
@@ -297,29 +300,21 @@ module.exports.sockets = {
 				speaker.save(function(err) {
 					console.log("After Update status: "+JSON.stringify(speaker));
 					sails.config.sockets.onUserUpdated(speaker);
+               ChatUsers.find({status: "viewing"}).done(function(error, usersview){
+                  //if have users queuing
+                  orderViewingUser = _.sortBy(usersview,usersview.order);
+                  firstUserViewing = _.first(orderViewingUser);
+               	//console.log("--------------------: "+JSON.stringify(firstUserViewing));
+                  //set first user to queuing user
+                  firstUserViewing.status = "queuing";
+                  firstUserViewing.save(function (err){
+                    sails.config.sockets.onUserUpdated(firstUserViewing);
+                  });
 
-					//set viewing user have rating max to queuing 
-					ChatUsers.find({status: "viewing"}).done(function(error, v_users){
-						if(v_users && v_users.length){
-							users = _.sortBy(v_users, function(value){
-								return (value * -1);
-
-							});
-
-							speaker = _.first(users);
-							speaker.status = "queuing";
-							speaker.sort = sails.config.sockets.nOrder;
-							speaker.save(function(err) {
-								//console.log("After Update status: "+JSON.stringify(speaker));
-								sails.config.sockets.onUserUpdated(speaker);
-							});
-
-
-						}
-					});
+               });
 
 				});
-				
+
 
 
 
@@ -365,31 +360,31 @@ module.exports.sockets = {
 	// At scale, you'll want to be able to copy your app onto multiple Sails.js servers
 	// and throw them behind a load balancer.
 	//
-	// One of the big challenges of scaling an application is that these sorts of clustered 
+	// One of the big challenges of scaling an application is that these sorts of clustered
 	// deployments cannot share memory, since they are on physically different machines.
 	// On top of that, there is no guarantee that a user will "stick" with the same server between
-	// requests (whether HTTP or sockets), since the load balancer will route each request to the 
+	// requests (whether HTTP or sockets), since the load balancer will route each request to the
 	// Sails server with the most available resources. However that means that all room/pubsub/socket
 	// processing and shared memory has to be offloaded to a shared, remote messaging queue (usually Redis)
 	//
 	// Luckily, Socket.io (and consequently Sails.js) apps support Redis for sockets by default.
-	// To enable a remote redis pubsub server: 
+	// To enable a remote redis pubsub server:
 	// adapter: 'redis',
 	// host: '127.0.0.1',
 	// port: 6379,
 	// db: 'sails',
 	// pass: '<redis auth password>'
-	// Worth mentioning is that, if `adapter` config is `redis`, 
-	// but host/port is left unset, Sails will try to connect to redis 
-	// running on localhost via port 6379 
+	// Worth mentioning is that, if `adapter` config is `redis`,
+	// but host/port is left unset, Sails will try to connect to redis
+	// running on localhost via port 6379
 
 
 
 	// `authorization`
 	//
-	// Global authorization for Socket.IO access, 
+	// Global authorization for Socket.IO access,
 	// this is called when the initial handshake is performed with the server.
-	// 
+	//
 	// By default (`authorization: true`), when a socket tries to connect, Sails verifies
 	// that a valid cookie was sent with the upgrade request.  If the cookie doesn't match
 	// any known user session, a new user session is created for it.
@@ -401,11 +396,11 @@ module.exports.sockets = {
 	//
 	// If you don't care about keeping track of your socket users between requests,
 	// you can bypass this cookie check by setting `authorization: false`
-	// which will disable the session for socket requests (req.session is still accessible 
+	// which will disable the session for socket requests (req.session is still accessible
 	// in each request, but it will be empty, and any changes to it will not be persisted)
 	//
-	// On the other hand, if you DO need to keep track of user sessions, 
-	// you can pass along a ?cookie query parameter to the upgrade url, 
+	// On the other hand, if you DO need to keep track of user sessions,
+	// you can pass along a ?cookie query parameter to the upgrade url,
 	// which Sails will use in the absense of a proper cookie
 	// e.g. (when connection from the client):
 	// io.connect('http://localhost:1337?cookie=smokeybear')
@@ -413,7 +408,7 @@ module.exports.sockets = {
 	// (Un)fortunately, the user's cookie is (should!) not accessible in client-side js.
 	// Using HTTP-only cookies is crucial for your app's security.
 	// Primarily because of this situation, as well as a handful of other advanced
-	// use cases, Sails allows you to override the authorization behavior 
+	// use cases, Sails allows you to override the authorization behavior
 	// with your own custom logic by specifying a function, e.g:
 	/*
 	authorization: function authorizeAttemptedSocketConnection(reqObj, cb) {
@@ -454,24 +449,24 @@ module.exports.sockets = {
 	// Enable the flash policy server if the flashsocket transport is enabled
 	// 'flash policy server': true,
 
-	// By default the Socket.IO client will check port 10843 on your server 
+	// By default the Socket.IO client will check port 10843 on your server
 	// to see if flashsocket connections are allowed.
-	// The Adobe Flash Player normally uses 843 as default port, 
+	// The Adobe Flash Player normally uses 843 as default port,
 	// but Socket.io defaults to a non root port (10843) by default
 	//
 	// If you are using a hosting provider that doesn't allow you to start servers
-	// other than on port 80 or the provided port, and you still want to support flashsockets 
+	// other than on port 80 or the provided port, and you still want to support flashsockets
 	// you can set the `flash policy port` to -1
 	'flash policy port': 10843,
 
-	// Used by the HTTP transports. The Socket.IO server buffers HTTP request bodies up to this limit. 
+	// Used by the HTTP transports. The Socket.IO server buffers HTTP request bodies up to this limit.
 	// This limit is not applied to websocket or flashsockets.
 	'destroy buffer size': '10E7',
 
 	// Do we need to destroy non-socket.io upgrade requests?
 	'destroy upgrade': true,
 
-	// Should Sails/Socket.io serve the `socket.io.js` client? 
+	// Should Sails/Socket.io serve the `socket.io.js` client?
 	// (as well as WebSocketMain.swf for Flash sockets, etc.)
 	'browser client': true,
 
@@ -485,23 +480,23 @@ module.exports.sockets = {
 	// Does Socket.IO need to send an ETag header for the static requests?
 	'browser client etag': false,
 
-	// Adds a Cache-Control: private, x-gzip-ok="", max-age=31536000 header to static requests, 
+	// Adds a Cache-Control: private, x-gzip-ok="", max-age=31536000 header to static requests,
 	// but only if the file is requested with a version number like /socket.io/socket.io.v0.9.9.js.
 	'browser client expires': 315360000,
 
 	// Does Socket.IO need to GZIP the static files?
-	// This process is only done once and the computed output is stored in memory. 
+	// This process is only done once and the computed output is stored in memory.
 	// So we don't have to spawn a gzip process for each request.
 	'browser client gzip': false,
 
-	// Optional override function to serve all static files, 
+	// Optional override function to serve all static files,
 	// including socket.io.js et al.
 	// Of the form :: function (req, res) { /* serve files */ }
 	'browser client handler': false,
 
-	// Meant to be used when running socket.io behind a proxy. 
-	// Should be set to true when you want the location handshake to match the protocol of the origin. 
-	// This fixes issues with terminating the SSL in front of Node 
+	// Meant to be used when running socket.io behind a proxy.
+	// Should be set to true when you want the location handshake to match the protocol of the origin.
+	// This fixes issues with terminating the SSL in front of Node
 	// and forcing location to think it's wss instead of ws.
 	'match origin protocol': false,
 
@@ -526,7 +521,7 @@ module.exports.sockets = {
 	// (`undefined` indicates use default)
 	'static': undefined,
 
-	// The entry point where Socket.IO starts looking for incoming connections. 
+	// The entry point where Socket.IO starts looking for incoming connections.
 	// This should be the same between the client and the server.
 	resource: '/socket.io'
 
