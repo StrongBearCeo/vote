@@ -189,8 +189,9 @@
 	    //2 onChatConnected
 	    onChatConnected: function(data) {
 	    	//set this currentUser = data.currentUser = user has just login
-			this.oCurrentUser = data.currentUser;//Current user is connected
+			this.oCurrentUser = data.currentUser;//Current user is connected set for flash
 			this.initFlash();
+			//update list user
 			_.each(data.userList, chat.updateUser, chat);
 
 			chat.addSocketListeners();
@@ -207,7 +208,76 @@
 				chat.sendMessage();
 			});
 	    },
+	    // 3 calls to flash
+	    initFlash: function() {
+	    	//console.log("initFlash " + this.bFlashLoaded +" "+ io.JSON.stringify(this.oCurrentUser) +" "+ !this.bFlashInit);
 
+			if(this.bFlashLoaded && this.oCurrentUser && !this.bFlashInit){
+				this.bFlashInit = true;
+				this.oFlash = document.getElementById("flashInterface");
+				this.oFlash.onConnectedToChat(this.oCurrentUser);
+				console.log("B3: Loaded Flash Chat for: "+JSON.stringify(this.oCurrentUser));
+			}
+		},
+		//4 update user
+		updateUser: function(user){
+			//if user current (just login) // User each on Userlist on Room
+			if(chat.oCurrentUser.id == user.id){
+				chat.setCurrentUser(user);
+				$("#btnDebate").off('click');
+				$("#btnDebate").removeClass('btnDisabled');
+
+				if(user.status == "viewing"){
+					$("#btnDebate").text('JOIN DEBATE');
+					$("#btnLogoutDebate").text('LOG OUT');
+					$("#background-right").css('background-image','url(../images/banner-left.png)');
+					$("#btnDebate").on('click', chat.onDebateJoin);
+					$("#btnLogoutDebate").on('click', chat.logout);
+					
+				}else{
+					$("#btnDebate").on('click', chat.onDebateLeave);
+					$("#btnDebate").text('LEAVE DEBATE');
+				}
+			}
+
+			console.log("B4: arUsers:"+ io.JSON.stringify(chat.arUsers)+"Current User:"+io.JSON.stringify(chat.oCurrentUser.id));
+			oOldUser = _.clone(_.findWhere(chat.arUsers, {id:user.id}));
+
+			this.removeUser(user.id, true);
+			// find in arUsers 
+			var nIndex = _.sortedIndex(this.arUsers, user, function(value){
+				console.log('Value rating:' + value.rating+" of User:"+value.id +" & Status: "+value.status);
+
+
+				var compare = "";
+				switch(value.status){
+					case "speaking":
+						compare += "0"+ value.order;
+						break;
+					case "queuing":
+						compare += "1"+ value.order;
+						break;
+					case "viewing":
+						compare += "2"+ value.order;
+						break;
+				}
+				return compare.toLowerCase();
+			});
+			console.log("nIndex :"+ nIndex +"of User: " + user.id );
+			this.arUsers.splice(nIndex, 0, user);
+			this.insertAtIndex(user, nIndex);
+			//console.log("_________arUsers: "+chat.arUsers);
+			console.log("oOldUser = "+io.JSON.stringify(oOldUser));
+			if(oOldUser){
+				if(oOldUser.status != user.status || oOldUser.time != user.time){
+					chat.updateFlashQueue();
+				}
+			}else if((user.status == "speaking" || user.status == "queuing") && nIndex<5){
+				chat.updateFlashQueue();
+			}
+			console.log("_______________________________________________________________");
+			//chat.updateFlashQueue();
+		},
 	    addSocketListeners: function() {
 	    	chat.socket.on("userUpdated", function(data){
 				if(!data.hasOwnProperty("user")){
@@ -243,17 +313,7 @@
 			this.initFlash();
 	    },
 
-	    // 3 calls to flash
-	    initFlash: function() {
-	    	//console.log("initFlash " + this.bFlashLoaded +" "+ io.JSON.stringify(this.oCurrentUser) +" "+ !this.bFlashInit);
-
-			if(this.bFlashLoaded && this.oCurrentUser && !this.bFlashInit){
-				this.bFlashInit = true;
-				this.oFlash = document.getElementById("flashInterface");
-				this.oFlash.onConnectedToChat(this.oCurrentUser);
-				console.log("B3: Loaded Flash Chat for: "+JSON.stringify(this.oCurrentUser));
-			}
-		},
+	  
 		// updateFlashQueue
 		updateFlashQueue: function() {
 			if(this.bFlashConnected){
@@ -304,67 +364,7 @@
 				console.log("onDebateLeave "+data);
 			});
 		},
-		//4 update user
-		updateUser: function(user){
-			//if user current (just login) // User each on Userlist on Room
-			if(chat.oCurrentUser.id == user.id){
-				chat.setCurrentUser(user);
-				$("#btnDebate").off('click');
-				$("#btnDebate").removeClass('btnDisabled');
-
-				if(user.status == "viewing"){
-					$("#btnDebate").text('JOIN DEBATE');
-					$("#btnLogoutDebate").text('LOG OUT');
-					$("#background-right").css('background-image','url(../images/banner-left.png)');
-					$("#btnDebate").on('click', chat.onDebateJoin);
-					$("#btnLogoutDebate").on('click', chat.logout);
-					
-				}else{
-					$("#btnDebate").on('click', chat.onDebateLeave);
-					$("#btnDebate").text('LEAVE DEBATE');
-				}
-			}
-
-			console.log("B4: arUsers:"+ io.JSON.stringify(chat.arUsers)+"Current User:"+chat.oCurrentUser.id);
-			oOldUser = _.clone(_.findWhere(chat.arUsers, {id:user.id}));
-
-			this.removeUser(user.id, true);
-			// find in arUsers 
-			var nIndex = _.sortedIndex(this.arUsers, user, function(value){
-				console.log('Value rating:' + value.rating+" of User:"+value.id +" & Status: "+value.status);
-
-
-				var compare = "";
-				switch(value.status){
-					case "speaking":
-						compare += "0"+ value.order;
-						break;
-					case "queuing":
-						compare += "1"+ value.order;
-						break;
-					case "viewing":
-						compare += "2"+ value.order;
-						break;
-				}
-				return compare.toLowerCase();
-			});
-			console.log("nIndex :"+ nIndex +"of User: " + user.id );
-			this.arUsers.splice(nIndex, 0, user);
-			this.insertAtIndex(user, nIndex);
-			//console.log("_________arUsers: "+chat.arUsers);
-			console.log("oOldUser = "+io.JSON.stringify(oOldUser));
-			if(oOldUser){
-				if(oOldUser.status != user.status || oOldUser.time != user.time){
-					chat.updateFlashQueue();
-				}
-			}else if((user.status == "speaking" || user.status == "queuing") && nIndex<5){
-				chat.updateFlashQueue();
-			}
-			console.log("_______________________________________________________________");
-			//chat.updateFlashQueue();
-
-
-		},
+		
 		insertAtIndex: function(user, i) {
 			//console.log("insertAtIndex " + io.JSON.stringify(user) +", "+ i +" "+chat.arUsers.length);
 			if(i === chat.arUsers.length-1) {
