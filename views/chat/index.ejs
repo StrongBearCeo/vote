@@ -31,7 +31,7 @@
 <!--End HTML Section Video-->
 <!--HTML Section User copy-->
 <section class="user">
-		<div class="container_1080  border-bottom border-top">
+		<div class="container_1080  b-bottom b-top">
 			<section class="row heading-info">
 				<section class="column width-account">
 					<div class="row">
@@ -60,7 +60,8 @@
 				<div class="column width-comment-area">
 					<div class="container-comment">
 					<div class="title">
-						<span>World Cup Qualifier</span><span>Today 4.45PM</span>
+						<span>World Cup Qualifier</span>
+						<span id="currentDate">Today </span>
 					</div>
 					<div class="scroll-bar-comment nano">
 						<aside id="messages" class="content"></aside>
@@ -168,7 +169,7 @@
 	    	//chat.setTimeUser();
 	    	chat.socket = window.socket;
 	    	console.log("B1: init Chat"+(chat.socket && chat.socket.socket && chat.socket.socket.connected));
-	    	if(chat.socket.socket && chat.socket.socket.connected){
+	   	if(chat.socket.socket && chat.socket.socket.connected){
 	    		chat.joinChat();
 	    	}else{
 		    	chat.socket.on("connect", function(){
@@ -227,6 +228,7 @@
 		updateUser: function(user){
 			//if user current (just login) // User each on Userlist on Room
 			if(chat.oCurrentUser.id == user.id){
+				//if current user on list uerchat, disable debate click
 				chat.setCurrentUser(user);
 				$("#btnDebate").off('click');
 				$("#btnDebate").removeClass('btnDisabled');
@@ -245,34 +247,30 @@
 			}
 
 			console.log("B4: arUsers:"+ io.JSON.stringify(chat.arUsers)+"Current User:"+io.JSON.stringify(chat.oCurrentUser));
+
 			oOldUser = _.clone(_.findWhere(chat.arUsers, {id:user.id}));
-
 			this.removeUser(user.id, true);
-			// find in arUsers
 			var nIndex = _.sortedIndex(this.arUsers, user, function(value){
-				console.log('Value rating:' + value.rating+" of User:"+value.id +" & Status: "+value.status);
+					var compare = "";
+					switch(value.status){
+						case "speaking":
+							compare += "0"+ value.order;
+							break;
+						case "queuing":
+							compare += "1"+ value.order;
+							break;
+						case "viewing":
+							compare += "2"+ value.order;
+							break;
+					}
+					return compare.toLowerCase();
 
-
-				var compare = "";
-				switch(value.status){
-					case "speaking":
-						compare += "0"+ value.order;
-						break;
-					case "queuing":
-						compare += "1"+ value.order;
-						break;
-					case "viewing":
-						compare += "2"+ value.order;
-						break;
-				}
-				return compare.toLowerCase();
+					//return value.rating * -1;
 			});
-			console.log("nIndex :--------"+ nIndex +"of User:-------- " + user.id );
-	
-			this.arUsers.splice(nIndex, 0, user);
+
+			chat.arUsers.splice(nIndex, 0, user);
+			console.log("Sorting Viewing Speaker:"+io.JSON.stringify(chat.arUser));
 			this.insertAtIndex(user, nIndex);
-			//console.log("_________arUsers: "+chat.arUsers);
-			console.log("oOldUser----- = "+io.JSON.stringify(oOldUser));
 			if(oOldUser){
 				if(oOldUser.status != user.status || oOldUser.time != user.time){
 					chat.updateFlashQueue();
@@ -280,8 +278,21 @@
 			}else if((user.status == "speaking" || user.status == "queuing") && nIndex<5){
 				chat.updateFlashQueue();
 			}
-			console.log("_______________________________________________________________");
-			//chat.updateFlashQueue();
+
+		},
+		insertAtIndex: function(user, i) {
+			//console.log("insertAtIndex " + io.JSON.stringify(user) +", "+ i +" "+chat.arUsers.length);
+			if(i === chat.arUsers.length - 1) {
+				$("#"+this.sUserListID).append(this.templateUser(user));
+			}else{
+				$("#"+this.sUserListID+" div:eq(" + i + ")").before(this.templateUser(user));
+			}
+			$("#"+this.sUserListID).parent().nanoScroller();
+		},
+		removeAtIndex: function(i) {
+			//console.log("removeAtIndex "+ i)
+			$("#"+this.sUserListID+" div:eq(" + i + ")").remove();
+			$("#"+this.sUserListID).parent().nanoScroller();
 		},
 	    addSocketListeners: function() {
 	    	chat.socket.on("userUpdated", function(data){
@@ -370,20 +381,7 @@
 			});
 		},
 
-		insertAtIndex: function(user, i) {
-			//console.log("insertAtIndex " + io.JSON.stringify(user) +", "+ i +" "+chat.arUsers.length);
-			if(i === chat.arUsers.length-1) {
-				$("#"+this.sUserListID).append(this.templateUser(user));
-			}else{
-				$("#"+this.sUserListID+" div:eq(" + i + ")").before(this.templateUser(user));
-			}
-			$("#"+this.sUserListID).parent().nanoScroller();
-		},
-		removeAtIndex: function(i) {
-			//console.log("removeAtIndex "+ i)
-			$("#"+this.sUserListID+" div:eq(" + i + ")").remove();
-			$("#"+this.sUserListID).parent().nanoScroller();
-		},
+
 		removeUser: function(userId, bFlashIgnore){
 			//console.log("removeUser " + userId);
 			/*
@@ -601,6 +599,16 @@
 
 	// init document jquery -->
 	$( document ).ready(function() {
+		//set currentDate
+		var myVar=setInterval(function(){myTimer()},1000);
+
+			function myTimer()
+			{
+			var d=new Date();
+			var t=d.toLocaleTimeString();
+		//	document.getElementById("demo").innerHTML=t;
+			$('span#currentDate').html('Today ' + t)
+			}
 		$(".nano").nanoScroller();
 		$(".nano").nanoScroller({ alwaysVisible: true });
 		$(".nano").nanoScroller({ preventPageScrolling: true });

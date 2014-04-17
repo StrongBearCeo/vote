@@ -1,5 +1,5 @@
 /**********************************
-*		 							*	
+*		 							*
 *Descrition:practice;				*
 *Date:3/15/2014;					*
 *									*
@@ -7,15 +7,15 @@
 ************************************/
 
 html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video
- { margin: 0; padding: 0; border: 0; font-size: 100%; font: inherit; vertical-align: baseline; } 
- /* HTML5 display-role reset for older browsers */ 
- article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section 
+ { margin: 0; padding: 0; border: 0; font-size: 100%; font: inherit; vertical-align: baseline; }
+ /* HTML5 display-role reset for older browsers */
+ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section
  { display: block;margin:0px; }
-  body { line-height: 1; } 
+  body { line-height: 1; }
   ol, ul { list-style: none;padding:0px; }
-   blockquote, q { quotes: none; } 
-   blockquote:before, blockquote:after, q:before, q:after { content: ''; content: none; } 
-   table { border-collapse: collapse; border-spacing: 0; } 
+   blockquote, q { quotes: none; }
+   blockquote:before, blockquote:after, q:before, q:after { content: ''; content: none; }
+   table { border-collapse: collapse; border-spacing: 0; }
 /********* icon-sprite**************/
 [class*='iconsp-']{
 	background-image:url('images/sprite.png');
@@ -101,7 +101,7 @@ a{
 	text-decoration:none;
 }
 #volume-bar{
-	display:none;	
+	display:none;
 }
 .container_1080{
 	width:1080px;
@@ -277,14 +277,15 @@ margin: 0px 10px 0px 14px;
 	position: relative;
 }
 #vote-container #info-vote{
-	border:1px solid #BED46A;
-	background: #BED46A;
-	padding: 1em 1.5em;
-	width: 100px;
-	position: absolute;
-	top: -4em;
-	z-index: 200;
-	left: 1em;
+	background: none repeat scroll 0 0 #BED46A;
+    border: 1px solid #BED46A;
+    left: -1em;
+    padding: 4px 10px;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 180px;
+    z-index: 200;
 }
 .video-area .video-control  span{
 	vertical-align:middle;
@@ -325,12 +326,12 @@ margin: 0px 10px 0px 14px;
 	border-bottom:1px solid #095ea5;
 }
 .user .table-user .table-heading td:first-child{
-	
+
 	width:80%;
 }
 
 .user .table-user .table-heading td:last-child{
-	
+
 	width:20%;
 }
 .user table  td{
@@ -423,7 +424,7 @@ margin: 0px 10px 0px 14px;
 
 }
 .container-comment .scroll-bar-comment{
-	
+
 	height:253px;
 }
 .container-comment .title{
@@ -524,4 +525,3 @@ margin: 0px 10px 0px 14px;
 	height:213px;
 	}
 }
-

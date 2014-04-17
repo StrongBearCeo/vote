@@ -16,11 +16,11 @@
  */
 
 module.exports = {
-    
+
     // VIEWS
 	index: function (req, res) {
 		if(req.user){
-			res.view({user: req.user, sRTMP: sails.config.custom.sRTMP}); 
+			res.view({user: req.user, sRTMP: sails.config.custom.sRTMP});
 		}
 		else{
 			return res.redirect("/");
@@ -42,20 +42,15 @@ module.exports = {
 	        } else {
 	            //
 	            sails.config.sockets.onJoinChat(req.session, req.socket, user);
-	            
 	            ChatUsers.find().done(function(error, users) {
 	            	if (error) {
 			            res.send({error: error});
 			        } else {
-		            	
 		            	res.send({currentUser: user, userList: users});
 		            }
 	            });
-				
 	        }
-    	});
-
-		
+        });
 	},
 
 	message: function(req, res){
@@ -90,7 +85,7 @@ module.exports = {
 						res.send(200);
 					})
 				})
-				
+
 			}
     	});
 
@@ -120,13 +115,13 @@ module.exports = {
 		ChatUsers.findOne({status:"speaking"}).done(function(error, speaker){
 			if(speaker){
 				Users.findOne({id:speaker.id}).done(function(error,user){
-					if(user){				
-						user.bancount = user.bancount + 1;	
-						delete user.password;					
+					if(user){
+						user.bancount = user.bancount + 1;
+						delete user.password;
 						if(user.bancount >= 10){
 							user.status="blocked";
 						}
-						
+
 						user.save(function(err){
 							res.send({data: true});
 						});
@@ -137,12 +132,12 @@ module.exports = {
 				});
 
 			}
-		});		
+		});
 
-		
+
 	},
 
-	
+
 	vote: function(req, res){
 		var toUserId =  req.param("toUserId");
 		var value = req.param("value");
@@ -150,17 +145,17 @@ module.exports = {
 		Votes.findOne({fromUserId:req.session.passport.user.id}).done(function(error,votejs){
 			if(votejs){
 				votejs.value=value;
-				votejs.save(function(error) {    
+				votejs.save(function(error) {
 					return res.send({data: votejs});//if success
  				 });
-				
+
 			}
 			else{
 					Votes.create({fromUserId: req.session.passport.user.id, toUserId:toUserId, value:value}).done(function(error, vote) {
 						if (error) {
 							return res.send({error: error});
 						} else {
-							
+
 							return res.send({data: vote});//if success
 						}
 					})
@@ -217,5 +212,5 @@ module.exports = {
 	*/
 	_config: {}
 
-  
+
 };
