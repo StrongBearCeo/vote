@@ -593,6 +593,10 @@
 			setTimeout(function(){
 				$('#vote-container').remove();
 			},1000);
+		},
+		//listen report spam event from flash
+		onReportSpamFlash:function(user){
+			console.log("Listen event report spam form flash."+user.id);
 		}
 
 	}//end chat class
@@ -615,7 +619,8 @@
 
 		$.contextMenu(chat.oContextMenu);
 
-		var flashvars = {sRTMP:"<%- sRTMP %>"};
+	//	var flashvars = {sRTMP:"<%- sRTMP %>"};
+	var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
 		var params = {};
 		var attributes = {};
 
