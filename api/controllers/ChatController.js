@@ -113,7 +113,7 @@ module.exports = {
 	reportSpam:function(req,res){
 		//console.log("Spam user:" + req.param('id'));
 
-				Users.findOne({id:req.param('id')}).done(function(error,user){
+				Users.findOne({username:req.param('username')}).done(function(error,user){
 					if(user){
 						user.bancount = user.bancount + 1;
 						delete user.password;
@@ -157,7 +157,18 @@ module.exports = {
 		});
 
 	},
+   getbancount: function(req, res){
+      Users.findOne({id:req.param('id')}).done(function(error,userban){
+         if(error){
 
+            return res.send({error: error});
+         }
+         if(userban){
+            res.send({userban:userban});
+         }
+      })
+
+   },
 	favorite: function(req, res){
 		var toUserId =  req.param("toUserId");
 		Favorites.findOne({fromUserId: req.session.passport.user.id, toUserId:toUserId}).done(function(error, favorite){

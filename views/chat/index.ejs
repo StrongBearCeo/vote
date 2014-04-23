@@ -129,6 +129,11 @@
 		KEY_VOTE_UP: "#vote up",
 		KEY_VOTE_DOWN: "#vote down",
 		KEY_REPORT: "#report",
+		ALERT_VOTE_UP_SUCCESS:"Vote up success!",
+		ALERT_VOTE_DOWN_SUCCESS:"Vote down success!",
+		ALERT_HAD_VOTE_UP:"You had vote up",
+		ALERT_HAD_VOTE_DOWN:"You had vote up",
+		ALERT_REPORT_SUCCESS:"You had report:",
 		// create ContextMenu
 		oContextMenu: {
 	        selector: '.user, .messageUsername',
@@ -418,66 +423,89 @@
 					return  'false';
 				}
 			})();
-			template = $('<div>')
-					.addClass('row')
-					.append( $('<section>')
-								.addClass('column width-user-info')
-								.append( $('<span>')
-									.addClass('iconsp-3511-35px')
-								)
-								.append( $('<span>')
-									.text(user.username+"  -  "+user.status)
-									.data('userId', user.id)
-									.on('click', chat.onUserClick)
-								)
-								.append($('<button>')
-									.addClass('repSpamUser' +' '+ user.username+'-'+user.id)
-									.data('reported',reportedByUser)//false this current user not report
-									.data('enableReported','false')//enable report
-									.attr('id',user.id)
-									.text('Report')
-									.on('click',function(){
-										//console.log('_______data report enable'+ $(this).data('reported'));
-										//alert($(this).attr('id'));
-										//chat.addMessage("#report");
-									//console.log('OUT----REPORTED IS ' +$(this).data('reported') + '-----enableReported------ ' + $(this).data('enableReported'));
 
 
-										var checkedReport = _.where(chat.arReportUser,{fromUserId:chat.oCurrentUser.id,toUserId:user.id});
+			//chat.getNumberBanCount(user.id,function(number){
+
+			//})
+				template = $('<div>')
+						.addClass('row')
+						.append( $('<section>')
+									.addClass('column width-user-info')
+									.append( $('<span>')
+										.addClass('iconsp-3511-35px')
+									)
+									.append( $('<span>')
+										.text(user.username+"  -  "+user.status)
+										.data('userId', user.id)
+										.on('click', chat.onUserClick)
+									)
+									.append($('<button>')
+										.addClass('btn btn-primary repSpamUser' +' '+ user.username+'-'+user.id)
+										//.id(user.id)
+										.data('reported',reportedByUser)//false this current user not report
+										.data('enableReported','false')//enable report
+										.data('id',user.id)
+										.attr('id',user.id)
+										.text('')
+										.on('click',function(){
+											var checkedReport = false;
+											if(chat.arReportUser.length > 0){
+												var oReportedSpeaker;
+												oReportedSpeaker = _.where(chat.arReportUser,{formUserID:chat.oCurrentUser.id,toUserID:user.id}) ;
+												//console.log("______oReportedSpeaker"+JSON.stringify(oReportedSpeaker));
+												//console.log("______oReportedSpeaker"+oReportedSpeaker.length);
+												if(oReportedSpeaker.length > 0)
+													checkedReport = oReportedSpeaker[0].reported;
+												//console.log("______arReportUser :"+JSON.stringify(chat.arReportUser[0].reported));
+
+											}
+
+											if(chat.oCurrentUser.status != "speaking"){
+													if($(this).data('reported') == "false" && !checkedReport){
+														chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"#report "+user.username}, function(data){
+															chat.arReportUser.push({
+																formUserID:chat.oCurrentUser.id,
+																toUserID:user.id,
+																reported: true
+															});
+														});
+													}//end if
+											}else{
+
+											}
 
 
-										if($(this).data('reported') == "false" && ! checkedReport[0].reported){
-											chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"#report "+user.username}, function(data){
-												chat.arReportUser.push({
-													formUserID:chat.oCurrentUser.id,
-													toUserID:user.id,
-													reported: true
+											if($(this).data('reported') == 'true'){
+													chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"Can't report yourself "}, function(data){
+													});
+											}//end if
+
+											if(checkedReport){
+												chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"You had report: "+user.username}, function(data){
 												});
-											});
-										}//end if
+											}//end if
 
-										if($(this).data('reported') == 'true'){
-											chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"Can't report yourself "}, function(data){
-											});
-										}//end if
-
-										if(checkedReport[0].reported){
-											chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"You had report: "+user.username}, function(data){
-											});
-										}//end if
-
-									}//end on click
+										}//end on click
+									)
 								)
-							)
-					)//end append
-					.append( $('<section>')
-								.addClass('column width-start start-number')
-								.append( $('<span>')
+								/*
+								.append($('<span>')
+								.attr('id',user.id)
+								.data('id',user.id)
+								.addClass('numberban-speaker')
+								.text("")
 
-								).text(user.rating)
-							)
-			return template;
-			//return '<div id="user'+user.id+'" class="user">'+user.username+'</div>';
+							)*/
+						)//end append
+						.append( $('<section>')
+									.addClass('column width-start start-number')
+									.append( $('<span>')
+
+									).text(user.rating)
+								)
+				return template;
+				//return '<div id="user'+user.id+'" class="user">'+user.username+'</div>';
 		},
 
 		// template for user chat
@@ -517,6 +545,7 @@
 				{
 					if(chat.flagVoteDown){
 						message.text  = "System: You has vote down";
+
 					}
 					else{
 						message.text  = "System: Vote down success! :)";
@@ -531,7 +560,7 @@
 				if(message.text.substring(0,7) === "#report")
 				{
 					if(!chat.flagReport){
-						chat.socket.request(chat.sURL+"/chat/reportSpam", {id:message.text.substring(8)},function(data){
+						chat.socket.request(chat.sURL+"/chat/reportSpam", {username:message.text.substring(8)},function(data){
 							if(data){
 								//chat.flagReport =true;
 								message.text = "Report done! :)";
@@ -646,24 +675,64 @@
 		//listen report spam event from flash
 		onReportSpamFlash:function(user){
 			console.log("Listen event report spam form flash."+user.id);
-		}
+		},
+		getNumberBanCount:function(userID,callback){
+			chat.socket.request(chat.sURL+"/chat/getbancount", {id:userID}, function(userban){
+					//console.log('Number banned:' + userban.userban);
+					//console.log('Array return Banned' + JSON.stringify(userban) )	;
+					callback(userban);
+				}
+			);
+		},
 
 	}//end chat class
 
 	// init document jquery -->
 	$( document ).ready(function() {
+		setInterval(function(){
+			$('button.repSpamUser').each(function(){
+
+				console.log("_______________ Running get count _______________");
+
+				/*
+
+				chat.getNumberBanCount($(this).data('id'),function(userban){
+					console.log('____Return Number:' + JSON.stringify(userban));
+					console.log('____Return Number:' + userban.userban.id);
+					//console.log('bnumber-----' + numberBanReturn + ' id ' + $(this).attr('id') +"data id"+ $(this).data('id'));
+					//console.log('bnumber-----dasdsadas' + numberBanReturn);
+					console.log('span#'+userban.userban.id)	;
+					alert('button#'+userban.userban.bancount);
+					$('button#'+userban.userban.id).text(userban.userban.bancount);
+				});
+				*/
+
+				chat.socket.request(chat.sURL+"/chat/getbancount", {id:$(this).data('id')}, function(userban){
+					console.log('____Return Number:' + JSON.stringify(userban));
+					console.log('____Return Number:' + userban.userban.id);
+					//console.log('bnumber-----' + numberBanReturn + ' id ' + $(this).attr('id') +"data id"+ $(this).data('id'));
+					//console.log('bnumber-----dasdsadas' + numberBanReturn);
+					console.log('span#'+userban.userban.id)	;
+					//alert('button#'+userban.userban.bancount);
+					$('button#'+userban.userban.id).text(userban.userban.bancount);
+
+					}
+				);
+
+
+			});
+		},1000);
 
 
 		//set currentDate
 		var myVar=setInterval(function(){myTimer()},1000);
-
-			function myTimer()
-			{
+		function myTimer()
+		{
 			var d=new Date();
 			var t=d.toLocaleTimeString();
 		//	document.getElementById("demo").innerHTML=t;
 			$('span#currentDate').html('Today ' + t)
-			}
+		}
 		$(".nano").nanoScroller();
 		$(".nano").nanoScroller({ alwaysVisible: true });
 		$(".nano").nanoScroller({ preventPageScrolling: true });
