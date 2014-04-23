@@ -115,6 +115,9 @@
 		oFlash: null,
 
 		arUsers: [],
+
+		arReportUser:[],//array save report user
+
 		sUserListID: "usersList",
 		sMessageListID: "messages",
 		arFavoriteIds: [],
@@ -408,19 +411,65 @@
 
 		// template insert user chat
 		templateUser: function(user) {
+			var reportedByUser =  (function(value){
+				if(user.id == chat.oCurrentUser.id){
+					 return 'true';
+				}else{
+					return  'false';
+				}
+			})();
 			template = $('<div>')
 					.addClass('row')
 					.append( $('<section>')
 								.addClass('column width-user-info')
 								.append( $('<span>')
-								.addClass('iconsp-3511-35px')
+									.addClass('iconsp-3511-35px')
 								)
 								.append( $('<span>')
-								.text(user.username+"  -  "+user.status)
-								.data('userId', user.id)
-								.on('click', chat.onUserClick)
+									.text(user.username+"  -  "+user.status)
+									.data('userId', user.id)
+									.on('click', chat.onUserClick)
+								)
+								.append($('<button>')
+									.addClass('repSpamUser' +' '+ user.username+'-'+user.id)
+									.data('reported',reportedByUser)//false this current user not report
+									.data('enableReported','false')//enable report
+									.attr('id',user.id)
+									.text('Report')
+									.on('click',function(){
+										//console.log('_______data report enable'+ $(this).data('reported'));
+										//alert($(this).attr('id'));
+										//chat.addMessage("#report");
+									//console.log('OUT----REPORTED IS ' +$(this).data('reported') + '-----enableReported------ ' + $(this).data('enableReported'));
+
+
+										var checkedReport = _.where(chat.arReportUser,{fromUserId:chat.oCurrentUser.id,toUserId:user.id});
+
+
+										if($(this).data('reported') == "false" && ! checkedReport[0].reported){
+											chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"#report "+user.username}, function(data){
+												chat.arReportUser.push({
+													formUserID:chat.oCurrentUser.id,
+													toUserID:user.id,
+													reported: true
+												});
+											});
+										}//end if
+
+										if($(this).data('reported') == 'true'){
+											chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"Can't report yourself "}, function(data){
+											});
+										}//end if
+
+										if(checkedReport[0].reported){
+											chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"You had report: "+user.username}, function(data){
+											});
+										}//end if
+
+									}//end on click
 								)
 							)
+					)//end append
 					.append( $('<section>')
 								.addClass('column width-start start-number')
 								.append( $('<span>')
@@ -430,17 +479,17 @@
 			return template;
 			//return '<div id="user'+user.id+'" class="user">'+user.username+'</div>';
 		},
-		// template for user chat
 
+		// template for user chat
 		templateMessage: function(message) {
 			var template;
 			var bShowCommand = true;
 			//check if speaking
 			if(chat.oCurrentUser.status === 'speaking'){
 				if(message.text === "#vote up" || message.text === "#vote down" ||
-					message.text === "#report")
+					message.text.substring(0,7) === "#report")
 				{
-					message.text = "System: Don't use command.";
+					message.text = "System: Don't use command. You are speaking";
 					bShowCommand = false;
 				}
 				else{
@@ -479,12 +528,12 @@
 					bShowCommand = false;
 				}//end vote down
 
-				if(message.text === "#report")
+				if(message.text.substring(0,7) === "#report")
 				{
 					if(!chat.flagReport){
-						chat.socket.request(chat.sURL+"/chat/reportSpam", {},function(data){
+						chat.socket.request(chat.sURL+"/chat/reportSpam", {id:message.text.substring(8)},function(data){
 							if(data){
-								chat.flagReport =true;
+								//chat.flagReport =true;
 								message.text = "Report done! :)";
 							}
 
@@ -603,6 +652,8 @@
 
 	// init document jquery -->
 	$( document ).ready(function() {
+
+
 		//set currentDate
 		var myVar=setInterval(function(){myTimer()},1000);
 
@@ -628,6 +679,8 @@
 
 		chat.init();
 
+
+
 		$('#like').click(function(e){
 			//console.log(io.JSON.stringify(chat.arUsers));
 
@@ -646,7 +699,7 @@
 			}
 
 
-		})//end click #like
+		});//end click #like
 		$('#dislike').click(function(e) {
 
 			e.preventDefault();

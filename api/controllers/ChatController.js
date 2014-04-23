@@ -112,9 +112,8 @@ module.exports = {
 
 	reportSpam:function(req,res){
 		//console.log("Spam user:" + req.param('id'));
-		ChatUsers.findOne({status:"speaking"}).done(function(error, speaker){
-			if(speaker){
-				Users.findOne({id:speaker.id}).done(function(error,user){
+
+				Users.findOne({id:req.param('id')}).done(function(error,user){
 					if(user){
 						user.bancount = user.bancount + 1;
 						delete user.password;
@@ -130,11 +129,6 @@ module.exports = {
 						console.log(error);
 					}
 				});
-
-			}
-		});
-
-
 	},
 
 
