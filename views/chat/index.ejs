@@ -129,14 +129,17 @@
 		KEY_VOTE_UP: "#vote up",
 		KEY_VOTE_DOWN: "#vote down",
 		KEY_REPORT: "#report",
-		ALERT_VOTE_UP_SUCCESS:"Vote up success!",
-		ALERT_VOTE_DOWN_SUCCESS:"Vote down success!",
-		ALERT_HAD_VOTE_UP:"You had vote up",
-		ALERT_HAD_VOTE_DOWN:"You had vote up",
-		ALERT_REPORT_SUCCESS:"You had report:",
+		ALERT_VOTE_UP_SUCCESS:"SYSTEM: Vote up success!",
+		ALERT_VOTE_DOWN_SUCCESS:"SYSTEM: Vote down success!",
+		ALERT_HAD_VOTE_UP:"SYSTEM: You had vote up",
+		ALERT_HAD_VOTE_DOWN:"SYSTEM: You had vote up",
+		ALERT_HAD_REPORT:"SYSTEM: You had report: ",
+		ALERT_REPORT_YOURSELF:"SYSTEM: Can't report yourself ",
+		ALERT_REPORT_SPEAKING:"SYSTEM: You are speaking. Can't use command",
+
 		// create ContextMenu
 		oContextMenu: {
-	        selector: '.user, .messageUsername',
+                              selector: '.user, .messageUsername',
 			build: function(trigger, e){
 				var user = _.findWhere(chat.arUsers, {id: trigger.data('userId')});
 				return {
@@ -403,6 +406,7 @@
 			}
 			if(bFlashIgnore === undefined){
 				chat.updateFlashQueue();
+
 			}
 		},
 
@@ -424,12 +428,15 @@
 				}
 			})();
 
-
+			var current = "";
+			if(user.id === chat.oCurrentUser.id){
+				current = "current";
+			}
 			//chat.getNumberBanCount(user.id,function(number){
 
 			//})
 				template = $('<div>')
-						.addClass('row')
+						.addClass('row '+current)
 						.append( $('<section>')
 									.addClass('column width-user-info')
 									.append( $('<span>')
@@ -453,12 +460,8 @@
 											if(chat.arReportUser.length > 0){
 												var oReportedSpeaker;
 												oReportedSpeaker = _.where(chat.arReportUser,{formUserID:chat.oCurrentUser.id,toUserID:user.id}) ;
-												//console.log("______oReportedSpeaker"+JSON.stringify(oReportedSpeaker));
-												//console.log("______oReportedSpeaker"+oReportedSpeaker.length);
 												if(oReportedSpeaker.length > 0)
 													checkedReport = oReportedSpeaker[0].reported;
-												//console.log("______arReportUser :"+JSON.stringify(chat.arReportUser[0].reported));
-
 											}
 
 											if(chat.oCurrentUser.status != "speaking"){
@@ -471,18 +474,19 @@
 															});
 														});
 													}//end if
-											}else{
 
+													if($(this).data('reported') == 'true'){
+															chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:chat.ALERT_REPORT_YOURSELF }, function(data){
+															});
+													}//end if
+
+											}else{
+												chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: chat.ALERT_REPORT_SPEAKING }, function(data){
+												});
 											}
 
-
-											if($(this).data('reported') == 'true'){
-													chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"Can't report yourself "}, function(data){
-													});
-											}//end if
-
 											if(checkedReport){
-												chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"You had report: "+user.username}, function(data){
+												chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:chat.ALERT_HAD_REPORT + user.username}, function(data){
 												});
 											}//end if
 
@@ -517,65 +521,65 @@
 				if(message.text === "#vote up" || message.text === "#vote down" ||
 					message.text.substring(0,7) === "#report")
 				{
-					message.text = "System: Don't use command. You are speaking";
-					bShowCommand = false;
+					message.text = chat.ALERT_REPORT_SPEAKING ;
 				}
-				else{
-					bShowCommand = true;
-				}
+
 			}
 			//check if queing or viewing
 			if(chat.oCurrentUser.status != 'speaking'){
 				if(message.text === "#vote up")
 				{
-					if(chat.flagVoteUp){
-						message.text  = "System: You has vote up";
-
+					if(chat.flagVoteUp){//true
+						message.text  = chat.ALERT_HAD_VOTE_UP;
 					}
-					else{
+					else{//false
 						$('#like').trigger('click');
-						message.text  = "System: Vote up success! :)";
+						message.text  = chat.ALERT_VOTE_UP_SUCCESS;
 						chat.flagVoteUp = true;
 						chat.flagVoteDown = false;
 					}
-					bShowCommand = false;
+
 				}//end vote up
 
 				if(message.text === "#vote down")
 				{
 					if(chat.flagVoteDown){
-						message.text  = "System: You has vote down";
-
+						message.text  = chat.ALERT_HAD_VOTE_DOWN;
 					}
 					else{
-						message.text  = "System: Vote down success! :)";
+						message.text  = chat.ALERT_VOTE_DOWN_SUCCESS;
 						$('#dislike').trigger('click');
-
 						chat.flagVoteUp = false;
 						chat.flagVoteDown = true;
 					}
-					bShowCommand = false;
+
 				}//end vote down
 
 				if(message.text.substring(0,7) === "#report")
 				{
+					bShowCommand = false;
 					if(!chat.flagReport){
 						chat.socket.request(chat.sURL+"/chat/reportSpam", {username:message.text.substring(8)},function(data){
 							if(data){
 								//chat.flagReport =true;
-								message.text = "Report done! :)";
+								message.text = "SYSTEM: Report done! :)";
 							}
 
-							//console.log("__________Report done"+data);
 						});
 					}else{
-						message.text = "You had report!";
+						message.text = chat.ALERT_HAD_REPORT ;
 					}
 
-					bShowCommand = false;
+
 				}//report peding
+
 			}
 			//set template for curent user (speaking)
+			if(message.text.substring(0,7) ==='SYSTEM:'){
+				bShowCommand = false;
+			}
+
+
 			if(chat.oCurrentUser.id === message.fromUserId ){
 				template = $('<aside>')
 							.addClass('comment-ct')
@@ -596,6 +600,7 @@
 									)
 			}
 			//set template for another  user (queing, viewing)
+
 			if(bShowCommand && chat.oCurrentUser.id != message.fromUserId)
 			{
 				template = $('<aside>')
@@ -691,35 +696,11 @@
 	$( document ).ready(function() {
 		setInterval(function(){
 			$('button.repSpamUser').each(function(){
-
-				console.log("_______________ Running get count _______________");
-
-				/*
-
-				chat.getNumberBanCount($(this).data('id'),function(userban){
-					console.log('____Return Number:' + JSON.stringify(userban));
-					console.log('____Return Number:' + userban.userban.id);
-					//console.log('bnumber-----' + numberBanReturn + ' id ' + $(this).attr('id') +"data id"+ $(this).data('id'));
-					//console.log('bnumber-----dasdsadas' + numberBanReturn);
-					console.log('span#'+userban.userban.id)	;
-					alert('button#'+userban.userban.bancount);
-					$('button#'+userban.userban.id).text(userban.userban.bancount);
-				});
-				*/
-
 				chat.socket.request(chat.sURL+"/chat/getbancount", {id:$(this).data('id')}, function(userban){
-					console.log('____Return Number:' + JSON.stringify(userban));
-					console.log('____Return Number:' + userban.userban.id);
-					//console.log('bnumber-----' + numberBanReturn + ' id ' + $(this).attr('id') +"data id"+ $(this).data('id'));
-					//console.log('bnumber-----dasdsadas' + numberBanReturn);
-					console.log('span#'+userban.userban.id)	;
-					//alert('button#'+userban.userban.bancount);
-					$('button#'+userban.userban.id).text(userban.userban.bancount);
-
+						//console.log('span#'+userban.userban.id)	;
+						$('button#'+userban.userban.id).text('Ban Count : ' + userban.userban.bancount);
 					}
 				);
-
-
 			});
 		},1000);
 
