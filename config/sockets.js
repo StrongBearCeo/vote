@@ -50,7 +50,7 @@ module.exports.sockets = {
 	//After login / disconect call: onJoinChat
 	onJoinChat: function(session, socket, user) {
 		//pending count user connect
-		console.log("onJoinChat " + JSON.stringify(session) +"\n"+ socket.id);
+		//console.log("onJoinChat " + JSON.stringify(session) +"\n"+ socket.id);
 		socket.join('chatroom');
 		//listen disconnect from client
 		socket.on("disconnect", function(){
@@ -106,7 +106,8 @@ module.exports.sockets = {
 		})
 	},
    onUserUpdated: function(user){
-      sails.io.sockets.in('chatroom').emit('userUpdated', {user: user});
+   		console.log("Upate flash for User:"+ JSON.stringify(user));
+      	sails.io.sockets.in('chatroom').emit('userUpdated', {user: user});
    },
 	//if speaker onDebateLeave change: seapking or queing --> viewing
 	onDebateLeave: function(session, socket){
@@ -133,9 +134,10 @@ module.exports.sockets = {
 
 				var newscore = sum;
 				//console.log("newscore:" + newscore);
-				if(newscore>0){
+				if(newscore > 0){
 					newscore=1;
 					speaker.time = speaker.time + sails.config.sockets.TIME_ENCREASE;
+	
 				}
 				else if(newscore<0){
 					newscore=-1;
@@ -143,14 +145,21 @@ module.exports.sockets = {
 				else{
 					newscore=0;
 				}
-
+				console.log("User"+speaker.username+"have time:"+speaker.time);
+				console.log("User speaking have rating increase: "+newscore);
+				
+				//Save vote for user
 				user.rating += newscore; // -1, 0, 1 from vote table
-				speaker.rating += newscore;
 				delete user.password;
 				user.save(function(err){
 				});
-				speaker.save(function(err) {
-					sails.config.sockets.onUserUpdated(speaker);
+
+
+				//save time for speaker
+				speaker.rating += newscore;
+				speaker.save(function(err,returnUserSave) {
+					console.log("Time of User after save:"+returnUserSave.time);
+					sails.config.sockets.onUserUpdated(returnUserSave);
 					//console.log(speaker);
 					sails.config.sockets.clearVoting();
 				});
@@ -162,19 +171,19 @@ module.exports.sockets = {
 	calculateUserRating: function (speaker){
 		Users.findOne({id:speaker.id}).done(function(err,user){
 			if(user){
+				console.log("Caculating for User:"+ speaker.username);
 				sails.config.sockets.calculateCurrentVoting(speaker, user);
 			}
 		})
 	},
 	clearVoting: function(){
-		Votes.destroy({
-			}).done(function(err) {
+		Votes.destroy({}).done(function(err) {
 			  if (err) {
 			    return console.log(err);
 
 			  } else {
 			  }
-			});
+		});
 
 	},
 	getReportSpam:function(speaker, callback){
@@ -197,24 +206,25 @@ module.exports.sockets = {
 		
 			      	ChatUsers.find().done(function(error, baneduser){
 			      		if(baneduser && baneduser.length > 0){
-			      			console.log("ARR USER BAN"+JSON.stringify(baneduser));
+			      			//console.log("ARR USER BAN"+JSON.stringify(baneduser));
 
 			      			for(var i=0;i<baneduser.length;i++){
 
 			      				sails.config.sockets.getReportSpam(baneduser[i], function(bannedUserReturn) {
-					            if(bannedUserReturn){
-					               sails.config.sockets.onLeaveChat(bannedUserReturn.id);
-					               sails.config.sockets.nextSpeaker();
+						            if(bannedUserReturn){
+						               sails.config.sockets.onLeaveChat(bannedUserReturn.id);
+						               sails.config.sockets.nextSpeaker();
 
-					            }
-					            else{
+						            }
+						            else{
 
-					            }//end else check banned user spam
+						            }//end else check banned user spam
 
 
-					        });//end function get report spam
+					        	});//end function get report spam
 
-			      			}
+			      			}//end for
+
 
 
 
@@ -234,15 +244,18 @@ module.exports.sockets = {
 								nTimeDelta = 0;
 							}
 							speaker.time += nTimeDelta;
+							
+							console.log("Speaking time have:"+ speaker.time);
 							if(speaker.time % 15 == 0)
 							{
+									
 			               			console.log("Run after: "+speaker.time +"s");
+			               			console.log("TOTAL_TALK: "+ sails.config.sockets.TOTAL_TALK);
+			               			console.log("____________________");
 									if(sails.config.sockets.TOTAL_TALK >= sails.config.sockets.TIME_OUT_ALL_TALK ||  //disconenct if speaked 2 minute
 									speaker.time <= 0
 									) //disconenct vote down
 									{
-
-
 
 				                        ChatUsers.findOne({status:"viewing"}).done(function (err,userFirst){
 				                           if(userFirst){
@@ -294,6 +307,7 @@ module.exports.sockets = {
 
 									}
 									else{
+
 											//console.log("update time for speaking user:"+speaker.username);
 											sails.config.sockets.TOTAL_TALK += sails.config.sockets.TIME_ACTION;
 											//console.log("Total talked:"+sails.config.sockets.TOTAL_TALK);
@@ -362,10 +376,11 @@ module.exports.sockets = {
 				speaker = _.first(users);
 				//console.log("Before Update status: "+JSON.stringify(speaker));
 				speaker.time = sails.config.sockets.TOTAL_SPEAKER_TIME;//default speaker 30s
-				sails.config.sockets.TOTAL_TALK = 0;
+				sails.config.sockets.TOTAL_TALK = 15000;
 				speaker.status = "speaking";
 				speaker.save(function(err,speakingUser) {
 					//console.log("After Update status: "+JSON.stringify(speaker));
+					console.log("---------------------"+ speakingUser.username +"---------------------");
 					sails.config.sockets.onUserUpdated(speakingUser);
 				});
 			}//end if

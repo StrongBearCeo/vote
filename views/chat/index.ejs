@@ -282,6 +282,7 @@
 			chat.arUsers.splice(nIndex, 0, user);
 			console.log("Sorting Viewing Speaker:"+io.JSON.stringify(chat.arUser));
 			this.insertAtIndex(user, nIndex);
+			/*
 			if(oOldUser){
 				if(oOldUser.status != user.status || oOldUser.time != user.time){
 					chat.updateFlashQueue();
@@ -289,6 +290,8 @@
 			}else if((user.status == "speaking" || user.status == "queuing") && nIndex<5){
 				chat.updateFlashQueue();
 			}
+			*/
+			chat.updateFlashQueue();
 
 		},
 		insertAtIndex: function(user, i) {
@@ -313,7 +316,6 @@
 				//reset action vote and report for all user
 				chat.flagVoteUp = false;
 				chat.flagVoteDown = false;
-				chat.flagReport = false;
 				chat.updateUser(data.user);
 			});
 
