@@ -19,7 +19,7 @@ module.exports.sockets = {
 	//include custom config
 	TOTAL_TALK:15000,// the first time used talking 15s
 	REPORT_SPAM:0, // count report spam, 10
-	REPORT_SPAM_OUT:10,
+	REPORT_SPAM_OUT:100,
 	TIME_ACTION:15000, // action after 15s
 	TOTAL_SPEAKER_TIME:30,// time for speaker, default speaker 30s
 	TIME_ENCREASE :15, //time increase for speaking user

@@ -179,7 +179,7 @@
 	    init: function() {
 	    	//chat.setTimeUser();
 	    	chat.socket = window.socket;
-	    	console.log("B1: init Chat"+(chat.socket && chat.socket.socket && chat.socket.socket.connected));
+	    	//console.log("B1: init Chat"+(chat.socket && chat.socket.socket && chat.socket.socket.connected));
 	   	if(chat.socket.socket && chat.socket.socket.connected){
 	    		chat.joinChat();
 	    	}else{
@@ -191,7 +191,7 @@
 	    //1 joinChat
 	    joinChat: function() {
     		chat.socket.request(chat.sURL+"/chat/join", {test : "ZZZC"}, function(data){
-				console.log("B2: joinChat for User: "+ io.JSON.stringify(data) );
+				//console.log("B2: joinChat for User: "+ io.JSON.stringify(data) );
 				//return data have: currentUser[] is user login, userList[] is all user
 				if(data.currentUser){
 					chat.onChatConnected(data);
@@ -232,7 +232,7 @@
 				this.bFlashInit = true;
 				this.oFlash = document.getElementById("flashInterface");
 				this.oFlash.onConnectedToChat(this.oCurrentUser);
-				console.log("B3: Loaded Flash Chat for: "+JSON.stringify(this.oCurrentUser));
+				//console.log("B3: Loaded Flash Chat for: "+JSON.stringify(this.oCurrentUser));
 			}
 		},
 		//4 update user
@@ -257,7 +257,7 @@
 				}
 			}
 
-			console.log("B4: arUsers:"+ io.JSON.stringify(chat.arUsers)+"Current User:"+io.JSON.stringify(chat.oCurrentUser));
+			//console.log("B4: arUsers:"+ io.JSON.stringify(chat.arUsers)+"Current User:"+io.JSON.stringify(chat.oCurrentUser));
 
 			oOldUser = _.clone(_.findWhere(chat.arUsers, {id:user.id}));
 			this.removeUser(user.id, true);
@@ -280,7 +280,7 @@
 			});
 
 			chat.arUsers.splice(nIndex, 0, user);
-			console.log("Sorting Viewing Speaker:"+io.JSON.stringify(chat.arUser));
+			//console.log("Sorting Viewing Speaker:"+io.JSON.stringify(chat.arUser));
 			this.insertAtIndex(user, nIndex);
 			/*
 			if(oOldUser){
@@ -378,9 +378,9 @@
 			$("#btnDebate").text('PROCESSING...');
 			$("#btnDebate").addClass('btnDisabled');
 
-			console.log("REQUEST onDebateJoin");
+			//console.log("REQUEST onDebateJoin");
 			chat.socket.request(chat.sURL+"/chat/debatejoin", {}, function(data){
-				console.log("RESPONSE onDebateJoin "+io.JSON.stringify(data));
+				//console.log("RESPONSE onDebateJoin "+io.JSON.stringify(data));
 			});
 		},
 
@@ -390,7 +390,7 @@
 			$("#btnDebate").addClass('btnDisabled');
 
 			chat.socket.request(chat.sURL+"/chat/debateleave", {}, function(data){
-				console.log("onDebateLeave "+data);
+				//console.log("onDebateLeave "+data);
 			});
 		},
 
@@ -468,6 +468,7 @@
 
 											if(chat.oCurrentUser.status != "speaking"){
 													if($(this).data('reported') == "false" && !checkedReport){
+														chat.oFlash.reportspamSpeaker(user.id);
 														chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"#report "+user.username}, function(data){
 															chat.arReportUser.push({
 																formUserID:chat.oCurrentUser.id,
