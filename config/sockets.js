@@ -13,13 +13,9 @@ module.exports.sockets = {
 
 	nOrder: 0, // Order speaker
 	nTimerID: null,
-
-
-
-	//include custom config
 	TOTAL_TALK:15000,// the first time used talking 15s
 	REPORT_SPAM:0, // count report spam, 10
-	REPORT_SPAM_OUT:100,
+	REPORT_SPAM_OUT:10,
 	TIME_ACTION:15000, // action after 15s
 	TOTAL_SPEAKER_TIME:30,// time for speaker, default speaker 30s
 	TIME_ENCREASE :15, //time increase for speaking user
@@ -49,8 +45,6 @@ module.exports.sockets = {
 	},
 	//After login / disconect call: onJoinChat
 	onJoinChat: function(session, socket, user) {
-		//pending count user connect
-		//console.log("onJoinChat " + JSON.stringify(session) +"\n"+ socket.id);
 		socket.join('chatroom');
 		//listen disconnect from client
 		socket.on("disconnect", function(){
@@ -87,17 +81,13 @@ module.exports.sockets = {
 						user.status = "queuing";
 						user.order = sails.config.sockets.nOrder;//nOrder default 0
 						sails.config.sockets.nOrder++;
-						//console.log("Total user chating: "+userchats.length+"Sort nOder: "+sails.config.sockets.nOrder);
 						user.save(function(err){
-							//console.log("session.passport.user.id:"+ session.passport.user.id +"user.order:"+user.order);
 							sails.config.sockets.onUserUpdated(user);
 						});
 
 
 					}//end if set user is viewing and sort rating
 					else{
-
-
 					}
 				});
 
@@ -106,7 +96,6 @@ module.exports.sockets = {
 		})
 	},
    onUserUpdated: function(user){
-   		console.log("Upate flash for User:"+ JSON.stringify(user));
       	sails.io.sockets.in('chatroom').emit('userUpdated', {user: user});
    },
 	//if speaker onDebateLeave change: seapking or queing --> viewing
@@ -124,43 +113,28 @@ module.exports.sockets = {
 	//calculate Voting after 15s
 	calculateCurrentVoting: function(speaker,user){
 		var sum = 0;
-		//console.log("Voting Calcu--all---");
 		Votes.find({toUserId: speaker.id}).done(function(error, votes){
 			if(error){
-				//console.log("Voting Calcu error-----");
 			}else{
-				//console.log("View votes :" + votes);
 				sum = _.reduce(votes, function(r, v){return r + v.value;}, 0) ;
-
 				var newscore = sum;
-				//console.log("newscore:" + newscore);
 				if(newscore > 0){
 					newscore=1;
 					speaker.time = speaker.time + sails.config.sockets.TIME_ENCREASE;
-	
-				}
-				else if(newscore<0){
+
+				}else if(newscore<0){
 					newscore=-1;
-				}
-				else{
+				}else{
 					newscore=0;
 				}
-				console.log("User"+speaker.username+"have time:"+speaker.time);
-				console.log("User speaking have rating increase: "+newscore);
-				
-				//Save vote for user
 				user.rating += newscore; // -1, 0, 1 from vote table
 				delete user.password;
 				user.save(function(err){
 				});
-
-
 				//save time for speaker
 				speaker.rating += newscore;
 				speaker.save(function(err,returnUserSave) {
-					console.log("Time of User after save:"+returnUserSave.time);
 					sails.config.sockets.onUserUpdated(returnUserSave);
-					//console.log(speaker);
 					sails.config.sockets.clearVoting();
 				});
 
@@ -171,7 +145,6 @@ module.exports.sockets = {
 	calculateUserRating: function (speaker){
 		Users.findOne({id:speaker.id}).done(function(err,user){
 			if(user){
-				console.log("Caculating for User:"+ speaker.username);
 				sails.config.sockets.calculateCurrentVoting(speaker, user);
 			}
 		})
@@ -203,152 +176,105 @@ module.exports.sockets = {
    }
    ,
 	manageSpeaker: function(nTimeDelta){
-		
+
 			      	ChatUsers.find().done(function(error, baneduser){
 			      		if(baneduser && baneduser.length > 0){
-			      			//console.log("ARR USER BAN"+JSON.stringify(baneduser));
-
 			      			for(var i=0;i<baneduser.length;i++){
-
 			      				sails.config.sockets.getReportSpam(baneduser[i], function(bannedUserReturn) {
 						            if(bannedUserReturn){
 						               sails.config.sockets.onLeaveChat(bannedUserReturn.id);
 						               sails.config.sockets.nextSpeaker();
-
 						            }
 						            else{
-
 						            }//end else check banned user spam
-
-
 					        	});//end function get report spam
-
 			      			}//end for
-
-
-
-
 			      		}
-
 			      		if(error){
 			      			console.log("ERROR"+error);
 			      		}
-			      		
-			      	});//end find user banned 
 
-
-
+			      	});//end find user banned
 					ChatUsers.findOne({status:"speaking"}).done(function(error, speaker){
 						if(speaker){
 							if (nTimeDelta === undefined) {
 								nTimeDelta = 0;
 							}
 							speaker.time += nTimeDelta;
-							
-							console.log("Speaking time have:"+ speaker.time);
 							if(speaker.time % 15 == 0)
 							{
-									
-			               			console.log("Run after: "+speaker.time +"s");
-			               			console.log("TOTAL_TALK: "+ sails.config.sockets.TOTAL_TALK);
-			               			console.log("____________________");
 									if(sails.config.sockets.TOTAL_TALK >= sails.config.sockets.TIME_OUT_ALL_TALK ||  //disconenct if speaked 2 minute
 									speaker.time <= 0
 									) //disconenct vote down
 									{
+		                        ChatUsers.findOne({status:"viewing"}).done(function (err,userFirst){
+		                           if(userFirst){
+		                                    //set user on speaking to viewing
+		                                    speaker.status = "viewing";
+		                                    speaker.save(function(err) {
+		                                       sails.config.sockets.onUserUpdated(speaker);
+		                                       //set next speaker speaking from queuing
+		                                       sails.config.sockets.nextSpeaker();
+		                                       //set next speaker user form view to queuing
+		                                       ChatUsers.findOne({id:userFirst.id}).done(function(err,userViewsCurent){
+		                                          if(userViewsCurent){
+		                                             userViewsCurent.order = sails.config.sockets.nOrder;
+		                                             sails.config.sockets.nOrder++;
+		                                             userViewsCurent.status = "queuing";
 
-				                        ChatUsers.findOne({status:"viewing"}).done(function (err,userFirst){
-				                           if(userFirst){
-				                                    //set user on speaking to viewing
-				                                    speaker.status = "viewing";
-				                                    speaker.save(function(err) {
-				                                       sails.config.sockets.onUserUpdated(speaker);
-				                                       //set next speaker speaking from queuing
-				                                       sails.config.sockets.nextSpeaker();
-				                                       //set next speaker user form view to queuing
+		                                             userViewsCurent.save(function(err,queuingUser) {
+		                                                sails.config.sockets.onUserUpdated(queuingUser);
+		                                             });
+		                                          }
+		                                       });
+		                                 });
+		                           }else{
+		                                    speaker.status = "viewing";
+		                                    speaker.save(function(err) {
+		                                       sails.config.sockets.onUserUpdated(speaker);
+		                                       //set next speaker speaking from queuing
+		                                       sails.config.sockets.nextSpeaker();
+		                                       //set next speaker user form view to queuing
+		                                       ChatUsers.findOne({status:"queuing"}).done(function(err,userQueuingCurent){
+		                                          if(userQueuingCurent){
+		                                             userQueuingCurent.order = sails.config.sockets.nOrder;
+		                                             sails.config.sockets.nOrder++;
+		                                             userQueuingCurent.status = "queuing";
 
-				                                       ChatUsers.findOne({id:userFirst.id}).done(function(err,userViewsCurent){
-				                                          if(userViewsCurent){
-				                                             userViewsCurent.order = sails.config.sockets.nOrder;
-				                                             sails.config.sockets.nOrder++;
-				                                             userViewsCurent.status = "queuing";
-
-				                                             userViewsCurent.save(function(err,queuingUser) {
-				                                                //console.log("After Update status: "+JSON.stringify(speaker));
-				                                                sails.config.sockets.onUserUpdated(queuingUser);
-				                                             });
-				                                          }
-				                                       });
-				                                 });
-				                           }
-				                           else{
-
-				                                    speaker.status = "viewing";
-				                                    speaker.save(function(err) {
-				                                       sails.config.sockets.onUserUpdated(speaker);
-				                                       //set next speaker speaking from queuing
-				                                       sails.config.sockets.nextSpeaker();
-				                                       //set next speaker user form view to queuing
-				                                       ChatUsers.findOne({status:"queuing"}).done(function(err,userQueuingCurent){
-				                                          if(userQueuingCurent){
-				                                             userQueuingCurent.order = sails.config.sockets.nOrder;
-				                                             sails.config.sockets.nOrder++;
-				                                             userQueuingCurent.status = "queuing";
-
-				                                             userQueuingCurent.save(function(err,queuingUser) {
-				                                                //console.log("After Update status: "+JSON.stringify(speaker));
-				                                                sails.config.sockets.onUserUpdated(queuingUser);
-				                                             });
-				                                          }
-				                                       });
-				                                 });
-				                           }
-				                        });
-
-									}
-									else{
-
-											//console.log("update time for speaking user:"+speaker.username);
+		                                             userQueuingCurent.save(function(err,queuingUser) {
+		                                                sails.config.sockets.onUserUpdated(queuingUser);
+		                                             });
+		                                          }
+		                                       });
+		                                 });
+		                           }
+		                        });
+									}else{
 											sails.config.sockets.TOTAL_TALK += sails.config.sockets.TIME_ACTION;
-											//console.log("Total talked:"+sails.config.sockets.TOTAL_TALK);
-											//save rating vote
 											sails.config.sockets.calculateUserRating(speaker);
 									}
-
-
 							}//if % 15s
 							else{
 								//update time for speaker realtime
 								speaker.save(function(err) {
-									//console.log("Time has left:"+speaker.time);
 								});
-
 							}//end if % 15s
-
-
 						}
 						else{
 							//if have user speaking or next
 							sails.config.sockets.nextSpeaker();
 						}
 					});//end find user status speaking
-
-
-	
-
 	},
    nextQueuing:function(){
       ChatUsers.findOne({status:"viewing"}).done(function(error, users){
          //if have users queuing
             users.status = "queuing";
             users.save(function(err,speakingUser) {
-               //console.log("After Update status: "+JSON.stringify(speaker));
                sails.config.sockets.onUserUpdated(speakingUser);
             });
-
          //end if
          });
-
    },
 
 	nextSpeaker: function() {
@@ -356,7 +282,6 @@ module.exports.sockets = {
 			//if have users queuing
 			if(users && users.length){
 				users = _.sortBy(users, function(value){
-					//console.log("Value sort:"+JSON.stringify(value));
 					var compare = "";
 					switch(value.status){
 						case "speaking":
@@ -370,17 +295,13 @@ module.exports.sockets = {
 							break;
 					}
 					return compare.toLowerCase();
-					//console.log("Compare:"+compare);
 				});
 				//set speaking user is: speaker is first of users
 				speaker = _.first(users);
-				//console.log("Before Update status: "+JSON.stringify(speaker));
 				speaker.time = sails.config.sockets.TOTAL_SPEAKER_TIME;//default speaker 30s
 				sails.config.sockets.TOTAL_TALK = 15000;
 				speaker.status = "speaking";
 				speaker.save(function(err,speakingUser) {
-					//console.log("After Update status: "+JSON.stringify(speaker));
-					console.log("---------------------"+ speakingUser.username +"---------------------");
 					sails.config.sockets.onUserUpdated(speakingUser);
 				});
 			}//end if
@@ -390,7 +311,6 @@ module.exports.sockets = {
 	onNewMessage: function(session, socket, message) {
 		sails.io.sockets.in('chatroom').emit('newMessage', {message: message});
 	},
-
 	// This custom onDisconnect function will be run each time a socket disconnects
 	onDisconnect: function(session, socket) {
 

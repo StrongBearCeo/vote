@@ -33,9 +33,6 @@ module.exports = {
 		if(!req.socket){
 			return;
 		}
-
-
-		//console.log("--------Test------"+ req.session.passport.user.rating);
 		ChatUsers.create({id:req.session.passport.user.id, username: req.session.passport.user.username, rating: req.session.passport.user.rating , favorites: sails.config.sockets.DEFAULT_FAVORITE}).done(function(error, user) {
 	        if (error) {
 	            res.send({error: error});
@@ -111,24 +108,22 @@ module.exports = {
 	},
 
 	reportSpam:function(req,res){
-		//console.log("Spam user:" + req.param('id'));
+		Users.findOne({username:req.param('username')}).done(function(error,user){
+			if(user){
+				user.bancount = user.bancount + 1;
+				delete user.password;
+				if(user.bancount >= 10){
+					user.status="blocked";
+				}
 
-				Users.findOne({username:req.param('username')}).done(function(error,user){
-					if(user){
-						user.bancount = user.bancount + 1;
-						delete user.password;
-						if(user.bancount >= 10){
-							user.status="blocked";
-						}
-
-						user.save(function(err){
-							res.send({data: true});
-						});
-					}
-					if(error){
-						console.log(error);
-					}
+				user.save(function(err){
+					res.send({data: true});
 				});
+			}
+			if(error){
+				console.log(error);
+			}
+		});
 	},
 
 

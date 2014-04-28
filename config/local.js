@@ -33,7 +33,7 @@ passport.use(new LocalStrategy(
 		process.nextTick(function () {
 			Users.findOne({ username: username }, function(err, user) {
 				if(user.status=="blocked"){
-					return done(null, false, { sError: 'Account' + username + ' Blocked.' });
+					return done(null, false, { sError: 'Account ' + username + ' Blocked.' });
 				}
 				if (err) {
 					return done(null, false, {sError: err});
@@ -102,7 +102,7 @@ module.exports = {
 	// In production, you'll probably want to change this setting
 	// to 80 (http://) or 443 (ht0tps://) if you have an SSL certificate
 
-	port: process.env.PORT || 8080,   
+	port: process.env.PORT || 8080,
 
 
 

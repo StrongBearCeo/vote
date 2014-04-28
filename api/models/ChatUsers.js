@@ -7,13 +7,13 @@
  */
 
 module.exports = {
-	
+
 	autoPK: false,
 
 	adapter: "memory",
 
 	attributes: {
-		
+
 		id:{
 			type: "integer",
 			primaryKey: true

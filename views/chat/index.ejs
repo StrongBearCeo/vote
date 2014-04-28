@@ -1,5 +1,3 @@
-
-
 <!--HTML Section Video-->
 <section class="video-area">
 		<div class="container_small">
@@ -81,28 +79,26 @@
 			</section>
 		</div>
 </section>
-<!--End HTML Section User copy-->
-
 <script>
 
 	_.findIndex = function(obj, iterator, context) {
-	    var result = -1;
-	    _.any(obj, function(value, index, list) {
-	        if(iterator.call(context, value, index, list)) {
-	            result = index;
-	            return true;
-	        }
-	    });
-	    return result;
+		var result = -1;
+		_.any(obj, function(value, index, list) {
+			if(iterator.call(context, value, index, list)) {
+					result = index;
+					return true;
+			}
+		});
+		return result;
 	}
 
 	_.findIndexWhere = function(obj, attrs) {
-	    return _.findIndex(obj, function(value) {
+		return _.findIndex(obj, function(value) {
 			for (var key in attrs) {
 				if (attrs[key] !== value[key]) return false;
 			}
 			return true;
-	    })
+		})
 	}
 	var chat = {
 		sURL: "",
@@ -110,18 +106,13 @@
 		bFlashLoaded:false,
 		bFlashInit: false,
 		bFlashConnected:false,
-
 		oCurrentUser:null,
 		oFlash: null,
-
 		arUsers: [],
-
-		arReportUser:[],//array save report user
-
+		arReportUser:[],//array save reported user
 		sUserListID: "usersList",
 		sMessageListID: "messages",
 		arFavoriteIds: [],
-		//Nhien add
 		setTimetoUser:10000,
 		flagVoteUp:false,
 		flagVoteDown:false,
@@ -139,7 +130,7 @@
 
 		// create ContextMenu
 		oContextMenu: {
-                              selector: '.user, .messageUsername',
+			selector: '.user, .messageUsername',
 			build: function(trigger, e){
 				var user = _.findWhere(chat.arUsers, {id: trigger.data('userId')});
 				return {
@@ -163,53 +154,46 @@
 				};
 			}
 
-	    },
-	    //Logout
+		},
+		//Logout
 		logout:function(){
-			//console.log('Logout');
 			window.location.replace("/logout");
 		},
 		//Add favorite
-	    favorite: function(toUserId) {
-	    	chat.socket.request(chat.sURL+"/chat/favorite", {toUserId : toUserId}, function(data){
-				//console.log("favoriteResponse "+ io.JSON.stringify(data) );
+		favorite: function(toUserId) {
+			chat.socket.request(chat.sURL+"/chat/favorite", {toUserId : toUserId}, function(data){
 			})
-	    },
-	    //init flash, chat
-	    init: function() {
-	    	//chat.setTimeUser();
-	    	chat.socket = window.socket;
-	    	//console.log("B1: init Chat"+(chat.socket && chat.socket.socket && chat.socket.socket.connected));
-	   	if(chat.socket.socket && chat.socket.socket.connected){
-	    		chat.joinChat();
-	    	}else{
-		    	chat.socket.on("connect", function(){
+		},
+		//init flash, chat
+		init: function() {
+			//chat.setTimeUser();
+			chat.socket = window.socket;
+			if(chat.socket.socket && chat.socket.socket.connected){
+				chat.joinChat();
+			}else{
+				chat.socket.on("connect", function(){
 					chat.joinChat();
 				})
-		    }
-	    },
-	    //1 joinChat
-	    joinChat: function() {
-    		chat.socket.request(chat.sURL+"/chat/join", {test : "ZZZC"}, function(data){
+			}
+		},
+		//1 joinChat
+		joinChat: function() {
+			chat.socket.request(chat.sURL+"/chat/join", {test : "ZZZC"}, function(data){
 				//console.log("B2: joinChat for User: "+ io.JSON.stringify(data) );
 				//return data have: currentUser[] is user login, userList[] is all user
 				if(data.currentUser){
 					chat.onChatConnected(data);
 				}
 			});
-	    },
-	    //2 onChatConnected
-	    onChatConnected: function(data) {
-	    	//set this currentUser = data.currentUser = user has just login
+		},
+		//2 onChatConnected
+		onChatConnected: function(data) {
+			//set this currentUser = data.currentUser = user has just login
 			this.oCurrentUser = data.currentUser;//Current user is connected set for flash
 			this.initFlash();
-
-
 			//update list user
 			_.each(data.userList, chat.updateUser, chat);
-
 			chat.addSocketListeners();
-
 			// set chat for user on connected
 			$("#inputMessage").keypress(function(event) {
 				if(event.which == 13) {
@@ -217,22 +201,16 @@
 					chat.sendMessage();
 				}
 			});
-
 			$("#sendBtn").click(function(event) {
 				chat.sendMessage();
 			});
-	    },
-
-
+		},
 		// 3 calls to flash
 		initFlash: function() {
-			//console.log("initFlash " + this.bFlashLoaded +" "+ io.JSON.stringify(this.oCurrentUser) +" "+ !this.bFlashInit);
-
 			if(this.bFlashLoaded && this.oCurrentUser && !this.bFlashInit){
 				this.bFlashInit = true;
 				this.oFlash = document.getElementById("flashInterface");
 				this.oFlash.onConnectedToChat(this.oCurrentUser);
-				//console.log("B3: Loaded Flash Chat for: "+JSON.stringify(this.oCurrentUser));
 			}
 		},
 		//4 update user
@@ -243,7 +221,6 @@
 				chat.setCurrentUser(user);
 				$("#btnDebate").off('click');
 				$("#btnDebate").removeClass('btnDisabled');
-
 				if(user.status == "viewing"){
 					$("#btnDebate").text('JOIN DEBATE');
 					$("#btnLogoutDebate").text('LOG OUT');
@@ -256,9 +233,6 @@
 					$("#btnDebate").text('LEAVE DEBATE');
 				}
 			}
-
-			//console.log("B4: arUsers:"+ io.JSON.stringify(chat.arUsers)+"Current User:"+io.JSON.stringify(chat.oCurrentUser));
-
 			oOldUser = _.clone(_.findWhere(chat.arUsers, {id:user.id}));
 			this.removeUser(user.id, true);
 			var nIndex = _.sortedIndex(this.arUsers, user, function(value){
@@ -280,7 +254,6 @@
 			});
 
 			chat.arUsers.splice(nIndex, 0, user);
-			//console.log("Sorting Viewing Speaker:"+io.JSON.stringify(chat.arUser));
 			this.insertAtIndex(user, nIndex);
 			/*
 			if(oOldUser){
@@ -308,8 +281,8 @@
 			$("#"+this.sUserListID+" div:eq(" + i + ")").remove();
 			$("#"+this.sUserListID).parent().nanoScroller();
 		},
-	    addSocketListeners: function() {
-	    	chat.socket.on("userUpdated", function(data){
+		addSocketListeners: function() {
+			chat.socket.on("userUpdated", function(data){
 				if(!data.hasOwnProperty("user")){
 					return;
 				}
@@ -331,34 +304,26 @@
 				if(!data.hasOwnProperty("message")){
 					return;
 				}
-
-				//console.log("newMessage "+io.JSON.stringify(data.message));
 				chat.addMessage(data.message);
 			});
 
-	    },
-	    setCurrentUser: function(user){
-	    	this.oCurrentUser = user;
-			 this.initFlash();
-	    },
-
-
+		},
+		setCurrentUser: function(user){
+			this.oCurrentUser = user;
+			this.initFlash();
+		},
 		// updateFlashQueue
 		updateFlashQueue: function() {
 			if(this.bFlashConnected){
-
 				var arQueue = _.filter(chat.arUsers, function(user){
 					return (user.status == "speaking" || user.status == "queuing");
 				});
 				arQueue = _.first(arQueue, 5);
-				//console.log("--------------------------");
-				//console.log(io.JSON.stringify(arQueue));
-				//console.log("--------------------------");
 				this.oFlash.onUpdateQueue(arQueue);
 			}
 		},
 
-	    // calls from Flash
+		// calls from Flash
 		onFlashLoaded: function() {
 			this.bFlashLoaded = true;
 			this.initFlash();
@@ -367,7 +332,6 @@
 		onFlashConnected: function() {
 			this.bFlashConnected = true;
 			this.updateFlashQueue();
-
 			$("#btnDebate").show();
 			$("#btnDebate").off('click');
 			$("#btnDebate").on('click', chat.onDebateJoin);
@@ -377,7 +341,6 @@
 			$("#btnDebate").off('click');
 			$("#btnDebate").text('PROCESSING...');
 			$("#btnDebate").addClass('btnDisabled');
-
 			//console.log("REQUEST onDebateJoin");
 			chat.socket.request(chat.sURL+"/chat/debatejoin", {}, function(data){
 				//console.log("RESPONSE onDebateJoin "+io.JSON.stringify(data));
@@ -394,13 +357,10 @@
 			});
 		},
 
-
 		removeUser: function(userId, bFlashIgnore){
-			//console.log("removeUser " + userId);
 			/*
 			*	Return index of userId in arUsers that no sorting
 			*/
-
 			var nIndex = _.findIndexWhere(this.arUsers, {id:userId});
 			if(nIndex != -1){
 				this.arUsers.splice(nIndex, 1);
@@ -419,12 +379,11 @@
 		onUserClick: function(evt){
 			//console.log("onUserClick "+$(evt.target).data('userId'));
 		},
-
 		// template insert user chat
 		templateUser: function(user) {
 			var reportedByUser =  (function(value){
 				if(user.id == chat.oCurrentUser.id){
-					 return 'true';
+					return 'true';
 				}else{
 					return  'false';
 				}
@@ -434,9 +393,6 @@
 			if(user.id === chat.oCurrentUser.id){
 				current = "current";
 			}
-			//chat.getNumberBanCount(user.id,function(number){
-
-			//})
 				template = $('<div>')
 						.addClass('row '+current)
 						.append( $('<section>')
@@ -465,17 +421,18 @@
 												if(oReportedSpeaker.length > 0)
 													checkedReport = oReportedSpeaker[0].reported;
 											}
-
 											if(chat.oCurrentUser.status != "speaking"){
 													if($(this).data('reported') == "false" && !checkedReport){
-														chat.oFlash.reportspamSpeaker(user.id);
+														//chat.oFlash.reportspamSpeaker(user.id);
 														chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"#report "+user.username}, function(data){
 															chat.arReportUser.push({
 																formUserID:chat.oCurrentUser.id,
 																toUserID:user.id,
 																reported: true
 															});
+
 														});
+														chat.oFlash.reportspamSpeaker(user.id);
 													}//end if
 
 													if($(this).data('reported') == 'true'){
@@ -496,14 +453,6 @@
 										}//end on click
 									)
 								)
-								/*
-								.append($('<span>')
-								.attr('id',user.id)
-								.data('id',user.id)
-								.addClass('numberban-speaker')
-								.text("")
-
-							)*/
 						)//end append
 						.append( $('<section>')
 									.addClass('column width-start start-number')
@@ -572,24 +521,18 @@
 					}else{
 						message.text = chat.ALERT_HAD_REPORT ;
 					}
-
-
 				}//report peding
-
 			}
 			//set template for curent user (speaking)
 			if(message.text.substring(0,7) ==='SYSTEM:'){
 				bShowCommand = false;
 			}
-
-
 			if(chat.oCurrentUser.id === message.fromUserId ){
 				template = $('<aside>')
 							.addClass('comment-ct')
 							.append( $('<span>')
 										.addClass('iconsp-3511-35px')
 									)
-
 							.append( $('<div>')
 										.addClass('green-yellow')
 										.append( $('<span>')
@@ -603,7 +546,6 @@
 									)
 			}
 			//set template for another  user (queing, viewing)
-
 			if(bShowCommand && chat.oCurrentUser.id != message.fromUserId)
 			{
 				template = $('<aside>')
@@ -626,10 +568,8 @@
 			}
 
 			return template;
-			//return '<div class="message"><span class="messageUsername">'+message.fromUsername+': </span><span class="messageText">'+message.text+'</span></div>';
 		},
 		insertMessage: function(message) {
-
 			$("#"+this.sMessageListID).append(this.templateMessage(message));
 			$("#"+this.sMessageListID).parent().nanoScroller();
 			$("#"+this.sMessageListID).parent().nanoScroller({ scroll: 'bottom' });
@@ -640,11 +580,8 @@
 		},
 		//vote click
 		vote: function(toUserId, value) {
-			//console.log("toUserId:"+toUserId+"Value:"+value);
-			//console.log("_____________Action vote");
 			chat.socket.request(chat.sURL+"/chat/vote", {toUserId : toUserId, value: value}, function(data){
 				//console.log("voteResponse "+ io.JSON.stringify(data));
-
 				if(value>0 && data){
 					chat.flagVoteUp = true;
 					chat.flagVoteDown = false;
@@ -658,12 +595,10 @@
 					//console.log("Down--Vote Up:"+ chat.flagVoteUp +"Vote down:"+chat.flagVoteDown);
 
 				}
-
-
 			})
-	    },
-	    //send message socket to server ChatController
-	    sendMessage: function(){
+		},
+		//send message socket to server ChatController
+		sendMessage: function(){
 			if($("#inputMessage").val() != ""){
 				chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: $("#inputMessage").val()}, function(data){
 
@@ -686,15 +621,12 @@
 		},
 		getNumberBanCount:function(userID,callback){
 			chat.socket.request(chat.sURL+"/chat/getbancount", {id:userID}, function(userban){
-					//console.log('Number banned:' + userban.userban);
-					//console.log('Array return Banned' + JSON.stringify(userban) )	;
 					callback(userban);
 				}
 			);
 		},
 
 	}//end chat class
-
 	// init document jquery -->
 	$( document ).ready(function() {
 		setInterval(function(){
@@ -706,8 +638,6 @@
 				);
 			});
 		},1000);
-
-
 		//set currentDate
 		var myVar=setInterval(function(){myTimer()},1000);
 		function myTimer()
@@ -722,26 +652,17 @@
 		$(".nano").nanoScroller({ preventPageScrolling: true });
 
 		$.contextMenu(chat.oContextMenu);
-
-	//	var flashvars = {sRTMP:"<%- sRTMP %>"};
-	var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
+		var flashvars = {sRTMP:"<%- sRTMP %>"};
+		//var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
 		var params = {};
 		var attributes = {};
-
 		swfobject.embedSWF("/swf/main.swf", "flashInterface", "100%", "100%", "10.0.0", "/swf/expressInstall.swf", flashvars, params, attributes);
-
 		chat.init();
-
-
-
 		$('#like').click(function(e){
-			//console.log(io.JSON.stringify(chat.arUsers));
-
 			e.preventDefault();
 			if( chat.oCurrentUser.status == 'speaking'){
 				chat.showVoteTemplte("You are speaking, Don't VOTE UP!");
 				return;
-				//return;
 			}
 			//if vote enable
 			if(!chat.flagVoteUp){
@@ -750,11 +671,8 @@
 			else{
 				chat.showVoteTemplte("You had VOTE UP!");
 			}
-
-
 		});//end click #like
 		$('#dislike').click(function(e) {
-
 			e.preventDefault();
 			if( chat.oCurrentUser.status == 'speaking'){
 				chat.showVoteTemplte("You are speaking, Don't VOTE DOWN!");
@@ -773,3 +691,4 @@
 	// end init document jquery -->
 
 </script>
+<!--End HTML Section User copy-->
