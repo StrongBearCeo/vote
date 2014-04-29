@@ -214,7 +214,7 @@ module.exports.sockets = {
 		                                    speaker.save(function(err) {
 		                                       sails.config.sockets.onUserUpdated(speaker);
 		                                       //set next speaker speaking from queuing
-		                                       sails.config.sockets.nextSpeaker();
+		                                       //sails.config.sockets.nextSpeaker();
 		                                       //set next speaker user form view to queuing
 		                                       ChatUsers.findOne({id:userFirst.id}).done(function(err,userViewsCurent){
 		                                          if(userViewsCurent){
