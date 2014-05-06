@@ -102,7 +102,7 @@ module.exports = {
 	// In production, you'll probably want to change this setting
 	// to 80 (http://) or 443 (ht0tps://) if you have an SSL certificate
 
-	port: process.env.PORT || 8080,
+	port: process.env.PORT || 8081,
 
 
 
