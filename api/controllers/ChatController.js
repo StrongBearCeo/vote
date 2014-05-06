@@ -33,7 +33,13 @@ module.exports = {
 		if(!req.socket){
 			return;
 		}
-		ChatUsers.create({id:req.session.passport.user.id, username: req.session.passport.user.username, rating: req.session.passport.user.rating , favorites: sails.config.sockets.DEFAULT_FAVORITE}).done(function(error, user) {
+		ChatUsers.create(
+         {
+            id:req.session.passport.user.id,
+            username: req.session.passport.user.username,
+            rating: req.session.passport.user.rating ,
+            favorites: sails.config.sockets.DEFAULT_FAVORITE
+         }).done(function(error, user) {
 	        if (error) {
 	            res.send({error: error});
 	        } else {

@@ -9,9 +9,7 @@
 module.exports = {
 
 	autoPK: false,
-
 	adapter: "memory",
-
 	attributes: {
 
 		id:{
@@ -33,8 +31,12 @@ module.exports = {
 		},
 		status: {
 			type: "string",
-			in: ["viewing", "queuing", "speaking"],
-			defaultsTo: "viewing"
+			in: ["viewing", "queuing", "speaking","participant"],
+         /*
+         * 1 speaking, 4 queuing, 2 viewing, and any login is participant
+         * 
+         */
+         defaultsTo: "participant"
 		},
 
 		loadRating: function(cb){

@@ -29,7 +29,8 @@ module.exports = function (grunt) {
    */
 
   var cssFilesToInject = [
-    'linker/**/*.css'
+    'linker/**/*.css',
+    'assets/**/*.css'
   ];
 
 
@@ -58,10 +59,11 @@ module.exports = function (grunt) {
 
     // *->    put other dependencies here   <-*
     // DSV Code Javascript
-    'js/chatdsv.js',
-    
+    'js/jquery.tooltipster.js',
+
     // All of the rest of your app scripts imported here
-    'linker/**/*.js'
+    'linker/**/*.js',
+    'assets/**/*.js'
   ];
 
 
@@ -409,7 +411,7 @@ module.exports = function (grunt) {
         files: ['assets/**/*'],
 
         // When assets are changed:
-        tasks: ['compileAssets', 'linkAssets']
+        tasks: ['compileAssets', 'linkAssets','default','build','prod']
       }
     }
   });

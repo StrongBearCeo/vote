@@ -8,9 +8,9 @@
 			</section>
 			<section class="video-control">
 				<div class="like-button">
-					<a id="like" href=""><span class="iconsp-3514-35px"></span></a>
-					<a href=""><span class="iconsp-line"></span></a>
-					<a id="dislike" href=""><span class="iconsp-3515-35px"></span></a>
+					<a id="like" href="" title="Vote up" class="tooltip"><span class="iconsp-3514-35px"></span></a>
+					<a href="#"><span class="iconsp-line"></span></a>
+					<a id="dislike" href="" title="Vote down"class="tooltip"><span class="iconsp-3515-35px "></span></a>
 				</div>
 
 				<div class="sound-button">
@@ -109,12 +109,13 @@
 		oCurrentUser:null,
 		oFlash: null,
 		arUsers: [],
+		arParticipant:[],
+		arParticipantUser:[],
 		arReportUser:[],//array save reported user
 		sUserListID: "usersList",
 		sMessageListID: "messages",
 		arFavoriteIds: [],
 		setTimetoUser:10000,
-
 		flagVoteUp:false,
 		flagVoteDown:false,
 		flagReport:false,
@@ -219,12 +220,13 @@
 		//4 update user
 		updateUser: function(user){
 			//if user current (just login) // User each on Userlist on Room
+
 			if(chat.oCurrentUser.id == user.id){
 				//if current user on list uerchat, disable debate click
 				chat.setCurrentUser(user);
 				$("#btnDebate").off('click');
 				$("#btnDebate").removeClass('btnDisabled');
-				if(user.status == "viewing"){
+				if(user.status == "participant"){
 					$("#btnDebate").text('JOIN DEBATE');
 					$("#btnLogoutDebate").text('LOG OUT');
 					$("#background-right").css('background-image','url(../images/banner-left.png)');
@@ -238,6 +240,10 @@
 			}
 			oOldUser = _.clone(_.findWhere(chat.arUsers, {id:user.id}));
 			this.removeUser(user.id, true);
+
+			//chat.arParticipant = _.where(chat.arUsers,{status:"participant"});
+			//chat.arParticipant = _.sortBy(chat.arParticipant, function(num){ return num.rating; });
+			//console.log("arParticipant:"+JSON.stringify(chat.arParticipant));
 			var nIndex = _.sortedIndex(this.arUsers, user, function(value){
 					var compare = "";
 					switch(value.status){
@@ -250,14 +256,25 @@
 						case "viewing":
 							compare += "2"+ value.order;
 							break;
+						case "participant":
+							chat.arParticipant = value.rating;
+							chat.arParticipantUser.push(chat.arParticipant);
+							var newParticipant =_.uniq(chat.arParticipantUser);
+							//console.log('Tat ca User' + JSON.stringify(chat.ArrJohnny1));
+							var sortParticipant =_.sortBy(newParticipant, function(num){ return -num; });
+							var currentatIndex = _.indexOf(sortParticipant,value.rating);
+								compare += "3"+ currentatIndex;
+							break;
 					}
+					//console.log("compare:"+compare);
 					return compare.toLowerCase();
 
-					//return value.rating * -1;
+
 			});
 
 			chat.arUsers.splice(nIndex, 0, user);
 			this.insertAtIndex(user, nIndex);
+			console.log("All user chat:"+JSON.stringify(chat.arUsers));
 			/*
 			if(oOldUser){
 				if(oOldUser.status != user.status || oOldUser.time != user.time){
@@ -404,7 +421,7 @@
 										.addClass('iconsp-3511-35px')
 									)
 									.append( $('<span>')
-										.text(user.username+"  -  "+user.status)
+										.text(user.username+"  -  "+user.status+" - "+user.order)
 										.data('userId', user.id)
 										.on('click', chat.onUserClick)
 									)
@@ -678,10 +695,10 @@
 		$(".nano").nanoScroller();
 		$(".nano").nanoScroller({ alwaysVisible: true });
 		$(".nano").nanoScroller({ preventPageScrolling: true });
-
+		$('.pane .slider').css("z-index","999");
 		$.contextMenu(chat.oContextMenu);
-		var flashvars = {sRTMP:"<%- sRTMP %>"};
-		//var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
+		//var flashvars = {sRTMP:"<%- sRTMP %>"};
+		var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
 		var params = {};
 		var attributes = {};
 		swfobject.embedSWF("/swf/main.swf", "flashInterface", "100%", "100%", "10.0.0", "/swf/expressInstall.swf", flashvars, params, attributes);
@@ -717,6 +734,9 @@
 		})//end click #dislike
 	});
 	// end init document jquery -->
-
+	 $('.tooltip').tooltipster({
+		position:'bottom'
+	}
+	);
 </script>
 <!--End HTML Section User copy-->
