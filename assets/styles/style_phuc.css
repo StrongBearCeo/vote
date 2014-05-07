@@ -367,7 +367,7 @@ margin: 0px 10px 0px 14px;
 /*Row&Column*/
 .user .user-info {
 	height:347px;
-	margin-right:-16px;
+	margin-right:0px;
 }
 .user-info span{
 	vertical-align:middle;
@@ -404,16 +404,16 @@ margin: 0px 10px 0px 14px;
 	display:inline-block;
 }
 .width-account{
-	width:22%;
+	width:24%;
 }
 .width-user-info{
-	width:75%;
+	width:82%;
 }
 .width-start{
 	width:17%;
 }
 .width-comment-area{
-	width:77%;
+	width:75%;
 }
 /**/
 /******************Comment***************/

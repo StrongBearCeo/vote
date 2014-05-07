@@ -271,10 +271,9 @@
 
 
 			});
-
 			chat.arUsers.splice(nIndex, 0, user);
 			this.insertAtIndex(user, nIndex);
-			console.log("All user chat:"+JSON.stringify(chat.arUsers));
+			//console.log("All user chat:"+JSON.stringify(chat.arUsers));
 			/*
 			if(oOldUser){
 				if(oOldUser.status != user.status || oOldUser.time != user.time){
@@ -678,7 +677,7 @@
 			$('button.repSpamUser').each(function(){
 				chat.socket.request(chat.sURL+"/chat/getbancount", {id:$(this).data('id')}, function(userban){
 						//console.log('span#'+userban.userban.id)	;
-						$('button#'+userban.userban.id).text('Ban Count : ' + userban.userban.bancount);
+						$('button#'+userban.userban.id).text('Report : ' + userban.userban.bancount);
 					}
 				);
 			});

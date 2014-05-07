@@ -72,12 +72,10 @@ module.exports.sockets = {
             id:session.passport.user.id
          }).done(function(error, user){
 			if(user && user.status == "participant"){//if current user is participant in user chat list join to viewing
-
 				ChatUsers.find({status:"viewing"}).done(function(error,userchats){
-
 					if(userchats.length <= 1){//limit for 2 user is viewing 0 and 1
 						user.status = "viewing";
-						user.order = sails.config.sockets.nOrder;//nOrder default 0
+						user.order = sails.config.sockets.nOrder++;//nOrder default 0
 						user.save(function(err){
 							sails.config.sockets.onUserUpdated(user);
                      ChatUsers.find({status:"queuing"}).done(function(error,userqueuing){//limit for 4 user is queuing
@@ -118,7 +116,7 @@ module.exports.sockets = {
 	//if speaker onDebateLeave change: seapking or queing --> viewing
 	onDebateLeave: function(session, socket){
 		ChatUsers.findOne({id:session.passport.user.id}).done(function(error, user){
-			if(user && user.status != "viewing"){
+			if(user && user.status != "participant"){
 				user.status = "participant";
 				user.save(function(err){
 					sails.config.sockets.onUserUpdated(user);
@@ -334,29 +332,33 @@ module.exports.sockets = {
 		ChatUsers.find({status: "queuing"}).done(function(error, users){
 			//if have users queuing
 			if(users && users.length){
+
 				users = _.sortBy(users, function(value){
 					var compare = "";
 					switch(value.status){
 						case "speaking":
-							compare += "1"+ value.order;
+
+                         compare += "0" + value.order;
+
 							break;
 						case "queuing":
-							compare += "2"+ value.order;
+                        compare += "1" + value.order;
+
 							break;
 						case "viewing":
-							compare += "3"+ value.order;
+							compare += "2" + value.order;
 							break;
 					}
-					return compare.toLowerCase();
+					return parseInt(compare);
 				});
 				//set speaking user is: speaker is first of users
 				speaker = _.first(users);
-            console.log("User duoc boc len lam speaking:"+JSON.stringify(speaker));
+            console.log("User duoc boc len lam speaking:"+JSON.stringify(users));
 				speaker.time = sails.config.sockets.TOTAL_SPEAKER_TIME;//default speaker 30s
 				sails.config.sockets.TOTAL_TALK = 15000;
 				speaker.status = "speaking";
 
-            speaker.order = sails.config.sockets.nOrder++;//nOrder default 0
+            //speaker.order = sails.config.sockets.nOrder++;//nOrder default 0
 				speaker.save(function(err,speakingUser) {
                console.log("Speaking user new:"+ speakingUser.username+" Order:"+ speakingUser.order);
 					sails.config.sockets.onUserUpdated(speakingUser);
