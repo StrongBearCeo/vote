@@ -134,25 +134,34 @@
 
 		// create ContextMenu
 		oContextMenu: {
-			selector: '.user, .messageUsername',
+			selector: '.contextmenu, .messageUsername',
 			build: function(trigger, e){
-				var user = _.findWhere(chat.arUsers, {id: trigger.data('userId')});
+				var user = _.findWhere(chat.arUsers, {id: trigger.data('id')});
+
 				return {
 					callback: function(key, options) {
 						var m = "clicked: " + key + " on " + $(this).text();
 						window.console && console.log(m) || alert(m);
+						//if(key == 'report'){
+						//	$.trigger('.repSpamUser').click();
+					//	var dsad=$(this).text();
+					//		var cla= user.name+user.id;
+					//		$( "#"+cla ).trigger( "click" );
+					//	}
 					},
 
 					items: {
 						"name": {name: user.username, className:"menuUsername", disabled:true},
 						"sep1": "---------",
 						"rating": {name: "Rating "+user.rating, disabled:true},
-						"ratingnow": {name: "Rating Today "+user.rating, disabled:true },
-						"favorites": {name: "Favorites "+user.favorites, disabled:true},
-						"sep2": "---------",
-						"addfavorite": {name: "Add as Favorite", icon: "copy", callback: function(){chat.favorite(user.id)}},
-						"ignore": {name: "Ignore User", icon: "paste"},
-						"block": {name: "Block Video", icon: "delete"},
+						//	"ratingnow": {name: "Rating Today "+user.rating, disabled:true },
+						//"favorites": {name: "Favorites "+user.favorites, disabled:true},
+						"sep3": "---------",
+						//"addfavorite": {name: "Add as Favorite", icon: "copy", callback: function(){chat.favorite(user.id)}},
+						//"ignore": {name: "Ignore User", icon: "paste"},
+						//"block": {name: "Block Video", icon: "delete"},
+						"Vote Up": {name: "Vote Up", icon: "like"},
+						"Vote Down": {name: "Vote Down", icon: "dislike"},
 						"report": {name: "Report", icon: "delete"}
 					}
 				};
@@ -413,7 +422,8 @@
 				current = "current";
 			}
 				template = $('<div>')
-						.addClass('row '+current)
+						.addClass('contextmenu row '+current)
+						.data('id',user.id)
 						.append( $('<section>')
 									.addClass('column width-user-info')
 									.append( $('<span>')
@@ -694,7 +704,6 @@
 		$(".nano").nanoScroller();
 		$(".nano").nanoScroller({ alwaysVisible: true });
 		$(".nano").nanoScroller({ preventPageScrolling: true });
-		$('.pane .slider').css("z-index","999");
 		$.contextMenu(chat.oContextMenu);
 		var flashvars = {sRTMP:"<%- sRTMP %>"};
 		//var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
