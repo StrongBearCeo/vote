@@ -137,11 +137,17 @@
 			selector: '.contextmenu, .messageUsername',
 			build: function(trigger, e){
 				var user = _.findWhere(chat.arUsers, {id: trigger.data('id')});
+				var enableVote =  "";
+
+				if(user.status != "speaking"){
+					enableVote = "disabled";
+				//	console.log('dsadsa' + enableVote);
+				}
 
 				return {
 					callback: function(key, options) {
-						var m = "clicked: " + key + " on " + $(this).text();
-						window.console && console.log(m) || alert(m);
+					//	var m = "clicked: " + key + " on " + $(this).text();
+					//	window.console && console.log(m) || alert(m);
 						//if(key == 'report'){
 						//	$.trigger('.repSpamUser').click();
 					//	var dsad=$(this).text();
@@ -160,9 +166,10 @@
 						//"addfavorite": {name: "Add as Favorite", icon: "copy", callback: function(){chat.favorite(user.id)}},
 						//"ignore": {name: "Ignore User", icon: "paste"},
 						//"block": {name: "Block Video", icon: "delete"},
-						"Vote Up": {name: "Vote Up", icon: "like"},
-						"Vote Down": {name: "Vote Down", icon: "dislike"},
-						"report": {name: "Report", icon: "delete"}
+
+						"Vote Up": {name: "Vote Up", className:user.status, icon: "like" ,callback: function(){$("a#like").trigger("click" );console.log('dsadsa'+ enableVote)}},
+						"Vote Down": {name: "Vote Down", className:user.status,icon: "dislike",callback: function(){$( "a#dislike").trigger( "click" )}},
+						"report": {name: "Report", icon: "delete",callback: function(){$("button#"+user.id ).trigger( "click" )}}
 					}
 				};
 			}

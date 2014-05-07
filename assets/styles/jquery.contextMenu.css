@@ -63,7 +63,7 @@
     background-color: #39F;
 }
 
-.context-menu-item.disabled {
+.context-menu-item.disabled,.context-menu-item.participant,.context-menu-item.queuing,.context-menu-item.viewing {
     color: #666;
 }
 
