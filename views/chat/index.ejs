@@ -131,18 +131,23 @@
 		ALERT_REPORT_YOURSELF:"SYSTEM: Can't report yourself ",
 		ALERT_REPORT_SPEAKING:"SYSTEM: You are speaking. Can't use command",
 		ALERT_GUID_COMMAND:"SYSTEM: Command ussing:#vote up, #vote down or #report [username]",
-
+		ALERT_NOT_COMMAND:"SYSTEM: You don't have permission",
 		// create ContextMenu
 		oContextMenu: {
 			selector: '.contextmenu, .messageUsername',
 			build: function(trigger, e){
 				var user = _.findWhere(chat.arUsers, {id: trigger.data('id')});
-				var enableVote =  "";
+				var enableAction =  false;
+				var ebableParticipant = false;
+				if(user.status == "speaking"){
+					enableAction = true;
 
-				if(user.status != "speaking"){
-					enableVote = "disabled";
-				//	console.log('dsadsa' + enableVote);
 				}
+				if(user.status == "participant"){
+					ebableParticipant = true;
+				}
+
+
 
 				return {
 					callback: function(key, options) {
@@ -167,9 +172,21 @@
 						//"ignore": {name: "Ignore User", icon: "paste"},
 						//"block": {name: "Block Video", icon: "delete"},
 
-						"Vote Up": {name: "Vote Up", className:user.status, icon: "like" ,callback: function(){$("a#like").trigger("click" );console.log('dsadsa'+ enableVote)}},
-						"Vote Down": {name: "Vote Down", className:user.status,icon: "dislike",callback: function(){$( "a#dislike").trigger( "click" )}},
-						"report": {name: "Report", icon: "delete",callback: function(){$("button#"+user.id ).trigger( "click" )}}
+						"Vote Up": {name: "Vote Up", className:user.status, icon: "like" ,callback: function(){
+								if(enableAction)
+									$("a#like").trigger("click" );
+								}
+						},
+						"Vote Down": {name: "Vote Down", className:user.status,icon: "dislike",callback: function(){
+								if(enableAction)
+									$( "a#dislike").trigger( "click" );
+							}
+						},
+						"report": {name: "Report",className:user.status, icon: "delete",callback: function(){
+							if(!ebableParticipant)
+								$("button#"+user.id ).trigger( "click" );
+							}
+						}
 					}
 				};
 			}
@@ -437,7 +454,7 @@
 										.addClass('iconsp-3511-35px')
 									)
 									.append( $('<span>')
-										.text(user.username+"  -  "+user.status)
+										.text(user.username+"  -  "+user.status +"  -  "+user.order)
 										.data('userId', user.id)
 										.on('click', chat.onUserClick)
 									)
@@ -516,7 +533,17 @@
 
 			}//end check speaking
 
-			if(chat.oCurrentUser.status != 'speaking'){
+			//check if speaking
+			if(chat.oCurrentUser.status === 'participant'){
+				if(message.text === "#vote up" || message.text === "#vote down" ||
+					message.text.substring(0,7) === "#report" || message.text.substring(0,1) === "#")
+				{
+					message.text = chat.ALERT_NOT_COMMAND ;
+				}
+
+			}//end check speaking
+
+			if(chat.oCurrentUser.status != 'speaking' && chat.oCurrentUser.status != 'participant'){
 					if(currentMessage.substring(0,1) ==="#"
 					&& currentMessage !== "#vote up"
 					&& currentMessage !== "#vote down"
@@ -724,6 +751,12 @@
 				chat.showVoteTemplte("You are speaking, Don't VOTE UP!");
 				return;
 			}
+
+			if( chat.oCurrentUser.status == 'participant'){
+				chat.showVoteTemplte("You don't have permission");
+				return;
+			}
+
 			//if vote enable
 			if(!chat.flagVoteUp){
 				chat.vote(chat.speakingUser().id,1);
@@ -736,6 +769,10 @@
 			e.preventDefault();
 			if( chat.oCurrentUser.status == 'speaking'){
 				chat.showVoteTemplte("You are speaking, Don't VOTE DOWN!");
+				return;
+			}
+			if( chat.oCurrentUser.status == 'participant'){
+				chat.showVoteTemplte("You don't have permission");
 				return;
 			}
 			if(!chat.flagVoteDown){
