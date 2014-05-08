@@ -11,7 +11,7 @@
 
 module.exports.sockets = {
 
-	nOrder: 0, // Order speaker
+	nOrder: 10, // Order speaker
 	nTimerID: null,
 	TOTAL_TALK:15000,// the first time used talking 15s
 	REPORT_SPAM:0, // count report spam, 10

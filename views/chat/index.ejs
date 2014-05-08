@@ -155,10 +155,7 @@
 					//	window.console && console.log(m) || alert(m);
 						//if(key == 'report'){
 						//	$.trigger('.repSpamUser').click();
-					//	var dsad=$(this).text();
-					//		var cla= user.name+user.id;
-					//		$( "#"+cla ).trigger( "click" );
-					//	}
+
 					},
 
 					items: {
@@ -454,7 +451,8 @@
 										.addClass('iconsp-3511-35px')
 									)
 									.append( $('<span>')
-										.text(user.username+"  -  "+user.status +"  -  "+user.order)
+									// show user name and status
+										.text(user.username+"  -  "+user.status)
 										.data('userId', user.id)
 										.on('click', chat.onUserClick)
 									)
@@ -739,7 +737,9 @@
 		$(".nano").nanoScroller({ alwaysVisible: true });
 		$(".nano").nanoScroller({ preventPageScrolling: true });
 		$.contextMenu(chat.oContextMenu);
+		//Run flash Server
 		var flashvars = {sRTMP:"<%- sRTMP %>"};
+		// Run flash Localhost
 		//var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
 		var params = {};
 		var attributes = {};
