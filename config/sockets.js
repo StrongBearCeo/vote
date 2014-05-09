@@ -173,8 +173,10 @@ module.exports.sockets = {
                speaker.order = sails.config.sockets.nOrder++;//nOrder default 0
                speaker.status = "queuing";
                speaker.save(function(err) {
-                  sails.config.sockets.nextSpeaker();
+                  console.log("Speak user change:"+speaker.username);
                   sails.config.sockets.onUserUpdated(speaker);
+                  sails.config.sockets.nextSpeaker();
+                  //
                });
          }
       });
@@ -309,6 +311,7 @@ module.exports.sockets = {
 				speaker.status = "speaking";
             //speaker.order = sails.config.sockets.nOrder++;//nOrder default 0
 				speaker.save(function(err,speakingUser) {
+               console.log("User speaking is:"+ speaker.username);
 					sails.config.sockets.onUserUpdated(speakingUser);
 				});
 			}//end if
