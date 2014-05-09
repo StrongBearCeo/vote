@@ -281,7 +281,7 @@ module.exports.sockets = {
    },
    nextParticipant:function(){
       ChatUsers.findOne({status:"participant"}).done(function(error, users){
-         sails.config.sockets.changeStatusUserDebate(user);
+         sails.config.sockets.changeStatusUserDebate(users);
       });
    },
 

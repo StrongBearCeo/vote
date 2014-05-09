@@ -189,7 +189,7 @@
 
 			//chat.arParticipant = _.where(chat.arUsers,{status:"participant"});
 			//chat.arParticipant = _.sortBy(chat.arParticipant, function(num){ return num.rating; });
-			
+
 			var nIndex = _.sortedIndex(this.arUsers, user, function(value){
 					var compare = "";
 					switch(value.status){
@@ -206,20 +206,20 @@
 							chat.arParticipant = value.rating;
 							chat.arParticipantUser.push(chat.arParticipant);
 							var newParticipant =_.uniq(chat.arParticipantUser);
-							
+
 							var sortParticipant =_.sortBy(newParticipant, function(num){ return -num; });
 							var currentatIndex = _.indexOf(sortParticipant,value.rating);
 								compare += "3"+ currentatIndex;
 							break;
 					}
-					
+
 					return compare.toLowerCase();
 
 
 			});
 			chat.arUsers.splice(nIndex, 0, user);
 			this.insertAtIndex(user, nIndex);
-			
+
 			/*
 			if(oOldUser){
 				if(oOldUser.status != user.status || oOldUser.time != user.time){
@@ -307,7 +307,7 @@
 			$("#btnDebate").text('PROCESSING...');
 			$("#btnDebate").addClass('btnDisabled');
 			chat.socket.request(chat.sURL+"/chat/debatejoin", {}, function(data){
-				
+
 			});
 		},
 
@@ -341,7 +341,7 @@
 		},
 		// events
 		onUserClick: function(evt){
-			
+
 		},
 		// template insert user chat
 		templateUser: function(user) {
@@ -464,9 +464,7 @@
 					){
 						//console.log('currentMessage: ' + currentMessage+"currentMessage.substring(0,1)"+currentMessage.substring(0,1));
 						message.text =chat.ALERT_GUID_COMMAND;
-
 					}
-
 
 					if(message.text === "#vote up")
 					{
@@ -474,10 +472,8 @@
 							message.text  = chat.ALERT_HAD_VOTE_UP;
 						}
 						else{//false
-							$('#like').trigger('click');
+							chat.vote(chat.speakingUser().id,1);
 							message.text  = chat.ALERT_VOTE_UP_SUCCESS;
-							chat.flagVoteUp = true;
-							chat.flagVoteDown = false;
 						}
 
 					}//end vote up
@@ -489,10 +485,8 @@
 							message.text  = chat.ALERT_HAD_VOTE_DOWN;
 						}
 						else{
+							chat.vote(chat.speakingUser().id,-1);
 							message.text  = chat.ALERT_VOTE_DOWN_SUCCESS;
-							$('#dislike').trigger('click');
-							chat.flagVoteUp = false;
-							chat.flagVoteDown = true;
 						}
 
 					}//end vote down
@@ -513,7 +507,7 @@
 								});
 							}//else arhasUserreport
 							else{
-								message.text = "SYSTEM: Can't not report, user: '"+message.text.substring(8)+"' not found!";
+								message.text = "SYSTEM: Can't not report, user: '"+message.text.substring(8)+"' ,not found!";
 							}
 
 
@@ -585,13 +579,13 @@
 				if(value>0 && data){
 					chat.flagVoteUp = true;
 					chat.flagVoteDown = false;
-					chat.showVoteTemplte("VOTE UP success!");
-					
+					//chat.showVoteTemplte("VOTE UP success!");
+
 				}
 				if(value < 0 && data){
 					chat.flagVoteUp = false;
 					chat.flagVoteDown = true;
-					chat.showVoteTemplte("VOTE DOWN success!");
+					//chat.showVoteTemplte("VOTE DOWN success!");
 				}
 			})
 		},
@@ -631,7 +625,6 @@
 		setInterval(function(){
 			$('button.repSpamUser').each(function(){
 				chat.socket.request(chat.sURL+"/chat/getbancount", {id:$(this).data('id')}, function(userban){
-						
 						$('button#'+userban.userban.id).text('Report : ' + userban.userban.bancount);
 					}
 				);
@@ -659,41 +652,14 @@
 		chat.init();
 		$('#like').click(function(e){
 			e.preventDefault();
-			if( chat.oCurrentUser.status == 'speaking'){
-				chat.showVoteTemplte("You are speaking, Don't VOTE UP!");
-				return;
-			}
+			chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: "#vote up" }, function(data){
+			});
 
-			if( chat.oCurrentUser.status == 'participant'){
-				chat.showVoteTemplte("You don't have permission");
-				return;
-			}
-
-			//if vote enable
-			if(!chat.flagVoteUp){
-				chat.vote(chat.speakingUser().id,1);
-			}
-			else{
-				chat.showVoteTemplte("You had VOTE UP!");
-			}
 		});//end click #like
 		$('#dislike').click(function(e) {
 			e.preventDefault();
-			if( chat.oCurrentUser.status == 'speaking'){
-				chat.showVoteTemplte("You are speaking, Don't VOTE DOWN!");
-				return;
-			}
-			if( chat.oCurrentUser.status == 'participant'){
-				chat.showVoteTemplte("You don't have permission");
-				return;
-			}
-			if(!chat.flagVoteDown){
-				chat.vote(chat.speakingUser().id,-1);
-			}
-			else{
-				//show
-				chat.showVoteTemplte("You had VOTE DOWN!");
-			}
+			chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: "#vote down" }, function(data){
+			});
 
 		})//end click #dislike
 	});
