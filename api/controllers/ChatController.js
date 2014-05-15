@@ -137,10 +137,7 @@ module.exports = {
 		var toUserId =  req.param("toUserId");
 		var value = req.param("value");
 		//action vote
-      console.log("User vote: "+req.session.passport.user.id );
-      console.log("User toUserId: "+req.param("toUserId"));
-      console.log("Value:"+ req.param("value"));
-      console.log("__________________________________");
+      
 		Votes.findOne({fromUserId:req.session.passport.user.id}).done(function(error,votejs){
 			if(votejs){
 				votejs.value = value;

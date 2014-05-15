@@ -380,53 +380,67 @@
 										.attr('id',user.id)
 										.text('')
 										.on('click',function(){
-											var checkedReport = false;
-											
+
+
 											var message = {
 												"fromUserId":chat.oCurrentUser.id,
 												"toUserId":chat.speakingUser().id,
 												"text":"",
 												"fromUsername":chat.oCurrentUser.username
 											};
-
-											if(chat.arReportUser.length > 0){
+											var checkedReport = false;
+											if( chat.arReportUser.length > 0 ){
 												var oReportedSpeaker;
 												oReportedSpeaker = _.where(chat.arReportUser,{formUserID:chat.oCurrentUser.id,toUserID:user.id}) ;
 												if(oReportedSpeaker.length > 0)
 													checkedReport = oReportedSpeaker[0].reported;
 											}
-											if(chat.oCurrentUser.status != "speaking"){
+
+											if(chat.oCurrentUser.status != "speaking" && chat.oCurrentUser.status != "participant"){
 													if($(this).data('reported') == "false" && !checkedReport){
 														//chat.oFlash.reportspamSpeaker(user.id);
-														chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:"#report "+user.username}, function(data){
-															chat.arReportUser.push({
-																formUserID:chat.oCurrentUser.id,
-																toUserID:user.id,
-																reported: true
-															});
+														chat.socket.request(chat.sURL+"/chat/reportSpam", {username:user.username},function(data){
+
+
+															if(data){
+																chat.arReportUser.push({
+																	formUserID:chat.oCurrentUser.id,
+																	toUserID:user.id,
+																	reported: true
+																});
+																//chat.flagReport =true;
+																message.text = "SYSTEM: Report "+ user.username +" done !";
+																chat.insertMessage(message);
+																chat.flagReport = true;
+																return;
+															}
+
 
 														});
-														chat.oFlash.reportspamSpeaker(user.id);
+														chat.oFlash.reportspamSpeaker(user.id);//disable flash video
 													}//end if
 
 													if($(this).data('reported') == 'true'){
-															chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:chat.ALERT_REPORT_YOURSELF }, function(data){
-															});
+															message.text = chat.ALERT_REPORT_YOURSELF;
+															chat.insertMessage(message);
+
 													}//end if
 
-											}else{
+											}
 
+											if(chat.oCurrentUser.status == "participant"){
+												message.text = chat.ALERT_NOT_COMMAND;
+												chat.insertMessage(message);
+											}
 
-
-												chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: chat.ALERT_REPORT_SPEAKING }, function(data){
-												});
+											if(chat.oCurrentUser.status == "speaking"){
+												message.text = chat.ALERT_REPORT_SPEAKING;
+												chat.insertMessage(message);
 											}
 
 											if(checkedReport){
-
-
-												chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:chat.ALERT_HAD_REPORT + user.username}, function(data){
-												});
+												message.text = chat.ALERT_HAD_REPORT +" "+ user.username;
+												chat.insertMessage(message);
 											}//end if
 
 										}//end on click
@@ -596,15 +610,28 @@
 
 						if(currentMessage.substring(0,7) === "#report")
 						{
-							//bShowCommand = false;
-							if(!chat.flagReport){
+							var checkedReport = false;
+							if( chat.arReportUser.length > 0 ){
+								var oReportedSpeaker;
+								oReportedSpeaker = _.where(chat.arReportUser,{formUserID:chat.oCurrentUser.id,toUserID:user.id}) ;
+								if(oReportedSpeaker.length > 0)
+									checkedReport = oReportedSpeaker[0].reported;
+							}
+
+							if(!chat.checkedReport){
 								var arhasUserreport = _.where(chat.arUsers,{username: currentMessage.substring(8)});
 								if(arhasUserreport.length > 0){
 									chat.socket.request(chat.sURL+"/chat/reportSpam", {username:currentMessage.substring(8)},function(data){
 										if(data){
+											chat.arReportUser.push({
+												formUserID:chat.oCurrentUser.id,
+												toUserID:user.id,
+												reported: true
+											});
 											//chat.flagReport =true;
-											message.text = "SYSTEM: Report done !";
+											message.text = "SYSTEM: Report "+ currentMessage.substring(8) +" done !";
 											chat.insertMessage(message);
+											chat.flagReport = true;
 											return;
 										}
 
@@ -618,7 +645,7 @@
 
 
 							}else{
-								message.text = chat.ALERT_HAD_REPORT ;
+								message.text = chat.ALERT_HAD_REPORT +" "+  currentMessage.substring(8);
 								chat.insertMessage(message);
 								return;
 							}

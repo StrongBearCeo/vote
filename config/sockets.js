@@ -221,9 +221,6 @@ module.exports.sockets = {
                               //
                            }else{
                               sum = _.reduce(votes, function(r, v){return r + v.value;}, 0) ;
-                              console.log(JSON.stringify(votes));
-                              console.log('sum all' + sum);
-                              console.log('---------------');
                               var newscore = sum;
                               user.rating += sum;
                               delete user.password;
