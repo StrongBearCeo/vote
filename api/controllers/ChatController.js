@@ -137,23 +137,25 @@ module.exports = {
 		var toUserId =  req.param("toUserId");
 		var value = req.param("value");
 		//action vote
+      console.log("User vote: "+req.session.passport.user.id );
+      console.log("User toUserId: "+req.param("toUserId"));
+      console.log("Value:"+ req.param("value"));
+      console.log("__________________________________");
 		Votes.findOne({fromUserId:req.session.passport.user.id}).done(function(error,votejs){
 			if(votejs){
-				votejs.value=value;
+				votejs.value = value;
 				votejs.save(function(error) {
 					return res.send({data: votejs});//if success
- 				 });
-
+            });
 			}
 			else{
-					Votes.create({fromUserId: req.session.passport.user.id, toUserId:toUserId, value:value}).done(function(error, vote) {
-						if (error) {
-							return res.send({error: error});
-						} else {
-
-							return res.send({data: vote});//if success
-						}
-					})
+				Votes.create({fromUserId: req.session.passport.user.id, toUserId:toUserId, value:value}).done(function(error, vote) {
+					if (error) {
+						return res.send({error: error});
+					} else {
+						return res.send({data: vote});//if success
+					}
+				})
 			}
 		});
 

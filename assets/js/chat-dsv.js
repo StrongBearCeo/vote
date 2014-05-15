@@ -381,6 +381,14 @@
 										.text('')
 										.on('click',function(){
 											var checkedReport = false;
+											
+											var message = {
+												"fromUserId":chat.oCurrentUser.id,
+												"toUserId":chat.speakingUser().id,
+												"text":"",
+												"fromUsername":chat.oCurrentUser.username
+											};
+
 											if(chat.arReportUser.length > 0){
 												var oReportedSpeaker;
 												oReportedSpeaker = _.where(chat.arReportUser,{formUserID:chat.oCurrentUser.id,toUserID:user.id}) ;
@@ -407,11 +415,16 @@
 													}//end if
 
 											}else{
+
+
+
 												chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: chat.ALERT_REPORT_SPEAKING }, function(data){
 												});
 											}
 
 											if(checkedReport){
+
+
 												chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text:chat.ALERT_HAD_REPORT + user.username}, function(data){
 												});
 											}//end if
@@ -436,130 +449,47 @@
 			var template;
 			var bShowCommand = true;
 
-			//check if speaking
-			if(chat.oCurrentUser.status === 'speaking'){
-				if(message.text === "#vote up" || message.text === "#vote down" ||
-					message.text.substring(0,7) === "#report" || message.text.substring(0,1) === "#")
-				{
-					message.text = chat.ALERT_REPORT_SPEAKING ;
-				}
-
-			}//end check speaking
-
-			//check if speaking
-			if(chat.oCurrentUser.status === 'participant'){
-				if(message.text === "#vote up" || message.text === "#vote down" ||
-					message.text.substring(0,7) === "#report" || message.text.substring(0,1) === "#")
-				{
-					message.text = chat.ALERT_NOT_COMMAND ;
-				}
-
-			}//end check speaking
-
-			if(chat.oCurrentUser.status != 'speaking' && chat.oCurrentUser.status != 'participant'){
-					if(currentMessage.substring(0,1) ==="#"
-					&& currentMessage !== "#vote up"
-					&& currentMessage !== "#vote down"
-					&& currentMessage.substring(0,7) !== "#report"
-					){
-						//console.log('currentMessage: ' + currentMessage+"currentMessage.substring(0,1)"+currentMessage.substring(0,1));
-						message.text =chat.ALERT_GUID_COMMAND;
-					}
-
-					if(message.text === "#vote up")
-					{
-						if(chat.flagVoteUp){//true
-							message.text  = chat.ALERT_HAD_VOTE_UP;
-						}
-						else{//false
-							chat.vote(chat.speakingUser().id,1);
-							message.text  = chat.ALERT_VOTE_UP_SUCCESS;
-						}
-
-					}//end vote up
-
-
-					if(message.text === "#vote down")
-					{
-						if(chat.flagVoteDown){
-							message.text  = chat.ALERT_HAD_VOTE_DOWN;
-						}
-						else{
-							chat.vote(chat.speakingUser().id,-1);
-							message.text  = chat.ALERT_VOTE_DOWN_SUCCESS;
-						}
-
-					}//end vote down
-
-					if(message.text.substring(0,7) === "#report")
-					{
-						bShowCommand = false;
-						if(!chat.flagReport){
-
-							var arhasUserreport = _.where(chat.arUsers,{username: message.text.substring(8)});
-							if(arhasUserreport.length>0){
-								chat.socket.request(chat.sURL+"/chat/reportSpam", {username:message.text.substring(8)},function(data){
-									if(data){
-										//chat.flagReport =true;
-										message.text = "SYSTEM: Report done !";
-									}
-
-								});
-							}//else arhasUserreport
-							else{
-								message.text = "SYSTEM: Can't not report, user: '"+message.text.substring(8)+"' ,not found!";
-							}
-
-
-						}else{
-							message.text = chat.ALERT_HAD_REPORT ;
-						}
-					}//report peding
-
-			}//end if current user is not speaking
-
 			//set template for curent user (speaking)
 			if(message.text.substring(0,7) ==='SYSTEM:'){
 				bShowCommand = false;
 			}
 			if(chat.oCurrentUser.id === message.fromUserId ){
 				template = $('<aside>')
-							.addClass('comment-ct')
-							.append( $('<span>')
-										.addClass('iconsp-3511-35px')
-									)
-							.append( $('<div>')
-										.addClass('green-yellow')
-										.append( $('<span>')
-										.text(message.fromUsername+':')
-										.data('userId', message.fromUserId)
-										.on('click', chat.onUserClick)
-										)
-										.append( $('<p>')
-										.text(message.text)
-										)
-									)
+					.addClass('comment-ct')
+					.append( $('<span>')
+								.addClass('iconsp-3511-35px')
+							)
+					.append( $('<div>')
+								.addClass('green-yellow')
+								.append( $('<span>')
+								.text(message.fromUsername+':')
+								.data('userId', message.fromUserId)
+								.on('click', chat.onUserClick)
+								)
+								.append( $('<p>')
+								.text(message.text)
+								)
+							)
 			}
 			//set template for another  user (queing, viewing)
 			if(bShowCommand && chat.oCurrentUser.id != message.fromUserId)
 			{
 				template = $('<aside>')
-							.addClass('comment-ct right-comment')
-							.append( $('<div>')
-										.addClass('blue-sky')
-										.append( $('<span>')
-											.text(message.fromUsername+':')
-											.data('userId', message.fromUserId)
-											.on('click', chat.onUserClick)
-										)
-										.append( $('<p>')
-											.text(message.text)
-										)
-									)
+					.addClass('comment-ct right-comment')
+					.append( $('<div>')
+								.addClass('blue-sky')
 								.append( $('<span>')
-										.addClass('iconsp-3511-35px')
-									)
-
+									.text(message.fromUsername+':')
+									.data('userId', message.fromUserId)
+									.on('click', chat.onUserClick)
+								)
+								.append( $('<p>')
+									.text(message.text)
+								)
+							)
+						.append( $('<span>')
+							.addClass('iconsp-3511-35px')
+						)
 			}
 
 			return template;
@@ -576,26 +506,129 @@
 		//vote click
 		vote: function(toUserId, value) {
 			chat.socket.request(chat.sURL+"/chat/vote", {toUserId : toUserId, value: value}, function(data){
-				if(value>0 && data){
+				if(value > 0 && data){
 					chat.flagVoteUp = true;
 					chat.flagVoteDown = false;
-					//chat.showVoteTemplte("VOTE UP success!");
-
+					console.log("*** User speaking:"+JSON.stringify(data));
 				}
 				if(value < 0 && data){
 					chat.flagVoteUp = false;
 					chat.flagVoteDown = true;
-					//chat.showVoteTemplte("VOTE DOWN success!");
+					console.log("*** User speaking:"+JSON.stringify(data));
 				}
 			})
 		},
 		//send message socket to server ChatController
 		sendMessage: function(){
 			if($("#inputMessage").val() != ""){
-				chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: $("#inputMessage").val()}, function(data){
+				var currentMessage = $("#inputMessage").val();
+				var message = {
+					"fromUserId":chat.oCurrentUser.id,
+					"toUserId":chat.speakingUser().id,
+					"text":"",
+					"fromUsername":chat.oCurrentUser.username
+				};
+				//check if speaking
+				if(chat.oCurrentUser.status === 'speaking'){
+					if(currentMessage === "#vote up" || currentMessage === "#vote down" ||
+						currentMessage.substring(0,7) === "#report" || currentMessage.substring(0,1) === "#")
+					{
+						message.text = chat.ALERT_REPORT_SPEAKING ;
+						chat.insertMessage(message);
+						return;
+					}
 
-				});
+				}//end check speaking
 
+				//check if speaking
+				if(chat.oCurrentUser.status === 'participant'){
+					if(currentMessage === "#vote up" || currentMessage === "#vote down" ||
+						currentMessage.substring(0,7) === "#report" || currentMessage.substring(0,1) === "#")
+					{
+						message.text = chat.ALERT_NOT_COMMAND ;
+						chat.insertMessage(message);
+						return;
+					}
+
+				}//end check speaking
+
+				if(chat.oCurrentUser.status != 'speaking' && chat.oCurrentUser.status != 'participant'){
+						if(currentMessage.substring(0,1) ==="#"
+						&& currentMessage !== "#vote up"
+						&& currentMessage !== "#vote down"
+						&& currentMessage.substring(0,7) !== "#report"
+						){
+							//console.log('currentMessage: ' + currentMessage+"currentMessage.substring(0,1)"+currentMessage.substring(0,1));
+							message.text =chat.ALERT_GUID_COMMAND;
+							chat.insertMessage(message);
+							return;
+						}
+
+						if(currentMessage === "#vote up")
+						{
+							if(!chat.flagVoteUp){
+								chat.vote(chat.speakingUser().id,1);
+								message.text = chat.ALERT_VOTE_UP_SUCCESS;
+								chat.insertMessage(message);
+							}
+							else{
+								message.text = chat.ALERT_HAD_VOTE_UP;
+								chat.insertMessage(message);
+								return;
+							}
+						}//end vote up
+
+
+						if(currentMessage === "#vote down")
+						{
+							if(!chat.flagVoteDown){
+								chat.vote(chat.speakingUser().id,-1);
+								message.text = chat.ALERT_VOTE_DOWN_SUCCESS;
+								chat.insertMessage(message);
+							}
+							else{
+								message.text = chat.ALERT_HAD_VOTE_DOWN;
+								chat.insertMessage(message);
+								return;
+							}
+
+						}//end vote down
+
+						if(currentMessage.substring(0,7) === "#report")
+						{
+							//bShowCommand = false;
+							if(!chat.flagReport){
+								var arhasUserreport = _.where(chat.arUsers,{username: currentMessage.substring(8)});
+								if(arhasUserreport.length > 0){
+									chat.socket.request(chat.sURL+"/chat/reportSpam", {username:currentMessage.substring(8)},function(data){
+										if(data){
+											//chat.flagReport =true;
+											message.text = "SYSTEM: Report done !";
+											chat.insertMessage(message);
+											return;
+										}
+
+									});
+								}//else arhasUserreport
+								else{
+									message.text = "SYSTEM: Can't not report, user: '"+currentMessage.substring(8)+"' ,not found!";
+									chat.insertMessage(message);
+									return;
+								}
+
+
+							}else{
+								message.text = chat.ALERT_HAD_REPORT ;
+								chat.insertMessage(message);
+								return;
+							}
+						}//report peding
+
+				}//end if current user is not speaking
+				else{
+					chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: $("#inputMessage").val()}, function(data){
+					});
+				}
 				$("#inputMessage").val("");
 			}
 		},
@@ -652,20 +685,78 @@
 		swfobject.embedSWF("/swf/main.swf", "flashInterface", "100%", "100%", "10.0.0", "/swf/expressInstall.swf", flashvars, params, attributes);
 		chat.init();
 		$('#like').click(function(e){
-			e.preventDefault();
-			chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: "#vote up" }, function(data){
-			});
+		e.preventDefault();
+			var message = {
+				"fromUserId":chat.oCurrentUser.id,
+				"toUserId":chat.speakingUser().id,
+				"text":"",
+				"fromUsername":chat.oCurrentUser.username
+			};
+
+			if( chat.oCurrentUser.status == 'speaking'){
+				message.text = chat.ALERT_REPORT_SPEAKING;
+				chat.insertMessage(message);
+				return;
+			}
+			if( chat.oCurrentUser.status == 'participant'){
+				message.text = chat.ALERT_NOT_COMMAND;
+				chat.insertMessage(message);
+				return;
+
+			}
+			//if vote enable
+			if( chat.oCurrentUser.status != 'participant' && chat.oCurrentUser.status != 'speaking'){
+				if(!chat.flagVoteUp){
+					chat.vote(chat.speakingUser().id,1);
+					message.text = chat.ALERT_VOTE_UP_SUCCESS;
+					chat.insertMessage(message);
+				}
+				else{
+					message.text = chat.ALERT_HAD_VOTE_UP;
+					chat.insertMessage(message);
+					return;
+
+				}
+			}
 
 		});//end click #like
 		$('#dislike').click(function(e) {
 			e.preventDefault();
-			chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: "#vote down" }, function(data){
-			});
+			var message = {
+				"fromUserId":chat.oCurrentUser.id,
+				"toUserId":chat.speakingUser().id,
+				"text":"",
+				"fromUsername":chat.oCurrentUser.username
+			};
+
+			if( chat.oCurrentUser.status == 'speaking'){
+				message.text = chat.ALERT_REPORT_SPEAKING;
+				chat.insertMessage(message);
+				return;
+			}
+			if( chat.oCurrentUser.status == 'participant'){
+				message.text = chat.ALERT_NOT_COMMAND;
+				chat.insertMessage(message);
+				return;
+
+			}
+			//if vote enable
+			if( chat.oCurrentUser.status != 'participant' && chat.oCurrentUser.status != 'speaking'){
+				if(!chat.flagVoteDown){
+					chat.vote(chat.speakingUser().id,-1);
+					message.text = chat.ALERT_VOTE_DOWN_SUCCESS;
+					chat.insertMessage(message);
+				}
+				else{
+					message.text = chat.ALERT_HAD_VOTE_DOWN;
+					chat.insertMessage(message);
+					return;
+				}
+			}
 
 		})//end click #dislike
 	});
 	// end init document jquery -->
-	 $('.tooltip').tooltipster({
+	$('.tooltip').tooltipster({
 		position:'bottom'
-	}
-	);
+	});

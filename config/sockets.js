@@ -56,7 +56,7 @@ module.exports.sockets = {
 		ChatUsers.findOne({id:userId}).done(function(error, user){
 			if(user){
 				user.destroy(function(err) {
-					console.log("onLeaveChat " + userId);
+					//console.log("onLeaveChat " + userId);
 					sails.io.sockets.in('chatroom').emit('userRemoved', {userId: userId});
 				})
 			}
@@ -173,7 +173,7 @@ module.exports.sockets = {
                speaker.order = sails.config.sockets.nOrder++;//nOrder default 0
                speaker.status = "queuing";
                speaker.save(function(err) {
-                  console.log("Speak user change:"+speaker.username);
+                  //console.log("Speak user change:"+speaker.username);
                   sails.config.sockets.onUserUpdated(speaker);
                   sails.config.sockets.nextSpeaker();
                   //
@@ -221,6 +221,9 @@ module.exports.sockets = {
                               //
                            }else{
                               sum = _.reduce(votes, function(r, v){return r + v.value;}, 0) ;
+                              console.log(JSON.stringify(votes));
+                              console.log('sum all' + sum);
+                              console.log('---------------');
                               var newscore = sum;
                               user.rating += sum;
                               delete user.password;
@@ -239,18 +242,26 @@ module.exports.sockets = {
                                     });
                                  }
                               }else if(newscore < 0){
+                                 speaker.rating += sum;
+                                 speaker.save(function(err,returnUserSave) {
+                                    sails.config.sockets.clearVoting();
+                                 });
                                  sails.config.sockets.nextQueuingSystem(speaker);
                               }else{
+
+
 
                                  if( speaker.time == 0)
                                  {
                                     sails.config.sockets.nextQueuingSystem(speaker);
+
                                  }
                                  else{
                                     speaker.save(function(err) {
+
                                     });
                                  }
-
+                                 sails.config.sockets.clearVoting();
                               }
                            }//else not error
                         });
@@ -311,7 +322,7 @@ module.exports.sockets = {
 				speaker.status = "speaking";
             //speaker.order = sails.config.sockets.nOrder++;//nOrder default 0
 				speaker.save(function(err,speakingUser) {
-               console.log("User speaking is:"+ speaker.username);
+               //console.log("User speaking is:"+ speaker.username);
 					sails.config.sockets.onUserUpdated(speakingUser);
 				});
 			}//end if
