@@ -643,7 +643,8 @@
 		$(".nano").nanoScroller({ preventPageScrolling: true });
 		$.contextMenu(chat.oContextMenu);
 		//Run flash Server
-		var flashvars = {sRTMP:"<%- sRTMP %>"};
+		//var flashvars = {sRTMP:"<%- sRTMP %>"};
+		var flashvars = "rtmp://www.talkingheads.tream.co.uk/talkingheads";
 		// Run flash Localhost
 		//var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
 		var params = {};
