@@ -188,8 +188,10 @@ module.exports.sockets = {
    				sails.config.sockets.getReportSpam(baneduser[i], function(bannedUserReturn) {
 		            if(bannedUserReturn){
 		               sails.config.sockets.onLeaveChat(bannedUserReturn.id);
-		               sails.config.sockets.nextSpeaker();
-                     sails.config.sockets.nextParticipant();
+		               if(bannedUserReturn.username == "speaking"){
+                        sails.config.sockets.nextSpeaker();
+                        sails.config.sockets.nextParticipant();
+                     }
                      //sails.config.sockets.nextQueuingSystem(speaker);
 		            }
 		            else{
