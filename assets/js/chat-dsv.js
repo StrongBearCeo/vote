@@ -462,10 +462,11 @@
 			var currentMessage = message.text;
 			var template;
 			var bShowCommand = true;
-
+			var hiddenUser = "";
 			//set template for curent user (speaking)
 			if(message.text.substring(0,7) ==='SYSTEM:'){
 				bShowCommand = false;
+				hiddenUser = "hidden";
 			}
 			if(chat.oCurrentUser.id === message.fromUserId ){
 				template = $('<aside>')
@@ -476,6 +477,7 @@
 					.append( $('<div>')
 								.addClass('green-yellow')
 								.append( $('<span>')
+								.addClass(hiddenUser)
 								.text(message.fromUsername+':')
 								.data('userId', message.fromUserId)
 								.on('click', chat.onUserClick)
