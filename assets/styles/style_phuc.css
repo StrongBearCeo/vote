@@ -50,8 +50,9 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 }
 .iconsp-line{
 	background-position: -53px -40px;
-	height:30px;
+	height:25px;
 	width:3px;
+   margin-top:-6px;
 }
 .iconsp-double-ball{
 	background-position: -0px -120px;
@@ -265,12 +266,13 @@ margin: 0px 10px 0px 14px;
 
 }
 .video-area .video-control .like-button{
-	text-align:left;
-	display:inline-block;
-	vertical-align:middle;
-	position:absolute;
-	top:0px;
-	left:0px;
+   text-align: left;
+   display: inline-block;
+   vertical-align: middle;
+   position: absolute;
+   top: -137px;
+   z-index: 99999;
+   left: 320px;
 }
 /* style vote */
 #vote-container{
