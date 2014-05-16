@@ -37,7 +37,7 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 .iconsp-3508-35px{background-position: -280px -0px}
 .iconsp-3509-35px{background-position: -0px -40px}
 .iconsp-3510-35px{background-position: -40px -40px}
-.iconsp-3511-35px{background-position: -80px -40px}
+.iconsp-3511-35px{background-position: -80px -76px}
 .iconsp-3512-35px{background-position: -120px -40px}
 .iconsp-3513-35px{background-position: -160px -40px}
 .iconsp-3514-35px{background-position: -195px -40px}
@@ -537,6 +537,7 @@ background-image: url('../images/spreport.png');
  input#inputMessage:focus{
     border:none;
 }
+.width-user-info .iconsp-3511-35px{width:25px}
 /*
 /*FireFox*/
 @-moz-document url-prefix(){
