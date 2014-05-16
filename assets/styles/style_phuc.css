@@ -168,7 +168,7 @@ a{
 	width:36%;
 }
 ul.list-icon {
-margin: 30px 0px 20px;
+margin: 15px 0px 15px;
 padding: 0px 25px;
 text-align: left;
 }
@@ -456,8 +456,8 @@ margin: 0px 10px 0px 14px;
 	display:inline-block;
 }
 .container-comment .chat-message{
-	background:#c6c6c6;
-	padding:11px 0px;
+	background:none;
+   border:2px solid #095EA5;
 	text-align:center;
 }
 .container-comment .chat-message div{
@@ -530,7 +530,7 @@ background-image: url('../images/spreport.png');
    background-size: contain;
    text-indent: 15px;
    color: #666;
-   display: block;
+   display: none;
    width:160px;
    height: 18px;
  }

@@ -690,14 +690,6 @@
 				);
 			});
 		},1000);
-
-		var myVar = setInterval(function(){myTimer()},1000);
-		function myTimer()
-		{
-			var d = new Date();
-			var t = d.toLocaleTimeString();
-			$('span#currentDate').html('Today ' + t)
-		}
 		$(".nano").nanoScroller();
 		$(".nano").nanoScroller({ alwaysVisible: true });
 		$(".nano").nanoScroller({ preventPageScrolling: true });
