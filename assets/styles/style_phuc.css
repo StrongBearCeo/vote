@@ -544,6 +544,7 @@ background-image: url('../images/spreport.png');
    background-position:-80px -40px;
 }
 .container-comment .comment-ct div span.hidden{display:none}
+.csgrey{color:#095EA5}
 /*
 /*FireFox*/
 @-moz-document url-prefix(){

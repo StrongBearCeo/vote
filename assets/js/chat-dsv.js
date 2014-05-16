@@ -56,9 +56,10 @@
 				var user = _.findWhere(chat.arUsers, {id: trigger.data('id')});
 				var enableAction =  false;
 				var ebableParticipant = false;
+				var speakingcss = '';
 				if(user.status == "speaking"){
 					enableAction = true;
-
+					speakingcss = ' disabled ';
 				}
 				if(user.status == "participant"){
 					ebableParticipant = true;
@@ -85,17 +86,28 @@
 						//"addfavorite": {name: "Add as Favorite", icon: "copy", callback: function(){chat.favorite(user.id)}},
 						//"ignore": {name: "Ignore User", icon: "paste"},
 						//"block": {name: "Block Video", icon: "delete"},
-						"Vote Up": {name: "Vote Up", className:user.status, icon: "like" ,callback: function(){
-								if(enableAction)
-									$("a#like").trigger("click" );
-								}
+						"Vote Up": { name: "Vote Up", className:user.status, icon: "like" ,callback: function(key,opt){
+									if(enableAction){
+										$("a#like").trigger("click" );
+									}
+								}/*,
+								disabled: function(key,opt){
+									if(user.status == 'speaking'){
+
+
+									}
+
+										return (user.status == 'speaking')?true:false;
+
+								}*/
 						},
-						"Vote Down": {name: "Vote Down", className:user.status,icon: "dislike",callback: function(){
+						"Vote Down": {name: "Vote Down", className:user.status, icon: "dislike",callback: function(){
 								if(enableAction)
 									$( "a#dislike").trigger( "click" );
+
 							}
 						},
-						"report": {name: "Report",className:user.status, icon: "delete",callback: function(){
+						"report": {name: "Report",className:user.status + speakingcss, icon: "delete",callback: function(){
 							if(!ebableParticipant)
 								$("button#"+user.id ).trigger( "click" );
 							}
@@ -463,10 +475,12 @@
 			var template;
 			var bShowCommand = true;
 			var hiddenUser = "";
+			var colorSystem ="";
 			//set template for curent user (speaking)
 			if(message.text.substring(0,7) ==='SYSTEM:'){
 				bShowCommand = false;
 				hiddenUser = "hidden";
+				colorSystem = "csgrey"
 			}
 			if(chat.oCurrentUser.id === message.fromUserId ){
 				template = $('<aside>')
@@ -483,6 +497,7 @@
 								.on('click', chat.onUserClick)
 								)
 								.append( $('<p>')
+								.addClass(colorSystem)
 								.text(message.text)
 								)
 							)
