@@ -309,7 +309,7 @@ margin: 0px 10px 0px 14px;
 .user .futura-book{
 	font-family:'futura-book';
 	font-size:30px;
-
+   margin-left:15px;
 }
 .user .account{
 	display:inline-block;
@@ -404,7 +404,7 @@ margin: 0px 10px 0px 14px;
 	display:inline-block;
 }
 .width-account{
-	width:24%;
+	width:238px;
 }
 .width-user-info{
 	width:82%;
@@ -428,7 +428,7 @@ margin: 0px 10px 0px 14px;
 }
 .container-comment .scroll-bar-comment{
 
-	height:253px;
+	height:272px;
 }
 .container-comment .title{
 	margin:20px 20px 10px;
@@ -534,6 +534,9 @@ background-image: url('../images/spreport.png');
    width:160px;
    height: 18px;
  }
+ input#inputMessage:focus{
+    border:none;
+}
 /*
 /*FireFox*/
 @-moz-document url-prefix(){
