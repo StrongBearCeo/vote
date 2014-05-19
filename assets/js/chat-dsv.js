@@ -573,8 +573,7 @@
 
 				//check if speaking
 				if(chat.oCurrentUser.status === 'participant'){
-					if(currentMessage === "#vote up" || currentMessage === "#vote down" ||
-						currentMessage.substring(0,7) === "#report" || currentMessage.substring(0,1) === "#")
+					if(currentMessage.substring(0,7) === "#report")
 					{
 						message.text = chat.ALERT_NOT_COMMAND ;
 						chat.insertMessage(message);
@@ -583,7 +582,7 @@
 
 				}//end check speaking
 
-				if(chat.oCurrentUser.status != 'speaking' && chat.oCurrentUser.status != 'participant'){
+				if(chat.oCurrentUser.status != 'speaking'){
 						if(currentMessage.substring(0,1) ==="#"
 						&& currentMessage !== "#vote up"
 						&& currentMessage !== "#vote down"
@@ -734,14 +733,15 @@
 				chat.insertMessage(message);
 				return;
 			}
-			if( chat.oCurrentUser.status == 'participant'){
+			/*if( chat.oCurrentUser.status == 'participant'){
 				message.text = chat.ALERT_NOT_COMMAND;
 				chat.insertMessage(message);
 				return;
 
-			}
+			}*/
 			//if vote enable
-			if( chat.oCurrentUser.status != 'participant' && chat.oCurrentUser.status != 'speaking'){
+			if( //chat.oCurrentUser.status != 'participant' &&
+				chat.oCurrentUser.status != 'speaking'){
 				if(!chat.flagVoteUp){
 					chat.vote(chat.speakingUser().id,1);
 					message.text = chat.ALERT_VOTE_UP_SUCCESS;
@@ -770,14 +770,15 @@
 				chat.insertMessage(message);
 				return;
 			}
-			if( chat.oCurrentUser.status == 'participant'){
+			/*if( chat.oCurrentUser.status == 'participant'){
 				message.text = chat.ALERT_NOT_COMMAND;
 				chat.insertMessage(message);
 				return;
 
-			}
+			}*/
 			//if vote enable
-			if( chat.oCurrentUser.status != 'participant' && chat.oCurrentUser.status != 'speaking'){
+			if( //chat.oCurrentUser.status != 'participant' &&
+				chat.oCurrentUser.status != 'speaking'){
 				if(!chat.flagVoteDown){
 					chat.vote(chat.speakingUser().id,-1);
 					message.text = chat.ALERT_VOTE_DOWN_SUCCESS;
