@@ -797,3 +797,14 @@
 	$('.tooltip').tooltipster({
 		position:'bottom'
 	});
+
+
+				$('#usersList').find('div:nth-child(1)').on('live',function(){
+					if($(this).hasClass('current')){
+								alert('dsad');
+					//	$('#usersList').find('div:nth-child(1)').addClass('disable');
+						$('#usersList').find('div:nth-child(1)').css('color','red');
+
+				}
+			}
+			);
