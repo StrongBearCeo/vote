@@ -42,12 +42,12 @@
 		KEY_REPORT: "#report",
 		ALERT_VOTE_UP_SUCCESS:"SYSTEM: Vote up success!",
 		ALERT_VOTE_DOWN_SUCCESS:"SYSTEM: Vote down success!",
-		ALERT_HAD_VOTE_UP:"SYSTEM: You had vote up",
-		ALERT_HAD_VOTE_DOWN:"SYSTEM: You had vote up",
-		ALERT_HAD_REPORT:"SYSTEM: You had report: ",
+		ALERT_HAD_VOTE_UP:"SYSTEM: You has already voted up",
+		ALERT_HAD_VOTE_DOWN:"SYSTEM: You has already voted up",
+		ALERT_HAD_REPORT:"SYSTEM: You has already reported user: ",
 		ALERT_REPORT_YOURSELF:"SYSTEM: Can't report yourself ",
-		ALERT_REPORT_SPEAKING:"SYSTEM: You are speaking. Can't use command",
-		ALERT_GUID_COMMAND:"SYSTEM: Command ussing:#vote up, #vote down or #report [username]",
+		ALERT_REPORT_SPEAKING:"SYSTEM: You are speaking. Can't use this command",
+		ALERT_GUID_COMMAND:"SYSTEM: Command ussing: #vote up, #vote down or #report [username]",
 		ALERT_NOT_COMMAND:"SYSTEM: You don't have permission",
 		// create ContextMenu
 		oContextMenu: {
