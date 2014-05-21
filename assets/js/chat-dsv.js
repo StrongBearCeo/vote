@@ -52,8 +52,10 @@
 		// create ContextMenu
 		oContextMenu: {
 			selector: '.contextmenu, .messageUsername',
+
 			build: function(trigger, e){
 				var user = _.findWhere(chat.arUsers, {id: trigger.data('id')});
+				var currentspeaking = user.status ;
 				var enableAction =  false;
 				var ebableParticipant = false;
 				var speakingcss = '';
@@ -67,13 +69,15 @@
 
 
 
+
 				return {
 					callback: function(key, options) {
-					//	var m = "clicked: " + key + " on " + $(this).text();
-					//	window.console && console.log(m) || alert(m);
-						//if(key == 'report'){
-						//	$.trigger('.repSpamUser').click();
 
+					},
+					events:{
+						show: function(opt){
+
+						}
 					},
 
 					items: {
@@ -90,16 +94,7 @@
 									if(enableAction){
 										$("a#like").trigger("click" );
 									}
-								}/*,
-								disabled: function(key,opt){
-									if(user.status == 'speaking'){
-
-
-									}
-
-										return (user.status == 'speaking')?true:false;
-
-								}*/
+								}
 						},
 						"Vote Down": {name: "Vote Down", className:user.status, icon: "dislike",callback: function(){
 								if(enableAction)
@@ -107,12 +102,23 @@
 
 							}
 						},
-						"report": {name: "Report",className:user.status + speakingcss, icon: "delete",callback: function(){
-							if(!ebableParticipant)
-								$("button#"+user.id ).trigger( "click" );
+						"report": {
+							name: "Report",
+							className:user.status,
+							icon: "delete",
+							disabled:
+								function(){
+									if (chat.oCurrentUser.status == "speaking" || chat.oCurrentUser.status=="participant"){
+										return true;
+									}
+									return false;
+								}
+							,
+							callback: function(key,opt){
+									$("button#"+user.id ).trigger( "click" );
 							}
 						}
-					}
+					}//end items
 				};
 			}
 
@@ -198,7 +204,7 @@
 			}
 			oOldUser = _.clone(_.findWhere(chat.arUsers, {id:user.id}));
 			this.removeUser(user.id, true);
-
+			chat.arReportUser = [];
 			//chat.arParticipant = _.where(chat.arUsers,{status:"participant"});
 			//chat.arParticipant = _.sortBy(chat.arParticipant, function(num){ return num.rating; });
 
@@ -411,7 +417,7 @@
 											if(chat.oCurrentUser.status != "speaking" && chat.oCurrentUser.status != "participant"){
 													if($(this).data('reported') == "false" && !checkedReport){
 														//chat.oFlash.reportspamSpeaker(user.id);
-														chat.socket.request(chat.sURL+"/chat/reportSpam", {username:user.username},function(data){
+														chat.socket.request(chat.sURL+"/chat/reportSpam", {username: chat.speakingUser().username},function(data){
 
 
 															if(data){
@@ -552,10 +558,11 @@
 		//send message socket to server ChatController
 		sendMessage: function(){
 			if($("#inputMessage").val() != ""){
-				var currentMessage = $("#inputMessage").val();
+				var currentMessage = $("#inputMessage").val().trim();
+
 				var message = {
 					"fromUserId":chat.oCurrentUser.id,
-					"toUserId":chat.speakingUser().id,
+					"toUserId":0,
 					"text":"",
 					"fromUsername":chat.oCurrentUser.username
 				};
@@ -566,6 +573,7 @@
 					{
 						message.text = chat.ALERT_REPORT_SPEAKING ;
 						chat.insertMessage(message);
+						$("#inputMessage").val("");
 						return;
 					}
 
@@ -577,6 +585,7 @@
 					{
 						message.text = chat.ALERT_NOT_COMMAND ;
 						chat.insertMessage(message);
+						$("#inputMessage").val("");
 						return;
 					}
 
@@ -591,6 +600,7 @@
 							//console.log('currentMessage: ' + currentMessage+"currentMessage.substring(0,1)"+currentMessage.substring(0,1));
 							message.text =chat.ALERT_GUID_COMMAND;
 							chat.insertMessage(message);
+							$("#inputMessage").val("");
 							return;
 						}
 
@@ -600,6 +610,8 @@
 								chat.vote(chat.speakingUser().id,1);
 								message.text = chat.ALERT_VOTE_UP_SUCCESS;
 								chat.insertMessage(message);
+								$("#inputMessage").val("");
+								return;
 							}
 							else{
 								message.text = chat.ALERT_HAD_VOTE_UP;
@@ -615,10 +627,13 @@
 								chat.vote(chat.speakingUser().id,-1);
 								message.text = chat.ALERT_VOTE_DOWN_SUCCESS;
 								chat.insertMessage(message);
+								$("#inputMessage").val("");
+								return;
 							}
 							else{
 								message.text = chat.ALERT_HAD_VOTE_DOWN;
 								chat.insertMessage(message);
+								$("#inputMessage").val("");
 								return;
 							}
 
@@ -626,28 +641,36 @@
 
 						if(currentMessage.substring(0,7) === "#report")
 						{
+							if(currentMessage.substring(8) != chat.speakingUser().username){
+								message.text = "You only report speaking user";
+								chat.insertMessage(message);
+								$("#inputMessage").val("");
+								return;
+							}
+
 							var checkedReport = false;
 							if( chat.arReportUser.length > 0 ){
 								var oReportedSpeaker;
-								oReportedSpeaker = _.where(chat.arReportUser,{formUserID:chat.oCurrentUser.id,toUserID:user.id}) ;
+								oReportedSpeaker = _.where(chat.arReportUser,{formUserID:chat.oCurrentUser.id,toUserID:chat.speakingUser().id}) ;
 								if(oReportedSpeaker.length > 0)
 									checkedReport = oReportedSpeaker[0].reported;
 							}
 
-							if(!chat.checkedReport){
-								var arhasUserreport = _.where(chat.arUsers,{username: currentMessage.substring(8)});
+							if(!checkedReport){
+								var arhasUserreport = _.where(chat.arUsers,{username: chat.speakingUser().username});
 								if(arhasUserreport.length > 0){
-									chat.socket.request(chat.sURL+"/chat/reportSpam", {username:currentMessage.substring(8)},function(data){
+									chat.socket.request(chat.sURL+"/chat/reportSpam", {username:chat.speakingUser().username},function(data){
 										if(data){
 											chat.arReportUser.push({
 												formUserID:chat.oCurrentUser.id,
-												toUserID:user.id,
+												toUserID:chat.speakingUser().id,
 												reported: true
 											});
 											//chat.flagReport =true;
 											message.text = "SYSTEM: Report "+ currentMessage.substring(8) +" done !";
 											chat.insertMessage(message);
 											chat.flagReport = true;
+											$("#inputMessage").val("");
 											return;
 										}
 
@@ -656,6 +679,7 @@
 								else{
 									message.text = "SYSTEM: Can't not report, user: '"+currentMessage.substring(8)+"' ,not found!";
 									chat.insertMessage(message);
+									$("#inputMessage").val("");
 									return;
 								}
 
@@ -663,15 +687,15 @@
 							}else{
 								message.text = chat.ALERT_HAD_REPORT +" "+  currentMessage.substring(8);
 								chat.insertMessage(message);
+								$("#inputMessage").val("");
 								return;
 							}
 						}//report peding
 
 				}//end if current user is not speaking
-				else{
-					chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: $("#inputMessage").val()}, function(data){
-					});
-				}
+
+				chat.socket.request(chat.sURL+"/chat/message", {toUserId: 0, text: $("#inputMessage").val()}, function(data){
+				});
 				$("#inputMessage").val("");
 			}
 		},
@@ -798,13 +822,14 @@
 		position:'bottom'
 	});
 
+/*
+$('#usersList').find('div:nth-child(1)').on('live',function(){
+	if($(this).hasClass('current')){
+		alert('dsad');
+		//	$('#usersList').find('div:nth-child(1)').addClass('disable');
+		$('#usersList').find('div:nth-child(1)').css('color','red');
 
-				$('#usersList').find('div:nth-child(1)').on('live',function(){
-					if($(this).hasClass('current')){
-								alert('dsad');
-					//	$('#usersList').find('div:nth-child(1)').addClass('disable');
-						$('#usersList').find('div:nth-child(1)').css('color','red');
-
-				}
-			}
-			);
+	}
+}
+);
+*/

@@ -84,7 +84,7 @@ module.exports = {
 						}
 
 						sails.config.sockets.onNewMessage(req.session, req.socket, msg);
-
+            console.log("Message chat:"+msg);
 						res.send(200);
 					})
 				})
@@ -115,6 +115,7 @@ module.exports = {
 
 	reportSpam:function(req,res){
 		Users.findOne({username:req.param('username')}).done(function(error,user){
+
 			if(user){
 				user.bancount = user.bancount + 1;
 				delete user.password;
@@ -122,8 +123,9 @@ module.exports = {
 					user.status="blocked";
 				}
 
-				user.save(function(err){
+				user.save(function(err,user){
 					res.send({data: true});
+          console.log("Report user:"+ req.param('username') +"success: "+ JSON.stringify(user));
 				});
 			}
 			if(error){
@@ -137,7 +139,7 @@ module.exports = {
 		var toUserId =  req.param("toUserId");
 		var value = req.param("value");
 		//action vote
-      
+
 		Votes.findOne({fromUserId:req.session.passport.user.id}).done(function(error,votejs){
 			if(votejs){
 				votejs.value = value;
