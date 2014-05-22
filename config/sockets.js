@@ -212,7 +212,7 @@ module.exports.sockets = {
 					nTimeDelta = 0;
 				}
 				speaker.time += nTimeDelta;
-            //console.log("Time left:"+speaker.time);
+        console.log("Time left:"+speaker.time);
 				if(speaker.time % 15 == 0)
 				{
                   Users.findOne({id:speaker.id}).done(function(err,user){
@@ -323,6 +323,7 @@ module.exports.sockets = {
 				speaker.save(function(err,speakingUser) {
                //console.log("User speaking is:"+ speaker.username);
 					sails.config.sockets.onUserUpdated(speakingUser);
+          sails.io.sockets.in('chatroom').emit('clearVoteSystem', {bClear: 1});
 				});
 			}//end if
 		});

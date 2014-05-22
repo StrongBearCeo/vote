@@ -68,10 +68,6 @@
 				if(user.status == "participant"){
 					ebableParticipant = true;
 				}
-
-
-
-
 				return {
 					callback: function(key, options) {
 
@@ -264,6 +260,7 @@
 				//reset action vote and report for all user
 				chat.flagVoteUp = false;
 				chat.flagVoteDown = false;
+
 				chat.updateUser(data.user);
 			});
 
@@ -282,6 +279,13 @@
 				chat.addMessage(data.message);
 			});
 
+			chat.socket.on("clearVoteSystem", function(bClear){
+				if(bClear.bClear == 1){
+					chat.arVoteSystem = [];
+				}
+
+			});
+
 		},
 		setCurrentUser: function(user){
 			this.oCurrentUser = user;
@@ -290,7 +294,7 @@
 		// updateFlashQueue
 		updateFlashQueue: function() {
 			if(this.bFlashConnected){
-				chat.arVoteSystem = [];
+
 				var arQueue = _.filter(chat.arUsers, function(user){
 					return (user.status == "speaking" || user.status == "queuing");
 				});
