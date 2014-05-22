@@ -36,6 +36,7 @@
 		flagVoteUp:false,
 		flagVoteDown:false,
 		flagReport:false,
+		timenow:null,
 
 		KEY_VOTE_UP: "#vote up",
 		KEY_VOTE_DOWN: "#vote down",
@@ -361,6 +362,34 @@
 		onUserClick: function(evt){
 
 		},
+		timecurrent: function(){
+			    var now     = new Date();
+			    var year    = now.getFullYear();
+			    var month   = now.getMonth()+1;
+			    var day     = now.getDate();
+			    var hour    = now.getHours();
+			    var minute  = now.getMinutes();
+			    var second  = now.getSeconds();
+			    if(month.toString().length == 1) {
+			        var month = '0'+month;
+			    }
+			    if(day.toString().length == 1) {
+			        var day = '0'+day;
+			    }
+			    if(hour.toString().length == 1) {
+			        var hour = '0'+hour;
+			    }
+			    if(minute.toString().length == 1) {
+			        var minute = '0'+minute;
+			    }
+			    if(second.toString().length == 1) {
+			        var second = '0'+second;
+			    }
+			     timenow = year+'/'+month+'/'+day+' '+hour+':'+minute+':'+second;
+			    return timenow;
+
+
+		},
 		// template insert user chat
 		templateUser: function(user) {
 			var reportedByUser =  (function(value){
@@ -482,15 +511,20 @@
 			var bShowCommand = true;
 			var hiddenUser = "";
 			var colorSystem ="";
+			var messageSystem ="";
+			var timeSystem = "";
 			//set template for curent user (speaking)
 			if(message.text.substring(0,7) ==='SYSTEM:'){
 				bShowCommand = false;
 				hiddenUser = "hidden";
-				colorSystem = "csgrey"
+				colorSystem = "csgrey";
+				messageSystem='align-center';
+				timeSystem = chat.timecurrent();
+
 			}
 			if(chat.oCurrentUser.id === message.fromUserId ){
 				template = $('<aside>')
-					.addClass('comment-ct')
+					.addClass('comment-ct ' + messageSystem)
 					.append( $('<span>')
 								.addClass('iconsp-3511-35px')
 							)
@@ -499,12 +533,13 @@
 								.append( $('<span>')
 								.addClass(hiddenUser)
 								.text(message.fromUsername+':')
+								//.text(chat.timecurrent)
 								.data('userId', message.fromUserId)
 								.on('click', chat.onUserClick)
 								)
 								.append( $('<p>')
 								.addClass(colorSystem)
-								.text(message.text)
+								.text(timeSystem+" " +message.text)
 								)
 							)
 			}
