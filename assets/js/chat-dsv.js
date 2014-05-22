@@ -29,6 +29,7 @@
 		arParticipant:[],
 		arParticipantUser:[],
 		arReportUser:[],//array save reported user
+		arVoteSystem: [],
 		sUserListID: "usersList",
 		sMessageListID: "messages",
 		arFavoriteIds: [],
@@ -44,7 +45,7 @@
 		ALERT_VOTE_UP_SUCCESS:"SYSTEM: Vote up success!",
 		ALERT_VOTE_DOWN_SUCCESS:"SYSTEM: Vote down success!",
 		ALERT_HAD_VOTE_UP:"SYSTEM: You has already voted up",
-		ALERT_HAD_VOTE_DOWN:"SYSTEM: You has already voted up",
+		ALERT_HAD_VOTE_DOWN:"SYSTEM: You has already voted down",
 		ALERT_HAD_REPORT:"SYSTEM: You has already reported user: ",
 		ALERT_REPORT_YOURSELF:"SYSTEM: Can't report yourself ",
 		ALERT_REPORT_SPEAKING:"SYSTEM: You are speaking. Can't use this command",
@@ -85,12 +86,7 @@
 						"name": {name: user.username, className:"menuUsername", disabled:true},
 						"sep1": "---------",
 						"rating": {name: "Rating "+user.rating, disabled:true},
-						//	"ratingnow": {name: "Rating Today "+user.rating, disabled:true },
-						//"favorites": {name: "Favorites "+user.favorites, disabled:true},
 						"sep3": "---------",
-						//"addfavorite": {name: "Add as Favorite", icon: "copy", callback: function(){chat.favorite(user.id)}},
-						//"ignore": {name: "Ignore User", icon: "paste"},
-						//"block": {name: "Block Video", icon: "delete"},
 						"Vote Up": { name: "Vote Up", className:user.status, icon: "like" ,callback: function(key,opt){
 									if(enableAction){
 										$("a#like").trigger("click" );
@@ -185,7 +181,6 @@
 		//4 update user
 		updateUser: function(user){
 			//if user current (just login) // User each on Userlist on Room
-
 			if(chat.oCurrentUser.id == user.id){
 				//if current user on list uerchat, disable debate click
 				chat.setCurrentUser(user);
@@ -231,14 +226,10 @@
 								compare += "3"+ currentatIndex;
 							break;
 					}
-
 					return compare.toLowerCase();
-
-
 			});
 			chat.arUsers.splice(nIndex, 0, user);
 			this.insertAtIndex(user, nIndex);
-
 			/*
 			if(oOldUser){
 				if(oOldUser.status != user.status || oOldUser.time != user.time){
@@ -299,6 +290,7 @@
 		// updateFlashQueue
 		updateFlashQueue: function() {
 			if(this.bFlashConnected){
+				chat.arVoteSystem = [];
 				var arQueue = _.filter(chat.arUsers, function(user){
 					return (user.status == "speaking" || user.status == "queuing");
 				});
@@ -578,18 +570,30 @@
 		//vote click
 		vote: function(toUserId, value) {
 			chat.socket.request(chat.sURL+"/chat/vote", {toUserId : toUserId, value: value}, function(data){
-				if(value > 0 && data){
-					chat.flagVoteUp = true;
-					chat.flagVoteDown = false;
-					console.log("*** User speaking:"+JSON.stringify(data));
-				}
-				if(value < 0 && data){
-					chat.flagVoteUp = false;
-					chat.flagVoteDown = true;
-					console.log("*** User speaking:"+JSON.stringify(data));
+				if(data){
+					chat.arVoteSystem = [];
+					chat.arVoteSystem.push({
+						voteFormUser: data.data.fromUserId,
+						voteToUser: toUserId,
+						voteValue: value
+					});
 				}
 			})
 		},
+		checkVoteSytem: function(fromUserID,toUserID){
+			if(chat.arVoteSystem.length > 0){
+				var oVote = _.where(chat.arVoteSystem,{voteFormUser:fromUserID,voteToUser: toUserID});
+				if(oVote[0].voteValue > 0){
+					return oVote[0].voteValue;
+				}
+				if(oVote[0].voteValue< 0){
+					return oVote[0].voteValue;
+				}
+			}else{
+				return 0;
+			}
+		},
+
 		//send message socket to server ChatController
 		sendMessage: function(){
 			if($("#inputMessage").val() != ""){
@@ -771,15 +775,16 @@
 		$.contextMenu(chat.oContextMenu);
 		//Run flash Server
 		//var flashvars = {sRTMP:"<%- sRTMP %>"};
-		var flashvars = "sRTMP: rtmp://www.talkingheads.tream.co.uk/talkingheads";
+		//var flashvars = "sRTMP: rtmp://www.talkingheads.tream.co.uk/talkingheads";
 		// Run flash Localhost
-		//var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
+		var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
 		var params = {};
 		var attributes = {};
 		swfobject.embedSWF("/swf/main.swf", "flashInterface", "100%", "100%", "10.0.0", "/swf/expressInstall.swf", flashvars, params, attributes);
 		chat.init();
 		$('#like').click(function(e){
 		e.preventDefault();
+
 			var message = {
 				"fromUserId":chat.oCurrentUser.id,
 				"toUserId":chat.speakingUser().id,
@@ -801,17 +806,26 @@
 			//if vote enable
 			if( //chat.oCurrentUser.status != 'participant' &&
 				chat.oCurrentUser.status != 'speaking'){
-				if(!chat.flagVoteUp){
-					chat.vote(chat.speakingUser().id,1);
-					message.text = chat.ALERT_VOTE_UP_SUCCESS;
-					chat.insertMessage(message);
-				}
-				else{
-					message.text = chat.ALERT_HAD_VOTE_UP;
-					chat.insertMessage(message);
-					return;
+					switch ( chat.checkVoteSytem(chat.oCurrentUser.id,chat.speakingUser().id) ){
+						case 0:{
+							chat.vote(chat.speakingUser().id,1);
+							message.text = chat.ALERT_VOTE_UP_SUCCESS;
+							chat.insertMessage(message);
+							break;
+						}
+						case 1:{
+							message.text = chat.ALERT_HAD_VOTE_UP;
+							chat.insertMessage(message);
+							break;
+						}
+						case -1:{
+							chat.vote(chat.speakingUser().id,1);
+							message.text = chat.ALERT_VOTE_UP_SUCCESS;
+							chat.insertMessage(message);
+							break;
+						}
+					}
 
-				}
 			}
 
 		});//end click #like
@@ -838,16 +852,27 @@
 			//if vote enable
 			if( //chat.oCurrentUser.status != 'participant' &&
 				chat.oCurrentUser.status != 'speaking'){
-				if(!chat.flagVoteDown){
-					chat.vote(chat.speakingUser().id,-1);
-					message.text = chat.ALERT_VOTE_DOWN_SUCCESS;
-					chat.insertMessage(message);
+
+				switch ( chat.checkVoteSytem(chat.oCurrentUser.id,chat.speakingUser().id) ){
+					case 0:{
+						chat.vote(chat.speakingUser().id,-1);
+						message.text = chat.ALERT_VOTE_DOWN_SUCCESS;
+						chat.insertMessage(message);
+						break;
+					}
+					case 1:{
+						chat.vote(chat.speakingUser().id,-1);
+						message.text = chat.ALERT_VOTE_DOWN_SUCCESS;
+						chat.insertMessage(message);
+						break;
+					}
+					case -1:{
+						message.text = chat.ALERT_HAD_VOTE_DOWN;
+						chat.insertMessage(message);
+						break;
+					}
 				}
-				else{
-					message.text = chat.ALERT_HAD_VOTE_DOWN;
-					chat.insertMessage(message);
-					return;
-				}
+
 			}
 
 		})//end click #dislike
