@@ -779,9 +779,9 @@
 		$.contextMenu(chat.oContextMenu);
 		//Run flash Server
 		//var flashvars = {sRTMP:"<%- sRTMP %>"};
-		//var flashvars = "sRTMP: rtmp://www.talkingheads.tream.co.uk/talkingheads";
+		var flashvars = "sRTMP: rtmp://www.talkingheads.tream.co.uk/talkingheads";
 		// Run flash Localhost
-		var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
+		// var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
 		var params = {};
 		var attributes = {};
 		swfobject.embedSWF("/swf/main.swf", "flashInterface", "100%", "100%", "10.0.0", "/swf/expressInstall.swf", flashvars, params, attributes);
