@@ -777,7 +777,6 @@
 		$(".nano").nanoScroller({ alwaysVisible: true });
 		$(".nano").nanoScroller({ preventPageScrolling: true });
 		$.contextMenu(chat.oContextMenu);
-		//Run flash Server
 		//var flashvars = {sRTMP:"<%- sRTMP %>"};
 		var flashvars = "sRTMP: rtmp://www.talkingheads.tream.co.uk/talkingheads";
 		// Run flash Localhost
