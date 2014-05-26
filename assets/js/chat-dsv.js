@@ -38,10 +38,16 @@
 		flagVoteDown:false,
 		flagReport:false,
 		timenow:null,
-
+		/**
+		 * System vote action command
+		*/ 
 		KEY_VOTE_UP: "#vote up",
 		KEY_VOTE_DOWN: "#vote down",
 		KEY_REPORT: "#report",
+
+		/**
+		 * Message system info
+		*/ 
 		ALERT_VOTE_UP_SUCCESS:"SYSTEM: Vote up success!",
 		ALERT_VOTE_DOWN_SUCCESS:"SYSTEM: Vote down success!",
 		ALERT_HAD_VOTE_UP:"SYSTEM: You has already voted up",
@@ -51,7 +57,10 @@
 		ALERT_REPORT_SPEAKING:"SYSTEM: You are speaking. Can't use this command",
 		ALERT_GUID_COMMAND:"SYSTEM: Command ussing: #vote up, #vote down or #report [username]",
 		ALERT_NOT_COMMAND:"SYSTEM: You don't have permission",
-		// create ContextMenu
+
+		/**
+		 * Context menu
+		*/ 
 		oContextMenu: {
 			selector: '.contextmenu, .messageUsername',
 
@@ -116,16 +125,22 @@
 			}
 
 		},
-		//Logout
+		/**
+		 * CLogout leave chat
+		*/ 
 		logout:function(){
 			window.location.replace("/logout");
 		},
-		//Add favorite
+		/**
+		 * Add favorite user
+		*/ 
 		favorite: function(toUserId) {
 			chat.socket.request(chat.sURL+"/chat/favorite", {toUserId : toUserId}, function(data){
 			})
 		},
-		//init flash, chat
+		/**
+		 * Init flash chat for user connect
+		*/ 
 		init: function() {
 			//chat.setTimeUser();
 			chat.socket = window.socket;
@@ -611,8 +626,8 @@
 				};
 				//check if speaking
 				if(chat.oCurrentUser.status === 'speaking'){
-					if(currentMessage === "#vote up" || currentMessage === "#vote down" ||
-						currentMessage.substring(0,7) === "#report" || currentMessage.substring(0,1) === "#")
+					if(currentMessage === chat.KEY_VOTE_UP || currentMessage === chat.KEY_VOTE_DOWN ||
+						currentMessage.substring(0,7) === chat.KEY_REPORT || currentMessage.substring(0,1) === "#")
 					{
 						message.text = chat.ALERT_REPORT_SPEAKING ;
 						chat.insertMessage(message);
@@ -624,7 +639,7 @@
 
 				//check if speaking
 				if(chat.oCurrentUser.status === 'participant'){
-					if(currentMessage.substring(0,7) === "#report")
+					if(currentMessage.substring(0,7) === chat.KEY_REPORT)
 					{
 						message.text = chat.ALERT_NOT_COMMAND ;
 						chat.insertMessage(message);
@@ -636,9 +651,9 @@
 
 				if(chat.oCurrentUser.status != 'speaking'){
 						if(currentMessage.substring(0,1) ==="#"
-						&& currentMessage !== "#vote up"
-						&& currentMessage !== "#vote down"
-						&& currentMessage.substring(0,7) !== "#report"
+						&& currentMessage !== chat.KEY_VOTE_UP
+						&& currentMessage !== chat.KEY_VOTE_DOWN
+						&& currentMessage.substring(0,7) !== chat.KEY_REPORT
 						){
 							//console.log('currentMessage: ' + currentMessage+"currentMessage.substring(0,1)"+currentMessage.substring(0,1));
 							message.text =chat.ALERT_GUID_COMMAND;
@@ -647,7 +662,7 @@
 							return;
 						}
 
-						if(currentMessage === "#vote up")
+						if(currentMessage === chat.KEY_VOTE_UP)
 						{
 							if(!chat.flagVoteUp){
 								chat.vote(chat.speakingUser().id,1);
@@ -664,7 +679,7 @@
 						}//end vote up
 
 
-						if(currentMessage === "#vote down")
+						if(currentMessage === chat.KEY_VOTE_DOWN)
 						{
 							if(!chat.flagVoteDown){
 								chat.vote(chat.speakingUser().id,-1);
@@ -682,7 +697,7 @@
 
 						}//end vote down
 
-						if(currentMessage.substring(0,7) === "#report")
+						if(currentMessage.substring(0,7) === chat.KEY_REPORT)
 						{
 							if(currentMessage.substring(8) != chat.speakingUser().username){
 								message.text = "You only report speaking user";
