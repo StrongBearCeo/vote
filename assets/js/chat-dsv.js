@@ -152,23 +152,26 @@
 				})
 			}
 		},
-		//1 joinChat
+		/**
+		 * Join chat for user
+		*/ 
 		joinChat: function() {
 			chat.socket.request(chat.sURL+"/chat/join", {test : "ZZZC"}, function(data){
-				//console.log("B2: joinChat for User: "+ io.JSON.stringify(data) );
-				//return data have: currentUser[] is user login, userList[] is all user
 				if(data.currentUser){
 					chat.onChatConnected(data);
 				}
 			});
 		},
-		//2 onChatConnected
+		/**
+		 * onChatConnected
+		*/ 
 		onChatConnected: function(data) {
-			//set this currentUser = data.currentUser = user has just login
-			this.oCurrentUser = data.currentUser;//Current user is connected set for flash
+			
+			this.oCurrentUser = data.currentUser;
 			this.initFlash();
-			//update list user
+			//update list user chat active
 			_.each(data.userList, chat.updateUser, chat);
+			//Listen all socket function for 
 			chat.addSocketListeners();
 			// set chat for user on connected
 			$("#inputMessage").keypress(function(event) {
@@ -796,7 +799,7 @@
 		var flashvars = "sRTMP: rtmp://www.talkingheads.tream.co.uk/talkingheads";
 		// Run flash Localhost
 		// var flashvars = {sRTMP:"rtmp://localhost/SOSample"};
-		var params = {};
+		var params = {"wmode":"transparent"};
 		var attributes = {};
 		swfobject.embedSWF("/swf/main.swf", "flashInterface", "100%", "100%", "10.0.0", "/swf/expressInstall.swf", flashvars, params, attributes);
 		chat.init();
