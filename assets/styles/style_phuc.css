@@ -259,20 +259,23 @@ margin: 0px 10px 0px 14px;
 	cursor:pointer;
 
 }
-.video-area .video-control{
-	position:relative;
-	display:block;
-	margin:5px 0px;
+section.video{
+	position: relative;
+}
+section.video-control{
+	position: absolute;
+	display: block;
+	margin: 5px 0px;
+	bottom: 95px;
+	z-index: 99999;
+	left: 315px;
 
 }
 .video-area .video-control .like-button{
-   text-align: left;
+   text-align: center;
    display: inline-block;
    vertical-align: middle;
-   position: absolute;
-   top: -137px;
    z-index: 99999;
-   left: 320px;
 }
 /* style vote */
 #vote-container{
