@@ -424,7 +424,7 @@
 						.append( $('<section>')
 									.addClass('column width-user-info')
 									.append( $('<span>')
-										.addClass('iconsp-3511-35px')
+										.addClass('iconsp-3511-18px')
 									)
 									.append( $('<span>')
 									// show user name and status
