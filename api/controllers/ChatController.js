@@ -41,7 +41,27 @@
 
 module.exports = {
 
-    // VIEWS
+    // -------------------------------------------------------------------
+	// Index ( req ; res )
+	//
+	// PARAMETERS:
+	//            @req (object) request form client to controller
+	//            @res (object) server response to client
+	// RETURNS:
+	//            if request user : reponse user object and sRTMP to view
+	//            else response to index
+	// DEPENDENCIES:
+	//            none
+	// PURPOSE:
+	//            Use this function in order to accomplish
+	//            most wonderful things possible!
+	// NOTES:
+	//            none
+	// REVISIONS:
+	//            05/28/2014 - Initial release
+
+	// -------------------------------------------------------------------
+
 	index: function (req, res) {
 		if(req.user){
 			res.view({user: req.user, sRTMP: sails.config.custom.sRTMP});
