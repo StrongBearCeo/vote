@@ -14,34 +14,35 @@
  *
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
+
 //
 // ============================================================================
 // Copyright:
 //          This source is subject to the Designveloper JSC (designveloper.com)
 //          All using or modify must have permission from us.
 //
-// Name:    DSVScriptTemplate
+// Name:    ChatController
 // Purpose:
-//          Describe the purpose of the script [short version]
+//          Processing all chat request 
 // Class:
 //          ChatController
 // Functions:
 //          index ; join ; message ; debateJoin ; debateLeave ; reportSpam ; vote
-//  		getbancount ; favorite
+//  				getbancount ; favorite
 // Called From:
-//          (script) any
+//          (script) Another controller and socket
 // Author:
-//          Ha Truong (truongvieth@designveloper.com)
+//          Nhien Phan (nhienpv@designveloper.com)
 // Notes:
 //          Additional information [long version]
 // Changelog:
-//          05/27/2014 - Ha Truong - Init first revision.
+//          05/28/2014 - Nhien Phan - Init first revision.
 // ============================================================================
 //
 
 module.exports = {
 
-    // -------------------------------------------------------------------
+   // -------------------------------------------------------------------
 	// Index ( req ; res )
 	//
 	// PARAMETERS:
