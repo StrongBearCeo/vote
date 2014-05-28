@@ -541,6 +541,7 @@
 					.addClass('comment-ct ' + messageSystem)
 					.append( $('<span>')
 								.addClass('iconsp-3511-18px')
+								.addClass(hiddenUser)
 							)
 					.append( $('<div>')
 								.addClass('green-yellow')

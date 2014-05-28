@@ -616,8 +616,8 @@ input#inputMessage:focus {
 .comment-ct .iconsp-3511-35px {
     background-position:-80px -40px;
 }
-.container-comment .comment-ct div span.hidden {
-    display:none
+span.hidden {
+    display:none !important;
 }
 .comment-ct.align-center {
     text-align:center;
