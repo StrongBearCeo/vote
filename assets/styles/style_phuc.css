@@ -89,7 +89,7 @@ table {
     background-position: -240px -0px
 }
 .iconsp-3508-35px {
-    background-position: -280px -0px
+    background-position: -275px -0px
 }
 .iconsp-3509-35px {
     background-position: -0px -40px
@@ -315,7 +315,7 @@ ul.list-icon li {
     margin:0px auto;
 }
 .video-area {
-    margin:30px 0px;
+    margin:10px 0px;
     width:100%;
     cursor:pointer;
 }
@@ -367,7 +367,7 @@ section.video-control {
 
 /*USer-comment*/
  .user {
-    margin:50px 0px 100px;
+    margin:15px 0px 100px;
     width:100%;
 }
 .user .futura-book {
@@ -483,7 +483,7 @@ section.video-control {
     margin:15px;
 }
 .container-comment .scroll-bar-comment {
-    height:272px;
+    height:276px;
 }
 .container-comment .title {
     margin:20px 20px 10px;
@@ -512,7 +512,9 @@ section.video-control {
 }
 .container-comment .chat-message {
     background:none;
-    border:2px solid #095EA5;
+    border-right:2px solid #095EA5;
+    border-top:2px solid #095EA5;
+    border-bottom:2px solid #095EA5;
     text-align:center;
 }
 .container-comment .chat-message div {
