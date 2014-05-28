@@ -199,24 +199,58 @@ module.exports = {
         });
 
     },
-
+    // -------------------------------------------------------------------
+    // debateJoin ( req ; res )
+    //
+    // PARAMETERS:
+    //            @req (object) request form client
+    //            @res (object) server response to client
+    //							- bSuccess: if exits request debate from client
+    //						res: Response call onDebateJoin of socket
+    // RETURNS:
+    //            null : if not req.socket
+    // DEPENDENCIES:
+    //            socketio
+    // PURPOSE:
+    //            Call sockets funtion onDebateJoin, join chat room for user debate
+    // NOTES:
+    //            none
+    // REVISIONS:
+    //            05/28/2014 - Initial release
+    // -------------------------------------------------------------------
     debateJoin: function(req, res) {
         if (!req.socket) {
             return;
         }
-
         res.send({
             bSuccess: true
         });
         sails.config.sockets.onDebateJoin(req.session, req.socket);
 
     },
-
+    // -------------------------------------------------------------------
+    // debateLeave ( req ; res )
+    //
+    // PARAMETERS:
+    //            @req (object) request form client
+    //            @res (object) server response to client
+    //						-  bSuccess: if have request debate leave from client
+    //						res: Response call onDebateJoin of socket
+    // RETURNS:
+    //            null : if not req.socket
+    // DEPENDENCIES:
+    //            socketio
+    // PURPOSE:
+    //            Call sockets funtion onDebateLeave, leave room chat for user leave debate
+    // NOTES:
+    //            none
+    // REVISIONS:
+    //            05/28/2014 - Initial release
+    // -------------------------------------------------------------------
     debateLeave: function(req, res) {
         if (!req.socket) {
             return;
         }
-
         sails.config.sockets.onDebateLeave(req.session, req.socket);
         res.send({
             bSuccess: true
