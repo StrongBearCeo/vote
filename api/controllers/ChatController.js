@@ -135,13 +135,32 @@ module.exports = {
             }
         });
     },
-
+    // -------------------------------------------------------------------
+    // message ( req ; res )
+    //
+    // PARAMETERS:
+    //            @req (object) request form client
+    //						req: {fromUserId,toUserId, text}
+    //							formUserId: Message send from Chat User
+    //							toUserId: Message sent to another User
+    //							text: Chat text message
+    //            @res (object) server response to client
+    //						res: Response new message to socket
+    // RETURNS:
+    //            null : if not req.socket
+    // DEPENDENCIES:
+    //            socketio, Message Model
+    // PURPOSE:
+    //            Send message to socket and commit client send to all user chat
+    // NOTES:
+    //            none
+    // REVISIONS:
+    //            05/28/2014 - Initial release
+    // -------------------------------------------------------------------
     message: function(req, res) {
-
         if (!req.socket) {
             return;
         }
-
         Messages.create({
             fromUserId: req.session.passport.user.id,
             toUserId: req.param("toUserId"),
@@ -152,9 +171,7 @@ module.exports = {
                     error: error
                 });
             } else {
-
                 var msg = message.toObject();
-
                 Users.findOne({
                     id: msg.fromUserId
                 }).done(function(error, user) {
@@ -163,7 +180,6 @@ module.exports = {
                     } else {
                         msg.fromUsername = "SYSTEM"
                     }
-
                     Users.findOne({
                         id: msg.toUserId
                     }).done(function(error, user) {
@@ -174,7 +190,7 @@ module.exports = {
                         }
 
                         sails.config.sockets.onNewMessage(req.session, req.socket, msg);
-                        console.log("Message chat:" + msg);
+                        // console.log("Message chat:" + msg);
                         res.send(200);
                     })
                 })
