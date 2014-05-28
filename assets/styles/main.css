@@ -1,106 +1,111 @@
-
-
+/* ============================================================================
+// ,,,,,,,,, ,,,
+// ,,,,,,,, ,,,  Copyright:
+// ,,,     ,,,          This source is subject to the Designveloper JSC
+// ,,,    ,,,           All using or modify must have permission from us.
+// ,,,   ,,,            http://designveloper.com
+// ,,,,,,,,
+// ,,,,,,,       Name:  DSVScriptTemplate
+// Purpose:
+//          Style for chat CSS
+// Called From:
+//          
+// Author:
+//					Phuc Nguyen (phucnt@designveloper.com)	
+//          Nhien Phan (nhienpv@designveloper.com)
+// Changelog:
+//          04/27/2014 - Phuc Nguyen - Init first revision.
+//					05/28/2014 - Nhien Phan - Init second revision.
+// ============================================================================
+*/
 .notifications {
-	background-color: #C2FCE5;
-	border: solid 1px #3E8468;
-	padding: 2px 2px 2px 18px;
+    background-color: #C2FCE5;
+    border: solid 1px #3E8468;
+    padding: 2px 2px 2px 18px;
 }
-
 .notifications li {
 }
-
 .formBox {
-	width: 400px;
-
-	text-align: center;
-	display: block;
-	margin: 0 auto;
+    width: 400px;
+    text-align: center;
+    display: block;
+    margin: 0 auto;
 }
-
 .formName {
-	font-size: 18px;
-	padding: 10px 0px;
-	font-weight: bold;
+    font-size: 18px;
+    padding: 10px 0px;
+    font-weight: bold;
 }
-
 .formRow {
-	float:left;
-	clear: both;
-	width:350px;
-	padding: 3px 0px;
-	vertical-align: middle;
+    float:left;
+    clear: both;
+    width:350px;
+    padding: 3px 0px;
+    vertical-align: middle;
 }
-
-.formRow label{
-	float: left;
+.formRow label {
+    float: left;
 }
-.formRow input{
-	float:right;
+.formRow input {
+    float:right;
 }
 .signupForm {
-	float: right;
+    float: right;
 }
-
 /* CHAT */
-
-#flashContainer {
-	display: block;
-	position:relative;
-	margin: 0 auto;
-	background:rgba(236,236,236,1)!important;
-	width:720px; height:480px;
-	width:720px; height:480px;
-	z-index:999;
+ #flashContainer {
+    display: block;
+    position:relative;
+    margin: 0 auto;
+    width:720px;
+    height:480px;
+    width:720px;
+    height:480px;
+    z-index:999;
 }
-#flashContainer:after{
-	content: '';
-	position: absolute;
-	width: 110px;
-	height: 110px;
-	border-radius: 50%;
-	background: #fff;
-	top: 170px;
-	right: 300px;
-
+#flashContainer:after {
+    content:'';
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: #fff;
+    top: 170px;
+    right: 300px;
 }
-#flashContainer:before{
-	content: '';
-position: absolute;
-width: 0px;
-height: 0px;
-border-style: solid;
-border-width: 30px 0px 30px 38px;
-border-color: rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0) #ececec;
-left: 354px;
-top: 196px;
-z-index: 10;
-
+#flashContainer:before {
+    content:'';
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    border-style: solid;
+    border-width: 30px 0px 30px 38px;
+    border-color: rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) #ececec;
+    left: 354px;
+    top: 196px;
+    z-index: 10;
 }
-#flashInterface{
-	display:block;
-	width:720px;
-	height:480px;
-	z-index:999;
+#flashInterface {
+    display:block;
+    width:720px;
+    height:480px;
+    z-index:999;
 }
 #flashContainer object {
-display: block;
-position:relative;
-width: 100%;
-height: 100%;
-z-index:99;
-background:rgba(236,236,236,0.6)!important;
-
+    display: block;
+    position:relative;
+    width: 100%;
+    height: 100%;
+    z-index:99;
 }
-
 #inputMessage {
-	width: 90%;
-	padding:15px 0px;
-	border:none;
-	font-size:15px;
+    width: 90%;
+    padding:15px 0px;
+    border:none;
+    font-size:15px;
 }
-
 #sendBtn {
-	width: 60px;
-margin-right: 13px;
-font-size: 16px;
+    width: 60px;
+    margin-right: 13px;
+    font-size: 16px;
 }
