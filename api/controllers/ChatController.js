@@ -17,11 +17,14 @@
 
 //
 // ============================================================================
-// Copyright:
-//          This source is subject to the Designveloper JSC (designveloper.com)
-//          All using or modify must have permission from us.
+// ,,,,,,,,, ,,,
+// ,,,,,,,, ,,,  Copyright:
+// ,,,     ,,,          This source is subject to the Designveloper JSC
+// ,,,    ,,,           All using or modify must have permission from us.
+// ,,,   ,,,            http://designveloper.com
+// ,,,,,,,,
+// ,,,,,,,       Name:  DSVScriptTemplate
 //
-// Name:    ChatController
 // Purpose:
 //          Processing all chat request 
 // Class:
@@ -30,7 +33,7 @@
 //          index ; join ; message ; debateJoin ; debateLeave ; reportSpam ; vote
 //  				getbancount ; favorite
 // Called From:
-//          (script) Another controller and socket
+//          Another controller and socket
 // Author:
 //          Nhien Phan (nhienpv@designveloper.com)
 // Notes:
@@ -46,7 +49,7 @@ module.exports = {
     // Index ( req ; res )
     //
     // PARAMETERS:
-    //            @req (object) request form client to controller
+    //            @req (object) request from client to controller
     //            @res (object) server response to client
     // RETURNS:
     //            if request user : reponse user object and sRTMP to view
@@ -54,8 +57,8 @@ module.exports = {
     // DEPENDENCIES:
     //            none
     // PURPOSE:
-    //            Use this function in order to accomplish
-    //            most wonderful things possible!
+    //            Check if exists request a User then response view chat else 
+    //            
     // NOTES:
     //            none
     // REVISIONS:
@@ -80,7 +83,8 @@ module.exports = {
     //            @req (object) request form client to controller
     //						req: {id,username, rating, favorites}
     //            @res (object) server response to client
-    //						res: error if have error, userList: All list userchat and usercurent: user has just create
+    //						res: error if have error, userList: All list userchat and 
+    //						usercurent: user has just create
     // RETURNS:
     //            if request socket :
     // 						Create user chat and save to ChatUsers Model, ChatUsers save all user chat	
@@ -97,6 +101,7 @@ module.exports = {
     // REVISIONS:
     //            05/28/2014 - Initial release
     // -------------------------------------------------------------------
+
     join: function(req, res) {
 
         if (!req.socket) {
@@ -232,7 +237,7 @@ module.exports = {
     // debateLeave ( req ; res )
     //
     // PARAMETERS:
-    //            @req (object) request form client
+    //            @req (object) request from client
     //            @res (object) server response to client
     //						-  bSuccess: if have request debate leave from client
     //						res: Response call onDebateJoin of socket
@@ -256,19 +261,35 @@ module.exports = {
             bSuccess: true
         });
     },
-
+    // -------------------------------------------------------------------
+    // reportSpam ( req ; res )
+    //
+    // PARAMETERS:
+    //            @req (object) request form client
+    //            @res (object) server response to client
+    //						-  bSuccess: if have request debate leave from client
+    //						res: Response call onDebateJoin of socket
+    // RETURNS:
+    //            null : if not req.socket
+    // DEPENDENCIES:
+    //            socketio
+    // PURPOSE:
+    //            Call sockets funtion onDebateLeave, leave room chat for user leave debate
+    // NOTES:
+    //            none
+    // REVISIONS:
+    //            05/28/2014 - Initial release
+    // -------------------------------------------------------------------
     reportSpam: function(req, res) {
         Users.findOne({
             username: req.param('username')
         }).done(function(error, user) {
-
             if (user) {
                 user.bancount = user.bancount + 1;
                 delete user.password;
                 if (user.bancount >= 10) {
                     user.status = "blocked";
                 }
-
                 user.save(function(err, user) {
                     res.send({
                         data: true
