@@ -14,6 +14,30 @@
  *
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
+//
+// ============================================================================
+// Copyright:
+//          This source is subject to the Designveloper JSC (designveloper.com)
+//          All using or modify must have permission from us.
+//
+// Name:    DSVScriptTemplate
+// Purpose:
+//          Describe the purpose of the script [short version]
+// Class:
+//          ChatController
+// Functions:
+//          index ; join ; message ; debateJoin ; debateLeave ; reportSpam ; vote
+//  		getbancount ; favorite
+// Called From:
+//          (script) any
+// Author:
+//          Ha Truong (truongvieth@designveloper.com)
+// Notes:
+//          Additional information [long version]
+// Changelog:
+//          05/27/2014 - Ha Truong - Init first revision.
+// ============================================================================
+//
 
 module.exports = {
 
