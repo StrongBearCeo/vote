@@ -34,7 +34,7 @@
 // Author:
 //          Nhien Phan (nhienpv@designveloper.com)
 // Notes:
-//          Additional information [long version]
+//          
 // Changelog:
 //          05/28/2014 - Nhien Phan - Init first revision.
 // ============================================================================
