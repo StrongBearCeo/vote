@@ -59,7 +59,6 @@ module.exports = {
 	//            none
 	// REVISIONS:
 	//            05/28/2014 - Initial release
-
 	// -------------------------------------------------------------------
 
 	index: function (req, res) {
@@ -71,7 +70,30 @@ module.exports = {
 		}
 	},
 
-	// SOCKET
+	// -------------------------------------------------------------------
+	// join ( req ; res )
+	//
+	// PARAMETERS:
+	//            @req (object) request form client to controller
+	//						req: {id,username, rating, favorites}
+	//            @res (object) server response to client
+	//						res: error if have error, userList: All list userchat and usercurent: user has just create
+	// RETURNS:
+	//            if request socket :
+	// 						Create user chat and save to ChatUsers Model, ChatUsers save all user chat	
+	// 						- if error: Response error to client if not create ChatUsers item
+	// 						- if success: join chat for user create, find all user and response to client	
+	//			
+	// DEPENDENCIES:
+	//            socketio, ChatUsers Model
+	// PURPOSE:
+	//            Use this function in order to accomplish
+	//            most wonderful things possible!
+	// NOTES:
+	//            none
+	// REVISIONS:
+	//            05/28/2014 - Initial release
+	// -------------------------------------------------------------------
 	join: function(req, res){
 
 		if(!req.socket){
