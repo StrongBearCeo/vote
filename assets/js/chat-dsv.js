@@ -148,13 +148,13 @@
 	                        className: user.status,
 	                        icon: "delete",
 	                        disabled: function() {
-	                            if (chat.oCurrentUser.id === user.id) {
+	                        	if (chat.oCurrentUser.id === user.id) {
 	                                return true;
 	                            }
 	                            return false;
 	                        },
 	                        callback: function(key, opt) {
-	                            $("button#" + user.id).trigger("click");
+	                        		chat.reportSpamUser(user);
 	                        }
 	                    }
 	                } //end items
@@ -434,8 +434,40 @@
 
 	    // Report system function
 	    reportSpamUser: function(user){
-
-	    },
+	    		console.log("User:"+JSON.stringify(user));
+	    		// Template message
+          var message = {
+              "fromUserId": chat.oCurrentUser.id,
+              "toUserId": chat.speakingUser().id,
+              "text": "",
+              "fromUsername": chat.oCurrentUser.username
+          };
+          // check if had report false
+          if (!chat.checkedReportToUser(chat.oCurrentUser.id,user.id)) {
+                chat.socket.request(chat.sURL + "/chat/reportSpam", {
+                    username: chat.speakingUser().username
+                }, function(data) {
+                    if (data) {
+                    		// Save report formUserID to toUserID in chat.arReportUser
+                        chat.arReportUser.push({
+                            formUserID: chat.oCurrentUser.id,
+                            toUserID: user.id,
+                            reported: true
+                        });
+                        message.text = "SYSTEM: Report " + user.username + " done !";
+                        chat.insertMessage(message);
+                        return;
+                    }
+                });
+                // call function disable flash video
+                chat.oFlash.reportspamSpeaker(user.id); 
+          } //end if
+          else{
+              message.text = chat.ALERT_HAD_REPORT + " " + user.username;
+              chat.insertMessage(message);
+              return;            
+          }
+	    },//end function reportSpamUser
 
 	    // Get true or false when user reported to another user on userlist
 	    checkedReportToUser: function(fromUserReportID, toUserReportID){
@@ -497,70 +529,7 @@
 	                    .data('id', user.id)
 	                    .attr('id', user.id)
 	                    .text('')
-	                    .on('click', function() {
-
-	                    				// template object message
-	                            var message = {
-	                                "fromUserId": chat.oCurrentUser.id,
-	                                "toUserId": chat.speakingUser().id,
-	                                "text": "",
-	                                "fromUsername": chat.oCurrentUser.username
-	                            };
-	                            // check if had report
-	                            var checkedReport = chat.checkedReportToUser(chat.oCurrentUser.id,user.id);
-	                            
-
-	                            if (chat.oCurrentUser.status != "speaking" && chat.oCurrentUser.status != "participant") {
-	                                if ($(this).data('reported') == "false" && !checkedReport) {
-	                                    //chat.oFlash.reportspamSpeaker(user.id);
-	                                    chat.socket.request(chat.sURL + "/chat/reportSpam", {
-	                                        username: chat.speakingUser().username
-	                                    }, function(data) {
-
-
-	                                        if (data) {
-	                                            chat.arReportUser.push({
-	                                                formUserID: chat.oCurrentUser.id,
-	                                                toUserID: user.id,
-	                                                reported: true
-	                                            });
-	                                            //chat.flagReport =true;
-	                                            message.text = "SYSTEM: Report " + user.username + " done !";
-	                                            chat.insertMessage(message);
-	                                            chat.flagReport = true;
-	                                            return;
-	                                        }
-
-
-	                                    });
-	                                    chat.oFlash.reportspamSpeaker(user.id); //disable flash video
-	                                } //end if
-
-	                                if ($(this).data('reported') == 'true') {
-	                                    message.text = chat.ALERT_REPORT_YOURSELF;
-	                                    chat.insertMessage(message);
-
-	                                } //end if
-
-	                            }
-
-	                            if (chat.oCurrentUser.status == "participant") {
-	                                message.text = chat.ALERT_NOT_COMMAND;
-	                                chat.insertMessage(message);
-	                            }
-
-	                            if (chat.oCurrentUser.status == "speaking") {
-	                                message.text = chat.ALERT_REPORT_SPEAKING;
-	                                chat.insertMessage(message);
-	                            }
-
-	                            if (checkedReport) {
-	                                message.text = chat.ALERT_HAD_REPORT + " " + user.username;
-	                                chat.insertMessage(message);
-	                            } //end if
-
-	                        } //end on click
-	                    )
+	                    .on('click', function(){})
 	                )
 	        ) //end append
 	        .append($('<section>')
