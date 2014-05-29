@@ -82,6 +82,7 @@
 	    ALERT_GUID_COMMAND: "SYSTEM: Command ussing: #vote up, #vote down or #report [username]",
 	    ALERT_NOT_COMMAND: "SYSTEM: You don't have permission",
 	    ALERT_USER_REPORT_NOT_FOUND: "SYSTEM: User report not found.",
+	    ALERT_NOT_FOUND_SPEAKING_USER: "SYSTEM: Not found speaking user to action vote",
 
 	    
 	    // Context menu
@@ -451,8 +452,10 @@
         }, function(data) {
         		//console.log("Data report return:"+ JSON.stringify(data));
             if (data) {
-            	 	// call function disable flash video
-        				//chat.oFlash.reportspamSpeaker(user.id); 
+            		if(user.status === 'speaking' || user.status === 'queuing'){
+            			// call function disable flash video
+        					chat.oFlash.reportspamSpeaker(user.id); 
+            		}	
             		// Save report formUserID to toUserID in chat.arReportUser
                 chat.arReportUser.push({
                     formUserID: chat.oCurrentUser.id,
@@ -488,6 +491,7 @@
           		if(success){
           			message.text = chat.ALERT_REPORT_SUCCESS + " " + user.username;
                 chat.insertMessage(message);
+
                 return;
 	          	}
 	          	else{
@@ -684,14 +688,13 @@
 	    },
 
 	    // get userID chat by username
-	    getUserIDByUserName : function(username){
+	    getUserByUserName : function(username){
 	    		var ogetUser = _.where(chat.arUsers, {
 	                            username: username
 	                        });
 	    		if(ogetUser.length > 0)
-	    			return ogetUser[0].id;
-
-	    		return 0;
+	    			return ogetUser[0];
+	    		return null;
 	    },
 
 	    //send message socket to server ChatController
@@ -708,10 +711,16 @@
 	           	switch(currentMessage){
 	           		case chat.KEY_VOTE_UP:{
 	           			$('#like').trigger('click');
+	           			$("#inputMessage").val("");
+	           			return;
+	           			break;
 	           		}
 	           			
 	           		case chat.KEY_VOTE_DOWN:{
 	           			$('#dislike').trigger('click');
+	           			$("#inputMessage").val("");
+	           			return;
+	           			break;
 	           		}
 	           		default:{
 	           				//check if speaking only use report system dont't use vote system
@@ -735,14 +744,14 @@
 			           						message.text = chat.ALERT_USER_REPORT_NOT_FOUND;
 			           						break;
 			           				}
-
-			           				if(chat.checkedReportToUser(chat.oCurrentUser.id,chat.getUserIDByUserName(usernameReport))){
-
-			           				}
 			           				else{
-			           						message.text = chat.ALERT_HAD_REPORT + " " +usernameReport;
-			           						break;
+			           					chat.reportSpamUser(chat.getUserByUserName(usernameReport));
+			           					$("#inputMessage").val("");
+	           							return;
+			           					break;
 			           				}
+			           				
+
 
 			           		}
 	           		}
@@ -751,16 +760,20 @@
 
 	           	}//end switch
 
-	           	if(message.text !== ""){
+	           	if(message.text === ""){
+	           		chat.socket.request(chat.sURL + "/chat/message", {
+	                toUserId: 0,
+	                text: currentMessage
+		            }, function(data) {});
+		            $("#inputMessage").val("");
+		            return;
+	           	}
+	           	else{
 	           		chat.insertMessage(message);
                 $("#inputMessage").val("");
                 return;
 	           	}
-	            chat.socket.request(chat.sURL + "/chat/message", {
-	                toUserId: 0,
-	                text: currentMessage
-	            }, function(data) {});
-	            $("#inputMessage").val("");
+	            
 	        }
 	    },
 	   
@@ -821,19 +834,23 @@
 
 	        var message = {
 	            "fromUserId": chat.oCurrentUser.id,
-	            "toUserId": chat.speakingUser().id,
+	            "toUserId": 0,
 	            "text": "",
 	            "fromUsername": chat.oCurrentUser.username
 	        };
-
-	        if (chat.oCurrentUser.status == 'speaking') {
+	        if (chat.speakingUser() === undefined) {
+	            message.text = chat.ALERT_NOT_FOUND_SPEAKING_USER;
+	            chat.insertMessage(message);
+	            return;
+	        }
+	        if (chat.oCurrentUser.status === 'speaking') {
 	            message.text = chat.ALERT_REPORT_SPEAKING;
 	            chat.insertMessage(message);
 	            return;
 	        }
 	       
 	        if ( //chat.oCurrentUser.status != 'participant' &&
-	            chat.oCurrentUser.status != 'speaking') {
+	            chat.oCurrentUser.status !== 'speaking') {
 	            switch (chat.checkVoteSytem(chat.oCurrentUser.id, chat.speakingUser().id)) {
 	                case 0:
 	                    {
@@ -858,6 +875,7 @@
 	            }
 
 	        }
+	        return;
 
 	    });
 	    //end vote up click
@@ -867,10 +885,17 @@
 	        e.preventDefault();
 	        var message = {
 	            "fromUserId": chat.oCurrentUser.id,
-	            "toUserId": chat.speakingUser().id,
+	            "toUserId": 0,
 	            "text": "",
 	            "fromUsername": chat.oCurrentUser.username
 	        };
+
+	       
+	        if (chat.speakingUser() === undefined) {
+	            message.text = chat.ALERT_NOT_FOUND_SPEAKING_USER;
+	            chat.insertMessage(message);
+	            return;
+	        }
 
 	        if (chat.oCurrentUser.status === 'speaking') {
 	            message.text = chat.ALERT_REPORT_SPEAKING;
@@ -880,7 +905,7 @@
 
 	        //if vote enable
 	        if ( //chat.oCurrentUser.status != 'participant' &&
-	            chat.oCurrentUser.status != 'speaking') {
+	            chat.oCurrentUser.status !== 'speaking') {
 
 	            switch (chat.checkVoteSytem(chat.oCurrentUser.id, chat.speakingUser().id)) {
 	                case 0:
@@ -906,6 +931,7 @@
 	            }
 
 	        }
+	        return;
 
 	    }) //end click #dislike
 	});
