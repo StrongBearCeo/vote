@@ -630,7 +630,7 @@
 	                    )
 	            )
 	                .append($('<span>')
-	                    .addClass('iconsp-3511-35px')
+	                    .addClass('iconsp-3511-18px')
 	            )
 	        }
 
