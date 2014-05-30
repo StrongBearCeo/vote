@@ -64,7 +64,7 @@ module.exports = {
 
     index: function(req, res) {
         if (req.user) {
-        		sails.log.info("Give user to chat:"+ JSON.stringify(req.user));
+            sails.log.info("Give user to chat:" + JSON.stringify(req.user));
             res.view({
                 user: req.user,
                 sRTMP: sails.config.custom.sRTMP
@@ -100,8 +100,7 @@ module.exports = {
     //            05/28/2014 - Initial release
     // -------------------------------------------------------------------
     join: function(req, res) {
-        if (!req.socket 
-        	|| Object.getOwnPropertyNames(req.session.passport).length === 0) {
+        if (!req.socket || Object.getOwnPropertyNames(req.session.passport).length === 0) {
             return;
         } else {
             sails.log.info("session User info: " + req.session.passport.user);
@@ -112,7 +111,7 @@ module.exports = {
                 favorites: sails.config.sockets.DEFAULT_FAVORITE
             }).done(function(error, user) {
                 if (error) {
-                		sails.log.info("Error join chat:"+error);
+                    sails.log.info("Error join chat:" + error);
                     res.send({
                         error: error
                     });
@@ -164,7 +163,7 @@ module.exports = {
             toUserId: req.param("toUserId"),
             text: req.param("text")
         }).done(function(error, message) {
-        		// send error if have
+            // send error if have
             if (error) {
                 res.send({
                     error: error
@@ -220,7 +219,7 @@ module.exports = {
         if (!req.socket) {
             return;
         }
-        sails.log.info("Join to room chat for user:"+ JSON.stringify(req.session.passport.user));
+        sails.log.info("Join to room chat for user:" + JSON.stringify(req.session.passport.user));
         res.send({
             bSuccess: true
         });
@@ -276,17 +275,17 @@ module.exports = {
     //            05/30/2014 - Comments function
     // -------------------------------------------------------------------
     reportSpam: function(req, res) {
-    		//Find user name be report
+        //Find user name be report
         Users.findOne({
             username: req.param('username')
         }).done(function(error, user) {
-        		// If have user then increase bancount + 1
+            // If have user then increase bancount + 1
             if (user) {
                 user.bancount = user.bancount + 1;
                 delete user.password;
                 // If have user.bancount >= 10 then update status: blocked
                 if (user.bancount >= 10) {
-                		sails.log.info("User:"+ username +" had locked");
+                    sails.log.info("User:" + username + " had locked");
                     user.status = "blocked";
                 }
                 // Save all data
@@ -298,7 +297,7 @@ module.exports = {
                 });
             }
             if (error) {
-            		sails.log.info("Error report to user:"+ username +" - " + error);
+                sails.log.info("Error report to user:" + username + " - " + error);
                 console.log(error);
             }
         });
@@ -326,7 +325,7 @@ module.exports = {
     //            05/30/2014 - Comments function
     // -------------------------------------------------------------------
     vote: function(req, res) {
-    		// get info vote from client
+        // get info vote from client
         var toUserId = req.param("toUserId");
         var value = req.param("value");
         //action vote
@@ -337,15 +336,15 @@ module.exports = {
             if (votejs) {
                 votejs.value = value;
                 votejs.save(function(error) {
-                		sails.log.info("Change value vote of User:"+votejs.username);
+                    sails.log.info("Change value vote of User:" + votejs.username);
                     return res.send({
                         data: votejs
                     }); //if success
                 });
             } else {
-            		// if not create vote for fromUserId:toUserID: value
-            		// send error if have
-            		// send user create at Model: Votes to client
+                // if not create vote for fromUserId:toUserID: value
+                // send error if have
+                // send user create at Model: Votes to client
                 Votes.create({
                     fromUserId: req.session.passport.user.id,
                     toUserId: toUserId,
@@ -356,7 +355,7 @@ module.exports = {
                             error: error
                         });
                     } else {
-                    		sails.log.info("Votes created success:"+ JSON.stringify(vote));
+                        sails.log.info("Votes created success:" + JSON.stringify(vote));
                         return res.send({
                             data: vote
                         }); //if success
