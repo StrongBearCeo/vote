@@ -21,7 +21,30 @@
  * For more information, check out:
  * http://sailsjs.org/#documentation
  */
-
+// ============================================================================
+// ,,,,,,,,, ,,,
+// ,,,,,,,, ,,,  Copyright:
+// ,,,     ,,,          This source is subject to the Designveloper JSC
+// ,,,    ,,,           All using or modify must have permission from us.
+// ,,,   ,,,            http://designveloper.com
+// ,,,,,,,,
+// ,,,,,,,       Name:  DSVScriptTemplate
+// Purpose:
+//          Config local and check login passport
+// Class:
+//         
+// Functions:
+//          
+// Called From:
+// 
+// Author:
+//          Nhien Phan(nhienpv@designveloper.com)
+// Notes:
+//          
+// Changelog:
+//          05/30/2014 - Nhien Phan - Write more custom passport login
+// ============================================================================
+//
 
 var passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
@@ -31,6 +54,7 @@ var passport = require('passport'),
 passport.use(new LocalStrategy(
     function(username, password, done) {
         process.nextTick(function() {
+        		// Find all user on chat if account has been login then return
             ChatUsers.findOne({
                 username: username
             }, function(err, user) {
@@ -66,6 +90,7 @@ passport.use(new LocalStrategy(
                                 sError: 'Incorrect password.'
                             });
                         }
+                        // Return user if login success
                         sails.log.info('Login success for user:' + username);
                         return done(null, user);
                     });
