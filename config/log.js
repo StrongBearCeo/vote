@@ -22,8 +22,8 @@ module.exports = {
   //
   log: {
     level: 'info',
-    filename: 'log.log',
-    timestamp: true
+    filePath: 'all.log',
+    timestamp:true
   }
 
 };
