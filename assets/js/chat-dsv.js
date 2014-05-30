@@ -451,27 +451,30 @@
 	    },
 
 	    actionReportSpamUser: function(user, callback){
-	    	chat.socket.request(chat.sURL + "/chat/reportSpam", {
-            username: user.username
-        }, function(data) {
-        		//console.log("Data report return:"+ JSON.stringify(data));
-            if (data) {
-            		if(user.status === 'speaking' || user.status === 'queuing'){
-            			// call function disable flash video
-        					chat.oFlash.reportspamSpeaker(user.id); 
-            		}	
-            		// Save report formUserID to toUserID in chat.arReportUser
-                chat.arReportUser.push({
+                chat.socket.request(chat.sURL + "/chat/reportSpam", {
                     formUserID: chat.oCurrentUser.id,
                     toUserID: user.id,
-                    reported: true
-                });
-                callback(true);
+                    reported: 1
             }
-            else{
-            	callback(false);
-            }
-        });
+            ,function(data) {
+        		//console.log("Data report return:"+ JSON.stringify(data));
+                if (data) {
+                        if(user.status === 'speaking' || user.status === 'queuing'){
+                            // call function disable flash video
+                                chat.oFlash.reportspamSpeaker(user.id);
+                        }
+                        // Save report formUserID to toUserID in chat.arReportUser
+                    chat.arReportUser.push({
+                        formUserID: chat.oCurrentUser.id,
+                        toUserID: user.id,
+                        reported: true
+                    });
+                    callback(true);
+                }
+                else{
+                    callback(false);
+                }
+            });
 	    },
 
 	    // Report system function

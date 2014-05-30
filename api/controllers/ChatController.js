@@ -215,6 +215,7 @@ module.exports = {
     // REVISIONS:
     //            05/30/2014 - Comments function
     // -------------------------------------------------------------------
+    //
     debateJoin: function(req, res) {
         if (!req.socket) {
             return;
@@ -245,6 +246,7 @@ module.exports = {
     // REVISIONS:
     //            05/30/2014 - Comments function
     // -------------------------------------------------------------------
+
     debateLeave: function(req, res) {
         if (!req.socket) {
             return;
@@ -274,10 +276,14 @@ module.exports = {
     // REVISIONS:
     //            05/30/2014 - Comments function
     // -------------------------------------------------------------------
+
     reportSpam: function(req, res) {
+        var fromUserid = req.param('formUserID');
+        var toUserid = req.param('toUserID');
+        var value = req.param('value');
         //Find user name be report
         Users.findOne({
-            username: req.param('username')
+            id: toUserid
         }).done(function(error, user) {
             // If have user then increase bancount + 1
             if (user) {
@@ -290,10 +296,32 @@ module.exports = {
                 }
                 // Save all data
                 user.save(function(err, user) {
-                    res.send({
-                        data: true
+                    Report.findOne({
+                        fromUserId:fromUserid,
+                        toUserId: toUserid
+                    }).done(function(error,report){
+                        if(report){
+                            console.log("User had reported from:" + fromUserid +" to user: " + toUserid);
+                            res.send({data:true});
+                        }
+                        else{
+                            Report.create({
+                                id:fromUserid + toUserid,
+                                fromUserId:fromUserid,
+                                toUserId: toUserid,
+                                value: value
+
+                            }).done(function(error,report){
+                                if(report){
+                                    sails.log.info("Report saved success:" + JSON.stringify(report));
+                                    res.send({report:report});
+                                }
+
+                            });
+                        }
                     });
-                    console.log("Report user:" + req.param('username') + "success: " + JSON.stringify(user));
+
+
                 });
             }
             if (error) {
