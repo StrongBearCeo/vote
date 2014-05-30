@@ -264,10 +264,8 @@
 	            id: user.id
 	        }));
 	        this.removeUser(user.id, true);
-	        chat.arReportUser = [];
 	        //chat.arParticipant = _.where(chat.arUsers,{status:"participant"});
 	        //chat.arParticipant = _.sortBy(chat.arParticipant, function(num){ return num.rating; });
-
 	        var nIndex = _.sortedIndex(this.arUsers, user, function(value) {
 	            var compare = "";
 	            switch (value.status) {
