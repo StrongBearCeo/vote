@@ -14,26 +14,30 @@
  *
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
-
+// ============================================================================
+// ,,,,,,,,, ,,,
+// ,,,,,,,, ,,,  Copyright:
+// ,,,     ,,,          This source is subject to the Designveloper JSC
+// ,,,    ,,,           All using or modify must have permission from us.
+// ,,,   ,,,            http://designveloper.com
+// ,,,,,,,,
+// ,,,,,,,       Name:  DSVScriptTemplate
+// Purpose:
+//          Processing all ChatUsers
+// Class:
+//          
+// Functions:
+//          
+// Called From:
+//          
+// Author:
+//          Nhien Phan(truongvieth@designveloper.com)
+// Notes:
+//         
+// Changelog:
+//          05/30/2014 - Nhien Phan- Init first revision.
+// ============================================================================
 module.exports = {
-    /*
-    create: function (req, res) {
-
-    	ChatUsers.create({id:req.user.id, username: req.user.username, rating: 30, favorites: 2}).done(function(error, user) {
-	        if (error) {
-	            res.send(500, {error: error});
-	        } else {
-	            res.send(user);
-	        }
-    	});
-
-    },
-	
-	/**
-	* Overrides for the settings in `config/controllers.js`
-	* (specific to ChatUsersController)
-	*/
 	_config: {}
-
   
 };
