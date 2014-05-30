@@ -296,6 +296,7 @@
 	        chat.updateFlashQueue();
 
 	    },
+
 	    insertAtIndex: function(user, i) {
 	        //console.log("insertAtIndex " + io.JSON.stringify(user) +", "+ i +" "+chat.arUsers.length);
 	        if (i === chat.arUsers.length - 1) {
@@ -305,11 +306,13 @@
 	        }
 	        $("#" + this.sUserListID).parent().nanoScroller();
 	    },
+
 	    removeAtIndex: function(i) {
 	        //console.log("removeAtIndex "+ i)
 	        $("#" + this.sUserListID + " div:eq(" + i + ")").remove();
 	        $("#" + this.sUserListID).parent().nanoScroller();
 	    },
+
 	    addSocketListeners: function() {
 	        chat.socket.on("userUpdated", function(data) {
 	            if (!data.hasOwnProperty("user")) {
@@ -345,6 +348,7 @@
 	        });
 
 	    },
+
 	    setCurrentUser: function(user) {
 	        this.oCurrentUser = user;
 	        this.initFlash();
@@ -412,10 +416,12 @@
 	    addMessage: function(message) {
 	        this.insertMessage(message);
 	    },
+
 	    // events
 	    onUserClick: function(evt) {
 
 	    },
+
 	    // get current time
 	    timecurrent: function() {
 	        var now = new Date();
@@ -516,7 +522,6 @@
           }
           return false;
 	    },
-
 
 	    // template insert user chat
 	    templateUser: function(user) {
@@ -650,6 +655,7 @@
 	            status: 'speaking'
 	        });
 	    },
+
 	    //vote click
 	    vote: function(toUserId, value) {
 	        chat.socket.request(chat.sURL + "/chat/vote", {
@@ -779,6 +785,7 @@
 	    onReportSpamFlash: function(user) {
 
 	    },
+
 	    getNumberBanCount: function(userID, callback) {
 	        chat.socket.request(chat.sURL + "/chat/getbancount", {
 	            id: userID
