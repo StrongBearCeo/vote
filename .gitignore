@@ -1,3 +1,5 @@
 nbproject/
 .tmp
 node_modules/
+all.log
+.idea/
