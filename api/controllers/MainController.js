@@ -237,7 +237,7 @@ var MainController = {
     //            05/30/14 - Initial release
     // -------------------------------------------------------------------
     logout: function(req, res) {
-        sails.log.info("Logout success for user:" + req.session.password.user);
+        //sails.log.info("Logout success for user:" + req.session.password.user);
         req.logout();
         return res.redirect("/");
     },
