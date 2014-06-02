@@ -1,44 +1,26 @@
-/**
- * ChatController
- *
- * @module      :: Controller
- * @description  :: A set of functions called `actions`.
- *
- *                 Actions contain code telling Sails how to respond to a certain type of request.
- *                 (i.e. do stuff, then send some JSON, show an HTML page, or redirect to another URL)
- *
- *                 You can configure the blueprint URLs which trigger these actions (`config/controllers.js`)
- *                 and/or override them with custom routes (`config/routes.js`)
- *
- *                 NOTE: The code you write here supports both HTTP and Socket.io automatically.
- *
- * @docs        :: http://sailsjs.org/#!documentation/controllers
- */
+// ============================================================================
+// Copyright:
+//          This source is subject to the Designveloper JSC (designveloper.com)
+//          All using or modify must have permission from us.
+//
+// Name:    ChatController
+// Purpose:
+//          Processing all chat request
+// Class:
+//          ChatController
+// Functions:
+//          index ; join ; message ; debateJoin ; debateLeave ; reportSpam ; vote
+//  				getbancount ; favorite
+// Called From:
+//          (script) Another controller and socket
+// Author:
+//          Nhien Phan (nhienpv@designveloper.com)
+// Notes:
+//          Additional information [long version]
+// Changelog:
+//          05/28/2014 - Nhien Phan - Init first revision.
+// ============================================================================
 
-  //
-  // ============================================================================
-  // Copyright:
-  //          This source is subject to the Designveloper JSC (designveloper.com)
-  //          All using or modify must have permission from us.
-  //
-  // Name:    ChatController
-  // Purpose:
-  //          Processing all chat request
-  // Class:
-  //          ChatController
-  // Functions:
-  //          index ; join ; message ; debateJoin ; debateLeave ; reportSpam ; vote
-  //  				getbancount ; favorite
-  // Called From:
-  //          (script) Another controller and socket
-  // Author:
-  //          Nhien Phan (nhienpv@designveloper.com)
-  // Notes:
-  //          Additional information [long version]
-  // Changelog:
-  //          05/28/2014 - Nhien Phan - Init first revision.
-  // ============================================================================
-  //
 
 module.exports = {
 
@@ -103,7 +85,7 @@ module.exports = {
     if (!req.socket || Object.getOwnPropertyNames(req.session.passport).length === 0) {
       return;
     } else {
-      sails.log.info("session User info: " + req.session.passport.user);
+      sails.log.info("session User info: " + JSON.stringify(req.session.passport.user));
       ChatUsers.create({
         id: req.session.passport.user.id,
         username: req.session.passport.user.username,
@@ -337,7 +319,9 @@ module.exports = {
           user.status = "blocked";
         }
         // Save all data
-        user.save(function (err, user) {});
+        user.save(function (err, user) {
+          sails.log.info("Save success for user:"+JSON.stringify(user));
+        });
       }
       if (error) {
         sails.log.info("Error report to user:" + username + " - " + error);
