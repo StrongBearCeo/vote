@@ -458,12 +458,6 @@ var chat = {
       }
       , function (data) {
         if (data) {
-          if (user.status === 'speaking' || user.status === 'queuing') {
-            // call function disable flash video
-            if(chat.oFlash){
-              chat.oFlash.reportspamSpeaker(user.id.toString());
-            }
-          }
           //console.log("Data report return:"+ JSON.stringify(data));
           callback(data.report);
         }//end if
@@ -486,6 +480,12 @@ var chat = {
         console.log("Alert message report sucess to client.");
         message.text = chat.ALERT_REPORT_SUCCESS + " " + user.username;
         chat.insertMessage(message);
+        if (user.status === 'speaking' || user.status === 'queuing') {
+          // call function disable flash video
+          if(chat.oFlash){
+            chat.oFlash.reportspamSpeaker(user.id.toString());
+          }
+        }
         return;
       }
       else{
