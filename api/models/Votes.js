@@ -3,7 +3,6 @@
 // PARAMETERS:
 // METHODS:
 // PURPOSE:
-//          Save Votes for User in 15s will calculation and remote all vote rows
 // REVISIONS:
 //            6/2/14 - nhienphan - Initial revision
 // -------------------------------------------------------------------
