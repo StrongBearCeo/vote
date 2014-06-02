@@ -1,18 +1,18 @@
-/**
- * Votes
- *
- * @module      :: Model
- * @description :: A short summary of how this model works and what it represents.
- * @docs		:: http://sailsjs.org/#!documentation/models
- */
+// -------------------------------------------------------------------
+// Votes Models( parameter1 ; parameter2 )
+// PARAMETERS:
+// METHODS:
+// PURPOSE:
+//          Save Votes for User in 15s will calculation and remote all vote rows
+// REVISIONS:
+//            6/2/14 - nhienphan - Initial revision
+// -------------------------------------------------------------------
 
 module.exports = {
 
 	autoUpdatedAt: false,
 	//adapter: "memory",
-
 	attributes: {
-		
 		id:{
 			type: "integer",
 			primaryKey: true
@@ -34,7 +34,6 @@ module.exports = {
 					cb(error);
 				}else{
 					self.value = _.reduce(votes, function(r, v){return r + v.value;}, 0);
-
 					self.save(function(error){
 						if(error){
 							cb(error);
@@ -43,10 +42,7 @@ module.exports = {
 						}
 					});
 				}
-
 			})
-		},
-
+		}
 	}
-
 };
