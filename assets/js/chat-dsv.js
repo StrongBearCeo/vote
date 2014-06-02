@@ -21,7 +21,7 @@
 // Changelog:
 //          05/28/2014 - Nhien Phan - Init first revision.
 // ============================================================================
-//
+
 _.findIndex = function (obj, iterator, context) {
   var result = -1;
   _.any(obj, function (value, index, list) {
@@ -86,11 +86,11 @@ var chat = {
   // Context menu
   oContextMenu: {
     selector: '.contextmenu, .messageUsername',
-
     build: function (trigger, e) {
       var user = _.findWhere(chat.arUsers, {
         id: trigger.data('id')
       });
+
       var currentspeaking = user.status;
       var enableAction = false;
       var ebableParticipant = false;
@@ -102,14 +102,12 @@ var chat = {
       }
       return {
         callback: function (key, options) {
-
         },
         events: {
           show: function (opt) {
 
           }
         },
-
         items: {
           "name": {
             name: user.username,
@@ -121,7 +119,8 @@ var chat = {
             name: "Rating " + user.rating,
             disabled: true
           },
-          "sep3": "---------",
+
+          "sep2": "---------",
           "Vote Up": {
             name: "Vote Up",
             className: user.status,
@@ -211,6 +210,7 @@ var chat = {
       }
     });
   },
+
   // onChatConnected
   onChatConnected: function (data) {
 
@@ -231,6 +231,7 @@ var chat = {
       chat.sendMessage();
     });
   },
+
   // calls to flash
   initFlash: function () {
     if (this.bFlashLoaded && this.oCurrentUser && !this.bFlashInit) {
@@ -239,6 +240,7 @@ var chat = {
       this.oFlash.onConnectedToChat(this.oCurrentUser);
     }
   },
+
   //4 update user
   updateUser: function (user) {
     //if user current (just login) // User each on Userlist on Room
@@ -293,7 +295,6 @@ var chat = {
     chat.arUsers.splice(nIndex, 0, user);
     this.insertAtIndex(user, nIndex);
     chat.updateFlashQueue();
-
   },
 
   insertAtIndex: function (user, i) {
@@ -320,7 +321,6 @@ var chat = {
       //reset action vote and report for all user
       chat.flagVoteUp = false;
       chat.flagVoteDown = false;
-
       chat.updateUser(data.user);
     });
 
@@ -328,7 +328,6 @@ var chat = {
       if (!data.hasOwnProperty("userId")) {
         return;
       }
-
       chat.removeUser(data.userId);
     });
 
@@ -352,6 +351,7 @@ var chat = {
     this.oCurrentUser = user;
     this.initFlash();
   },
+
   // updateFlashQueue
   updateFlashQueue: function () {
     if (this.bFlashConnected) {
@@ -450,20 +450,21 @@ var chat = {
   },
 
   actionReportSpamUser: function (user, callback) {
-    console.log("Start request report spam");
+    //console.log("Start request report spam");
     chat.socket.request(chat.sURL + "/chat/reportSpam", {
         formUserID: chat.oCurrentUser.id,
         toUserID: user.id,
         reported: 1
       }
       , function (data) {
-        console.log("Data report return before:"+ JSON.stringify(data));
         if (data) {
           if (user.status === 'speaking' || user.status === 'queuing') {
             // call function disable flash video
-            //chat.oFlash.reportspamSpeaker(user.id);
+            if(chat.oFlash){
+              chat.oFlash.reportspamSpeaker(user.id.toString());
+            }
           }
-          console.log("Data report return:"+ JSON.stringify(data));
+          //console.log("Data report return:"+ JSON.stringify(data));
           callback(data.report);
         }//end if
       });
@@ -471,7 +472,7 @@ var chat = {
 
   // Report system function
   reportSpamUser: function (user) {
-    console.log("User:" + JSON.stringify(user));
+    //console.log("User:" + JSON.stringify(user));
     // Template message
     var message = {
       "fromUserId": chat.oCurrentUser.id,
@@ -480,7 +481,7 @@ var chat = {
       "fromUsername": chat.oCurrentUser.username
     };
     chat.actionReportSpamUser(user, function (success) {
-      console.log("Calback action report:"+ success);
+      //console.log("Calback action report:"+ success);
       if(success){
         console.log("Alert message report sucess to client.");
         message.text = chat.ALERT_REPORT_SUCCESS + " " + user.username;
@@ -488,33 +489,12 @@ var chat = {
         return;
       }
       else{
-        console.log("Alert message report fail to client.");
+        //console.log("Alert message report fail to client.");
         message.text = chat.ALERT_HAD_REPORT + " " + user.username;
         chat.insertMessage(message);
         return;
       }
     });
-
-    // check if had report false
-//    if (chat.checkedReportToUser(chat.oCurrentUser.id, user.id)) {
-//      message.text = chat.ALERT_HAD_REPORT + " " + user.username;
-//      chat.insertMessage(message);
-//      return;
-//    } //end if
-//    else {
-//      chat.actionReportSpamUser(user, function (success) {
-//        if (success) {
-//          message.text = chat.ALERT_REPORT_SUCCESS + " " + user.username;
-//          chat.insertMessage(message);
-//          return;
-//        }
-//        else {
-//          message.text = "SYSTEM: Error report";
-//          chat.insertMessage(message);
-//          return;
-//        }
-//      });
-//    }
   },//end function reportSpamUser
 
   // Get true or false when user reported to another user on userlist
@@ -765,7 +745,6 @@ var chat = {
               chat.reportSpamUser(chat.getUserByUserName(usernameReport));
               $("#inputMessage").val("");
               return;
-              break;
             }
 
           }
@@ -796,13 +775,21 @@ var chat = {
 
   },
 
-  getNumberBanCount: function (userID, callback) {
+  getNumberBanCount: function (userID,callback) {
+    //console.log("Bancount of "+ userID);
     chat.socket.request(chat.sURL + "/chat/getbancount", {
       id: userID
-    }, function (userban) {
-      callback(userban);
+    }, function (data) {
+      //console.log("Return number bancount:" + data.userban.bancount);
+      callback(data.userban.bancount);
     });
+    return 0;
   },
+
+  //Check accept action vote for user
+  checkeActionVote: function (){
+
+  }
 
 } //end chat class
 
