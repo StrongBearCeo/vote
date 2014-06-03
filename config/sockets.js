@@ -43,12 +43,28 @@ module.exports.sockets = {
   DEFAULT_RATING: 0,
   DEFAULT_FAVORITE: 0,
 
-  //Set up time down -1s running cut down timer of speaking user
+  // -------------------------------------------------------------------
+  // onInit()
+  // PARAMETERS:
+  // RETURNS:
+  // PURPOSE:
+  //            Call function onChatTimer cut down -1s
+  // REVISIONS:
+  //            6/3/14 - nhienphan - Initial revision
+  // -------------------------------------------------------------------
   onInit: function () {
     sails.config.sockets.nTimerID = setInterval(sails.config.sockets.onChatTimer, 1000);
   },
 
-  //Manage speaking user cut down time -1
+  // -------------------------------------------------------------------
+  // onChatTimer()
+  // PARAMETERS:
+  // RETURNS:
+  // PURPOSE:
+  //            call function manageSpeaker for cut down time 1
+  // REVISIONS:
+  //            6/3/14 - nhienphan - Initial revision
+  // -------------------------------------------------------------------
   onChatTimer: function () {
     sails.config.sockets.manageSpeaker(-1);
   },
@@ -64,7 +80,20 @@ module.exports.sockets = {
     //this.onTest();
   },
 
-  //After login / disconect call: onJoinChat
+  // -------------------------------------------------------------------
+  // onJoinChat ( sesstion ; socket; user )
+  // PARAMETERS:
+  //            @sesstion (object) session of user login chat
+  //            @socket (object) socket client of user login chat
+  //            @user (object) user request join chat
+  // RETURNS:
+  //
+  // PURPOSE:
+  //            join user request to chat room, then update position and
+  //            update chat flash
+  // REVISIONS:
+  //            6/3/14 - nhienphan - Initial revision
+  // -------------------------------------------------------------------
   onJoinChat: function (session, socket, user) {
     socket.join('chatroom');
     //listen disconnect from client
@@ -77,7 +106,17 @@ module.exports.sockets = {
     sails.config.sockets.onUserUpdated(user);
   },
 
-  //leave chat remove user form ChatUsers and emit to client "userRemoved"
+  // -------------------------------------------------------------------
+  // onLeaveChat ( userId)
+  // PARAMETERS:
+  //            @userId: Id of user leavechat
+  // RETURNS:
+  // PURPOSE:
+  //            leave chat remove user form ChatUsers
+  //            and emit to client "userRemoved"
+  // REVISIONS:
+  //            6/3/14 - nhienphan - Initial revision
+  // -------------------------------------------------------------------
   onLeaveChat: function (userId) {
     ChatUsers.findOne({id: userId}).done(function (error, user) {
       if (user) {
@@ -89,10 +128,20 @@ module.exports.sockets = {
     });
   },
 
-  // config status for user joindebate to chat
-  // if have user: viewing < 2 then join to viewing
-  // if have user: queuing < 4 then join to queuing
-  // if have user: speaking = 0 then join to speaking
+  // -------------------------------------------------------------------
+  // changeStatusUserDebate(user)
+  // PARAMETERS:
+  //            @user(object): user change status
+  // RETURNS:
+  //            (bool) True or False based on proper
+  // PURPOSE:
+  //          config status for user joindebate to chat
+  //          if have user: viewing < 2 then join to viewing
+  //          if have user: queuing < 4 then join to queuing
+  //          if have user: speaking = 0 then join to speaking
+  // REVISIONS:
+  //            6/3/14 - nhienphan - Initial revision
+  // -------------------------------------------------------------------
   changeStatusUserDebate: function (user) {
     ChatUsers.find({status: "viewing"}).done(function (error, userchats) {
       if (userchats.length <= 1) {//limit for 2 user is viewing 0 and 1
@@ -128,7 +177,17 @@ module.exports.sockets = {
     });
   },
 
-  // when user viewing press onDebate change viewing --> queuing
+  // -------------------------------------------------------------------
+  // customFunctionName ( session ; socket )
+  // PARAMETERS:
+  //            @session (object): session of user
+  //            @socket (object): socket of client user
+  // RETURNS:
+  // PURPOSE:
+  //            Change status user participant to queuing system
+  // REVISIONS:
+  //            6/3/14 - nhienphan - Initial revision
+  // -------------------------------------------------------------------
   onDebateJoin: function (session, socket) {
     ChatUsers.findOne(
       {
@@ -141,12 +200,34 @@ module.exports.sockets = {
       })
   },
 
-  // Emit event to client update user list
+  // -------------------------------------------------------------------
+  // onUserUpdated:( user )
+  // PARAMETERS:
+  //            @user (object): user update position and flash queuing system
+  // RETURNS:
+  // PURPOSE:
+  //            Emit event to client change position and queuing system
+  // REVISIONS:
+  //            6/3/14 - nhienphan - Initial revision
+  // -------------------------------------------------------------------
+
   onUserUpdated: function (user) {
     sails.io.sockets.in('chatroom').emit('userUpdated', {user: user});
   },
 
-  //if speaker onDebateLeave change: seapking or queing --> participant
+  // -------------------------------------------------------------------
+  // onDebateLeave: ( parameter1 ; parameter2 )
+  // PARAMETERS:
+  //            @session(object): session of client conntect
+  //            @socket (object): socket of user connect to server
+  // RETURNS:
+  // PURPOSE:
+  //            if speaker onDebateLeave change: s
+  //              eapking or queing --> participant
+  // REVISIONS:
+  //            6/3/14 - nhienphan - Initial revision
+  // -------------------------------------------------------------------
+
   onDebateLeave: function (session, socket) {
     ChatUsers.findOne({id: session.passport.user.id}).done(function (error, user) {
       if (user && user.status != "participant") {
@@ -159,7 +240,16 @@ module.exports.sockets = {
     });
   },
 
-  // Clear all vote after calcula 15s
+  // -------------------------------------------------------------------
+  // clearVoting:()
+  // PARAMETERS:
+  // RETURNS:
+  // PURPOSE:
+  //            Clear all vote after calcula 15s
+  // REVISIONS:
+  //            6/3/14 - nhienphan - Initial revision
+  // -------------------------------------------------------------------
+
   clearVoting: function () {
     Votes.destroy({}).done(function (err) {
       if (err) {
@@ -169,9 +259,22 @@ module.exports.sockets = {
     });
   },
 
-  // return user have number bancount > REPORT_SPAM_OUT
-  // if >= number spam out then return user
-  // els return false if not have user
+
+  // -------------------------------------------------------------------
+  // getReportSpam ( speaker; callback)
+  // PARAMETERS:
+  //            @callback function: when return done
+  //            @speaker: user check number ban
+  // RETURNS:
+  //            (bool) False if have not user ban
+  //            (object: user) if have user ban
+  // PURPOSE:
+  //            return user have number bancount > REPORT_SPAM_OUT
+  //            if >= number spam out then return user
+  //              els return false if not have user
+  //              REVISIONS:
+  //            6/3/14 - nhienphan - Initial revision
+  // -------------------------------------------------------------------
   getReportSpam: function (speaker, callback) {
     Users.findOne({id: speaker.id}).done(function (error, user_banned) {
       if (user_banned) {
@@ -187,13 +290,23 @@ module.exports.sockets = {
   getCurrentViewingUser: function (callback) {
 
   },
-  // When speaking user end time out 30s or vote down 15s
-  // If have user viewing
-  //    Change user speaking to viewing
-  //    Change user queuing to speaking
-  //    Change user viewing to queuing
-  // else
-  //    Prevent user status to queuing
+  // -------------------------------------------------------------------
+  // nextQueuingSystem( speaker )
+  // PARAMETERS:
+  //            @speaker: speaker is next queuing
+  // RETURNS:
+  // PURPOSE:
+  //            // When speaking user end time out 30s or vote down 15s
+  //            If have user viewing
+  //              Change user speaking to viewing
+  //              Change user queuing to speaking
+  //              Change user viewing to queuing
+  //            else
+  //            Prevent user status to queuing
+  // REVISIONS:
+  //            6/3/14 - nhienphan - Initial revision
+  // -------------------------------------------------------------------
+
   nextQueuingSystem: function (speaker) {
     ChatUsers.findOne({status: "viewing"}).done(function (err, userFirst) {
       if (userFirst) {
@@ -228,7 +341,20 @@ module.exports.sockets = {
     });
   },
 
-  // Time out 1s will action this function
+  // -------------------------------------------------------------------
+  // manageSpeaker( nTimeDelta)
+  // PARAMETERS:
+  //            @nTimeDelta(int); Time down -1
+  // RETURNS:
+  // PURPOSE:
+  //            Check realtime if
+  //              Have user ban by report: leave chat this user and banned
+  //              Calculating vote after 15s speaking of user
+  //              Change queuing system speaking user if total talk time over 2 minute
+  //              Set Queuing System of all userchat
+  // REVISIONS:
+  //            6/3/14 - nhienphan - Initial revision
+  // -------------------------------------------------------------------
   manageSpeaker: function (nTimeDelta) {
     // Check if user be bancount then leave this user
     // Callback function getReportSpam of list ChatUsers
@@ -329,15 +455,11 @@ module.exports.sockets = {
     });//end find user status speaking
   },
   // -------------------------------------------------------------------
-  // customFunctionName ( parameter1 ; parameter2 )
+  // nextQueuing(s)
   // PARAMETERS:
-  //            @parameter1 (text) Input string
-  //            @parameter2 (num) Numerical value
   // RETURNS:
-  //            (bool) True or False based on proper
   // PURPOSE:
-  //            Use this function in order to accomplish
-  //            most wonderful things possible!
+  //            Set user have status viewing to queuing
   // REVISIONS:
   //            6/3/14 - nhienphan - Initial revision
   // -------------------------------------------------------------------
@@ -346,6 +468,7 @@ module.exports.sockets = {
       //if have users queuing
       users.status = "queuing";
       users.save(function (err, speakingUser) {
+        sails.log.info("User has just change status to queuing:"+ JSON.stringify(speakingUser));
         sails.config.sockets.onUserUpdated(speakingUser);
       });
       //end if
