@@ -29,8 +29,7 @@ module.exports = function (grunt) {
    */
 
   var cssFilesToInject = [
-    'linker/**/*.css',
-    'assets/**/*.css'
+    'styles/*.css'
   ];
 
 
@@ -45,25 +44,22 @@ module.exports = function (grunt) {
   var jsFilesToInject = [
 
     // Below, as a demonstration, you'll see the built-in dependencies
-    // linked in the proper order order
 
+    // Dependencies like sails.io.js, jQuery, or Angular
+    // are brought in here
+    'js/jquery*.js',
+    'js/jquery.*.js',
     // Bring in the socket.io client
-    'linker/js/socket.io.js',
-
+    'js/socket.io.js',
+    'js/sails.io.js',
     // then beef it up with some convenience logic for talking to Sails.js
-    'linker/js/sails.io.js',
-
     // A simpler boilerplate library for getting you up and running w/ an
     // automatic listener for incoming messages from Socket.io.
-    'linker/js/app.js',
-
-    // *->    put other dependencies here   <-*
-    // DSV Code Javascript
-    'js/jquery.tooltipster.js',
-
+    'js/app.js',
+    'js/underscore*.js',
     // All of the rest of your app scripts imported here
-    'linker/**/*.js',
-    'assets/**/*.js'
+    'js/*.js',
+    'js/chat-dsv.js',
   ];
 
 
@@ -78,7 +74,6 @@ module.exports = function (grunt) {
    */
 
   var templateFilesToInject = [
-    'linker/**/*.html'
   ];
 
 
@@ -264,9 +259,7 @@ module.exports = function (grunt) {
           appRoot: '.tmp/public'
         },
         files: {
-          '.tmp/public/**/*.html': jsFilesToInject,
-          'views/**/*.html': jsFilesToInject,
-          'views/**/*.ejs': jsFilesToInject
+          'views/layout.ejs': jsFilesToInject
         }
       },
 
@@ -294,9 +287,7 @@ module.exports = function (grunt) {
 
         // cssFilesToInject defined up top
         files: {
-          '.tmp/public/**/*.html': cssFilesToInject,
-          'views/**/*.html': cssFilesToInject,
-          'views/**/*.ejs': cssFilesToInject
+          'views/layout.ejs': cssFilesToInject
         }
       },
 
@@ -401,7 +392,6 @@ module.exports = function (grunt) {
 
     watch: {
       api: {
-
         // API files to watch:
         files: ['api/**/*']
       },
@@ -411,7 +401,7 @@ module.exports = function (grunt) {
         files: ['assets/**/*'],
 
         // When assets are changed:
-        tasks: ['compileAssets', 'linkAssets','default','build','prod']
+        tasks: ['compileAssets', 'linkAssets','default']
       }
     }
   });
