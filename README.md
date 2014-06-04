@@ -1,16 +1,10 @@
 # Summary
-----
-
 git: https://github.com/vhmh2005/vote
 
 # Version
-----
-
 1.0
 
 # Stack
-----
-
 * Environment: NodeJs (on linux)
 * Framework: Sailsjs
 * Authentication: passport.js
@@ -21,8 +15,6 @@ git: https://github.com/vhmh2005/vote
 * Stream Language: Flash Actionscript
 
 # How to use
-----
-
 ```sh
 $ git clone https://github.com/vhmh2005/vote.git
 $ git checkout <branch>
@@ -32,12 +24,9 @@ $ sails lift --port ????
 ```
 
 # Overview
-----
-
 The vote is system for user cant chat and view webcam. 
 
 # Functionality
-----
 
 #### Voting
 
