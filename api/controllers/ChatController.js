@@ -90,7 +90,7 @@ module.exports = {
         id: req.session.passport.user.id,
         username: req.session.passport.user.username,
         rating: req.session.passport.user.rating,
-        favorites: sails.config.sockets.DEFAULT_FAVORITE
+        favorites: sails.controllers.main.DEFAULT_FAVORITE
       }).done(function (error, user) {
         if (error) {
           sails.log.info("Error join chat:" + error);
@@ -98,8 +98,9 @@ module.exports = {
             error: error
           });
         } else {
+
           sails.log.info("Join chat success for user:" + user.username);
-          sails.config.sockets.onJoinChat(req.session, req.socket, user);
+          sails.controllers.main.onJoinChat(req.session, req.socket, user);
           ChatUsers.find().done(function (error, users) {
             if (error) {
               res.send({
@@ -168,8 +169,8 @@ module.exports = {
             } else {
               msg.toUsername = "ALL";
             }
-            // Call function onNewMessage sails.config.sockets.js
-            sails.config.sockets.onNewMessage(req.session, req.socket, msg);
+            // Call function onNewMessage sails.controllers.main.js
+            sails.controllers.main.onNewMessage(req.session, req.socket, msg);
             sails.log.info("Message chat from:" + JSON.stringify(msg));
             res.send(200);
           })
@@ -206,7 +207,7 @@ module.exports = {
     res.send({
       bSuccess: true
     });
-    sails.config.sockets.onDebateJoin(req.session, req.socket);
+    sails.controllers.main.onDebateJoin(req.session, req.socket);
 
   },
 
@@ -234,7 +235,7 @@ module.exports = {
       return;
     }
 
-    sails.config.sockets.onDebateLeave(req.session, req.socket);
+    sails.controllers.main.onDebateLeave(req.session, req.socket);
     res.send({
       bSuccess: true
     });
@@ -453,7 +454,7 @@ module.exports = {
               }).done(function (error, user) {
                 if (user) {
                   user.loadFavorites(function (error) {
-                    sails.config.sockets.onUserUpdated(user);
+                    sails.controllers.main.onUserUpdated(user);
                   });
                 }
               })
@@ -477,7 +478,7 @@ module.exports = {
               }).done(function (error, user) {
                 if (user) {
                   user.loadFavorites(function (error) {
-                    sails.config.sockets.onUserUpdated(user);
+                    sails.controllers.main.onUserUpdated(user);
                   });
                 }
               })
