@@ -21,7 +21,6 @@
 //          05/28/2014 - Nhien Phan - Init first revision.
 // ============================================================================
 
-
 module.exports = {
 
   // -------------------------------------------------------------------
@@ -305,8 +304,7 @@ module.exports = {
   //            6/2/14 - nhienphan - Initial revision
   // -------------------------------------------------------------------
 
-  updateNumberBanCount : function(userid)
-  {
+  updateNumberBanCount: function (userid) {
     Users.findOne({
       id: userid
     }).done(function (error, user) {
@@ -321,7 +319,7 @@ module.exports = {
         }
         // Save all data
         user.save(function (err, user) {
-          sails.log.info("Save success for user:"+JSON.stringify(user));
+          sails.log.info("Save success for user:" + JSON.stringify(user));
         });
       }
       if (error) {
