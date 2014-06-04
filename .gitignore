@@ -3,3 +3,5 @@ nbproject/
 node_modules/
 all.log
 .idea/
+WEB-INF
+META-INF
