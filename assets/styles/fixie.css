@@ -2,8 +2,8 @@
 IE8
 */
 
-/*fix ie*/
-.fix-ie-td{
+/*fix ie lt IE 9 */
+.lt-ie9 .fix-ie-td{
 	text-align:center;
 	border-left:1px solid #095ea5;
 	border-right:2px solid #095ea5;
@@ -13,15 +13,15 @@ IE8
 	width:18%;
 
 }
-.fix-ie-last-child-td{
+.lt-ie9 .fix-ie-last-child-td{
 	height:211px;
 }
-.fix-ie-div{
+.lt-ie9 .fix-ie-div{
 	line-height:41px !important;
 	border-bottom:1px solid #095ea5;
 	padding:0px 20px;
 }
-.container-comment .scroll-bar-comment{
+.lt-ie9 .container-comment .scroll-bar-comment{
 	overflow-y:scroll;
 	height:263px!important;
 }
