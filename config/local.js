@@ -67,12 +67,7 @@ passport.use(new LocalStrategy(
                     Users.findOne({
                         username: username
                     }, function(err, user) {
-                        if (user.status == "blocked") {
-                            sails.log.info('Account locked:' + username);
-                            return done(null, false, {
-                                sError: 'Account ' + username + ' Blocked.'
-                            });
-                        }
+
                         if (err) {
                             return done(null, false, {
                                 sError: err
@@ -90,6 +85,15 @@ passport.use(new LocalStrategy(
                                 sError: 'Incorrect password.'
                             });
                         }
+                        if(user){
+                          if (user.status == "blocked") {
+                            sails.log.info('Account locked:' + username);
+                            return done(null, false, {
+                              sError: 'Account ' + username + ' Blocked.'
+                            });
+                          }
+                        }
+
                         // Return user if login success
                         sails.log.info('Login success for user:' + username);
                         return done(null, user);
