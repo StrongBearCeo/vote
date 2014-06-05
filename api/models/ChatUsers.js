@@ -24,7 +24,7 @@
 module.exports = {
   // All properties fields of model
   autoPK: false,
-  adapter: "disk",
+  adapter: "memory",
   attributes: {
 
     id: {
